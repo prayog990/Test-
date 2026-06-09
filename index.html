@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BuildReel AI - Cinematic Construction Reels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0B0C;
+            color: #E4E4E7;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cinematic-bg {
+            background: radial-gradient(circle at top, #1C1C1E 0%, #0B0B0C 100%);
+        }
+        .premium-card {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 179, 0, 0.1);
+        }
+        .amber-gradient-text {
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .amber-btn {
+            background: linear-gradient(135deg, #FFB300 0%, #FF8F00 100%);
+            box-shadow: 0 4px 20px rgba(255, 143, 0, 0.3);
+        }
+        .amber-btn:disabled {
+            background: #171717 !important;
+            box-shadow: none !important;
+            color: #737373 !important;
+            border: 1px solid #262626 !important;
+        }
+        /* Reel Engine Animations */
+        @keyframes slow_zoom_in {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+        @keyframes slow_zoom_out {
+            0% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        @keyframes pan_left {
+            0% { transform: scale(1.1) translateX(5%); }
+            100% { transform: scale(1.1) translateX(-5%); }
+        }
+        @keyframes pan_right {
+            0% { transform: scale(1.1) translateX(-5%); }
+            100% { transform: scale(1.1) translateX(5%); }
+        }
+        @keyframes cinematic_zoom {
+            0% { transform: scale(1.02); filter: brightness(0.8); }
+            100% { transform: scale(1.12); filter: brightness(1.1); }
+        }
+        @keyframes dramatic_reveal {
+            0% { transform: scale(1.2) translateY(5%); filter: blur(5px); }
+            100% { transform: scale(1) translateY(0); filter: blur(0); }
+        }
+        .effect-slow_zoom_in { animation: slow_zoom_in var(--dur) linear forwards; }
+        .effect-slow_zoom_out { animation: slow_zoom_out var(--dur) linear forwards; }
+        .effect-pan_left { animation: pan_left var(--dur) linear forwards; }
+        .effect-pan_right { animation: pan_right var(--dur) linear forwards; }
+        .effect-cinematic_zoom { animation: cinematic_zoom var(--dur) ease-out forwards; }
+        .effect-dramatic_reveal { animation: dramatic_reveal var(--dur) cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+        
+        /* Smooth transitions */
+        .slide-fade { transition: opacity 0.8s ease-in-out; z-index: 1; }
+        .slide-fade.opacity-100 { z-index: 5; } /* Ensures active slide is on top during crossfade */
+        
+        /* Custom Elegant Scrollbars */
+        .no-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .no-scrollbar::-webkit-scrollbar-track { background: rgba(28, 28, 30, 0.3); border-radius: 4px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 179, 0, 0.3); border-radius: 4px; }
+        .no-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 179, 0, 0.8); }
+        .no-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(255, 179, 0, 0.3) rgba(28, 28, 30, 0.3); }
+
+        /* Focus Glow */
+        .focus-glow:focus, .focus-glow:focus-within {
+            box-shadow: 0 0 0 2px rgba(255, 179, 0, 0.25);
+            border-color: rgba(255, 179, 0, 0.6) !important;
+            outline: none;
+        }
+
+        /* Video Sync & Fullscreen Controls */
+        .is-paused img { animation-play-state: paused !important; }
+        #reel-player-window:fullscreen #fs-exit-btn { display: flex !important; }
+        #reel-player-window:-webkit-full-screen #fs-exit-btn { display: flex !important; }
+    </style>
+</head>
+<body class="cinematic-bg h-[100dvh] flex flex-col overflow-hidden antialiased selection:bg-amber-500/30">
+
+    <div id="screen-splash" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0C] transition-opacity duration-700">
+        <div class="text-center space-y-4 px-6 animate-pulse">
+            <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-amber-500/20">
+                <svg class="w-10 h-10 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </div>
+            <h1 class="text-4xl font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></h1>
+            <p class="text-neutral-400 text-sm tracking-wide max-w-xs mx-auto">Turn Construction Progress Into Cinematic Reels</p>
+            <div class="pt-8">
+                <div class="w-12 h-1 bg-neutral-800 mx-auto rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-amber-500 animate-[pan_left_1s_infinite] origin-left"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-1 w-full max-w-md mx-auto px-4 pt-2 pb-20 hidden flex flex-col min-h-0" id="app-content">
+        
+        <header class="flex items-center justify-between py-4 border-b border-neutral-800/60 relative">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-neutral-900 font-bold text-sm">B</div>
+                <span class="text-lg font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></span>
+            </div>
+            <span id="step-indicator" class="text-xs font-semibold bg-neutral-900 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20 shadow-[0_0_10px_rgba(255,179,0,0.1)]">Step 1/4</span>
+            <!-- Header Progress Line -->
+            <div class="absolute bottom-0 left-0 h-[2px] bg-amber-500 transition-all duration-500 shadow-[0_0_8px_rgba(255,179,0,0.6)]" id="header-progress" style="width: 25%;"></div>
+        </header>
+        <div class="mb-4"></div> <!-- Spacer -->
+
+        <div id="screen-home" class="flex-1 flex flex-col min-h-0 space-y-4">
+            <div class="text-center py-1 flex-shrink-0">
+                <h2 class="text-xl font-bold text-white">Step 1: Get AI Plan</h2>
+                <p class="text-neutral-400 text-xs mt-1">Copy prompt & give it to ChatGPT/Gemini with your photos</p>
+            </div>
+
+            <div class="flex-1 flex flex-col min-h-0 space-y-2">
+                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400 px-1 flex-shrink-0">AI Prompt (Copy This)</label>
+                <div class="flex-1 premium-card rounded-xl p-4 text-[11px] font-mono text-neutral-300 overflow-y-auto border border-neutral-800 leading-normal no-scrollbar" id="prompt-box">
+                </div>
+            </div>
+
+            <button onclick="copyPrompt()" class="w-full py-3 bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all active:scale-[0.98] flex-shrink-0">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                <span id="copy-btn-text">Copy Prompt to Clipboard</span>
+            </button>
+        </div>
+
+        <div id="screen-prompt" class="hidden"></div> <!-- Deprecated Screen -->
+
+        <div id="screen-paste" class="flex-1 flex flex-col min-h-0 space-y-3 hidden">
+            <div class="text-center py-1 flex-shrink-0">
+                <h2 class="text-xl font-bold text-white">Step 2: Upload & Paste</h2>
+                <p class="text-neutral-400 text-xs mt-1">Upload the SAME photos and paste AI's JSON</p>
+            </div>
+
+            <label class="flex-shrink-0 premium-card border-dashed border-2 border-amber-500/20 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-amber-500/40 transition-all text-center block">
+                <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
+                <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </div>
+                <span class="text-xs font-medium text-neutral-200" id="upload-status-text">Choose Photos (0 Selected)</span>
+            </label>
+
+            <!-- Adjust Photo Sequence Accordion -->
+            <div id="upload-list-container" class="hidden flex-shrink-0 premium-card rounded-xl border border-neutral-800 overflow-hidden flex flex-col">
+                <button onclick="toggleAccordion('sequence-accordion')" class="w-full flex items-center justify-between p-3 bg-neutral-900/40 hover:bg-neutral-800/60 transition-colors">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-500">Adjust Photo Sequence</span>
+                    <svg id="sequence-accordion-icon" class="w-4 h-4 text-neutral-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="sequence-accordion-content" class="hidden flex-col max-h-40 overflow-y-auto no-scrollbar p-2 border-t border-neutral-800">
+                    <div id="photo-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <textarea id="json-input" class="flex-1 min-h-0 w-full premium-card rounded-xl p-4 font-mono text-[11px] text-amber-400 focus-glow border border-neutral-800 placeholder-neutral-600 transition-all duration-300 no-scrollbar resize-none" placeholder='Paste JSON from AI here...'></textarea>
+
+            <div id="validation-box" class="flex-shrink-0 premium-card rounded-xl p-3 border border-neutral-800 text-[11px] space-y-1 hidden">
+                <div id="v-json" class="flex items-center gap-2 text-neutral-500"><span>●</span> Validating JSON format...</div>
+                <div id="v-photos" class="flex items-center gap-2 text-neutral-500"><span>●</span> Flattening & Mapping Names...</div>
+                <div id="v-effects" class="flex items-center gap-2 text-neutral-500"><span>●</span> Assigning Auto-Effects...</div>
+            </div>
+            
+            <div id="error-feedback" class="flex-shrink-0 text-red-400 text-[10px] font-medium px-1 hidden"></div>
+
+            <button onclick="validateAndProcessJSON()" class="flex-shrink-0 w-full py-3.5 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98]">Validate & Generate Reel</button>
+        </div>
+
+        <div id="screen-preview" class="flex-1 flex flex-col min-h-0 space-y-4 hidden">
+            
+            <!-- Fixed 9:16 Aspect Ratio -->
+            <div class="relative h-[42vh] aspect-[9/16] flex-shrink-0 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black border border-neutral-800 transition-all duration-300" id="reel-player-window" style="container-type: inline-size;">
+                
+                <!-- Fullscreen Exit Button (Hidden by default) -->
+                <button id="fs-exit-btn" onclick="toggleFullscreen(); event.stopPropagation();" class="hidden absolute top-4 left-4 z-50 p-2.5 bg-black/60 text-white rounded-full backdrop-blur-md border border-neutral-600 hover:bg-black/80 transition-all items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+
+                <div id="reel-slides-container" class="w-full h-full relative">
+                    </div>
+
+                <div class="absolute inset-0 z-20 flex flex-col justify-between p-4 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40">
+                    <!-- Visual Top Progress (Thin, Non-clickable) -->
+                    <div class="w-full bg-neutral-800/60 h-1 rounded-full overflow-hidden backdrop-blur-sm hidden md:block">
+                        <div id="reel-progress" class="w-0 h-full bg-amber-500 transition-all duration-100 ease-linear"></div>
+                    </div>
+
+                    <div></div>
+
+                    <div id="overlay-text-container" class="space-y-1 text-center pb-2 w-full px-4 flex flex-col items-center">
+                        <div id="overlay-stage-wrapper"><span id="overlay-stage" class="text-[10px] font-bold tracking-widest text-amber-400 uppercase drop-shadow-md">Foundation</span></div>
+                        <div id="overlay-caption-wrapper"><p id="overlay-caption" class="text-sm font-semibold text-white drop-shadow-md leading-snug">Project Progress Live</p></div>
+                    </div>
+                </div>
+
+                <div class="absolute inset-0 z-30 cursor-pointer" onclick="togglePlayPause()" ondblclick="toggleFullscreen()"></div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 flex-shrink-0 w-full max-w-[280px] mx-auto px-2">
+                <!-- Advanced Seekbar Slider -->
+                <div class="flex items-center gap-2">
+                    <span id="time-current" class="text-[10px] text-neutral-400 font-mono w-8 text-right">0:00</span>
+                    <input type="range" id="main-seekbar" min="0" max="100" value="0" step="0.1" oninput="handleSeekbarDrag()" onchange="seekFromSlider()" class="flex-1 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-amber-500 outline-none focus-glow">
+                    <span id="time-total" class="text-[10px] text-neutral-400 font-mono w-8">0:00</span>
+                </div>
+                
+                <!-- 3 Buttons Row -->
+                <div class="flex items-center justify-between px-4 pb-1">
+                    <!-- Speed Button -->
+                    <button onclick="toggleSpeed()" id="speed-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-[10px] font-bold text-neutral-400 hover:text-amber-500 hover:border-amber-500/50 transition-all">
+                        1x
+                    </button>
+                    
+                    <!-- Play/Pause Button -->
+                    <button onclick="togglePlayPause()" id="play-pause-btn" class="p-2.5 rounded-full bg-amber-500 text-neutral-950 hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,179,0,0.3)]">
+                        <svg id="play-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                        <svg id="pause-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 01-2 0V8zm5-1a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+
+                    <!-- Fullscreen Button -->
+                    <button onclick="toggleFullscreen()" class="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-500 hover:border-amber-500/50 transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Unified Editor Tabs Area -->
+            <div class="flex-1 flex flex-col min-h-0 premium-card rounded-xl border border-neutral-800 overflow-hidden mb-2">
+                
+                <!-- Tab Headers -->
+                <div class="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/60 p-1 flex-shrink-0">
+                    <button onclick="switchEditorTab('tab-captions')" id="btn-tab-captions" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-amber-500 bg-neutral-800">📝 Edit</button>
+                    <button onclick="switchEditorTab('tab-style')" id="btn-tab-style" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">✨ Style</button>
+                    <button onclick="switchEditorTab('tab-audio')" id="btn-tab-audio" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">🎵 Music</button>
+                    <button onclick="switchEditorTab('tab-global')" id="btn-tab-global" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">⚙️ Settings</button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <div class="flex-1 overflow-y-auto no-scrollbar relative p-2">
+                    
+                    <!-- Tab: Edit Captions (Default) -->
+                    <div id="tab-captions" class="block space-y-2">
+                        <div id="editable-captions-list" class="space-y-2 pb-2"></div>
+                    </div>
+
+                    <!-- Tab: Caption Style -->
+                    <div id="tab-style" class="hidden">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setCaptionStyle('cinematic')" id="style-btn-cinematic" class="cursor-pointer rounded-lg border-2 border-amber-500 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-amber-400">
+                                <span class="text-[9px] font-bold text-amber-500 tracking-wider">CINEMATIC</span>
+                                <span class="text-[10px] text-white">Classic Center</span>
+                            </div>
+                            <div onclick="setCaptionStyle('boxed')" id="style-btn-boxed" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-neutral-600">
+                                <span class="text-[9px] font-bold text-amber-500 border border-amber-500 px-1">BOXED</span>
+                                <span class="text-[10px] text-white">Clean Frame</span>
+                            </div>
+                            <div onclick="setCaptionStyle('strip')" id="style-btn-strip" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-neutral-600">
+                                <span class="text-[9px] font-bold text-white">BOLD STRIP</span>
+                                <span class="text-[10px] text-neutral-900 bg-amber-500 px-1 font-bold">Highlight Accent</span>
+                            </div>
+                            <div onclick="setCaptionStyle('minimal_left')" id="style-btn-minimal_left" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-start justify-center gap-1 pl-3 transition-all hover:border-neutral-600">
+                                <span class="text-[9px] font-bold text-neutral-400 border-l-2 border-amber-500 pl-1">MINIMAL</span>
+                                <span class="text-[10px] text-white border-l-2 border-amber-500 pl-1">Left Accent</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Audio & Music -->
+                    <div id="tab-audio" class="hidden space-y-3 p-1">
+                        <select id="audio-track-select" onchange="handleAudioSelection(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-3 text-xs text-white focus-glow outline-none shadow-inner">
+                            <option value="none">No Audio (Muted)</option>
+                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎵 Electronic Build-up (Free)</option>
+                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🎵 Upbeat Energy (Free)</option>
+                            <option value="custom">📁 Upload Custom MP3...</option>
+                        </select>
+                        <input type="file" id="custom-audio-input" accept="audio/mpeg,audio/wav,audio/aac" class="hidden" onchange="handleCustomAudioUpload(event)">
+                        <div id="custom-audio-label" class="text-[10px] text-amber-400 font-bold hidden px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-lg text-center tracking-wide">Custom track selected</div>
+                    </div>
+
+                    <!-- Tab: Global Settings -->
+                    <div id="tab-global" class="hidden grid grid-cols-2 gap-3 p-1">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Durations</label>
+                            <select onchange="applyGlobalDuration(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-2.5 text-xs text-white focus-glow outline-none">
+                                <option value="">-- Change All --</option>
+                                <option value="2">2 Sec (Fast)</option>
+                                <option value="3">3 Sec (Normal)</option>
+                                <option value="5">5 Sec (Slow)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Effects</label>
+                            <select onchange="applyGlobalEffect(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-2.5 text-xs text-white focus-glow outline-none">
+                                <option value="">-- Change All --</option>
+                                <option value="slow_zoom_in">Slow Zoom In</option>
+                                <option value="cinematic_zoom">Cinematic Zoom</option>
+                                <option value="dramatic_reveal">Dramatic Reveal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+    </main>
+
+    <footer class="fixed bottom-0 left-0 right-0 bg-[#0B0B0C]/90 backdrop-blur-md border-t border-neutral-900 px-4 py-4 z-40 hidden" id="app-footer">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-4">
+            <button id="nav-back" onclick="navigateBack()" class="px-5 py-3 rounded-xl text-sm font-semibold text-neutral-400 bg-neutral-950 border border-neutral-900 transition-colors hidden uppercase tracking-wider">Back</button>
+            <button id="nav-next" onclick="navigateNext()" class="flex-1 py-3 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide uppercase transition-all disabled:opacity-80 disabled:pointer-events-none" disabled>Continue</button>
+            <button id="nav-export" onclick="triggerMockExport()" class="flex-1 py-3 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide transition-all hidden uppercase active:scale-[0.98]">Download MP4</button>
+        </div>
+    </footer>
+
+    <script>
+        let uploadedFiles = []; 
+        let reelPlanData = null; 
+        let currentScreen = 'home'; 
+        let currentSlideIndex = 0;
+        let slideTimer = null;
+        let progressInterval = null;
+        let isPlaying = false;
+        let playbackElapsedTime = 0;
+        let currentCaptionStyle = 'cinematic'; 
+        let selectedAudioUrl = null;
+        let audioElement = null;
+        let playbackSpeed = 1;
+        let seekbarAnimFrame = null; 
+
+        const dbName = "BuildReelDB";
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = (e) => {
+                    db = e.target.result;
+                    if (!db.objectStoreNames.contains('photos')) {
+                        db.createObjectStore('photos', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function saveState() {
+            localStorage.setItem('currentScreen', currentScreen);
+            localStorage.setItem('captionStyle', currentCaptionStyle);
+            if (reelPlanData) localStorage.setItem('reelPlanData', JSON.stringify(reelPlanData));
+            const jsonInput = document.getElementById('json-input').value;
+            if (jsonInput) localStorage.setItem('jsonInput', jsonInput);
+
+            if (db) {
+                const tx = db.transaction('photos', 'readwrite');
+                const store = tx.objectStore('photos');
+                store.clear();
+                uploadedFiles.forEach(file => {
+                    store.put({ id: file.id, name: file.name, fileObj: file.fileObj });
+                });
+            }
+        }
+
+        async function loadState() {
+            await initDB();
+            
+            const savedJson = localStorage.getItem('jsonInput');
+            if (savedJson) document.getElementById('json-input').value = savedJson;
+
+            const savedPlan = localStorage.getItem('reelPlanData');
+            if (savedPlan) reelPlanData = JSON.parse(savedPlan);
+            
+            const savedStyle = localStorage.getItem('captionStyle');
+            if (savedStyle) currentCaptionStyle = savedStyle;
+
+            return new Promise((resolve) => {
+                const tx = db.transaction('photos', 'readonly');
+                const store = tx.objectStore('photos');
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    const photos = request.result;
+                    if (photos && photos.length > 0) {
+                        uploadedFiles = photos.map(p => ({
+                            id: p.id,
+                            name: p.name,
+                            fileObj: p.fileObj,
+                            url: URL.createObjectURL(p.fileObj)
+                        }));
+                        renderPhotoListCards();
+                        document.getElementById('nav-next').disabled = uploadedFiles.length < 2;
+                    }
+                    resolve();
+                };
+            });
+        }
+
+        const PROMPT_TEMPLATE_PREFIX = "You are a cinematic construction reel planner.\nI will upload construction progress photos.\nAnalyse visually and create a cinematic Reel plan.\n\nCRITICAL INSTRUCTIONS:\n- Group photos of the SAME stage into a scene.\n- Use the EXACT ORIGINAL FILENAME of each photo.\n- Do NOT skip any photos. No placeholders.\n- Keep captions short (max 8 words).\n- Return ONLY valid JSON.";
+
+        const promptExample = {
+            reel: {
+                title: "Project Update",
+                scenes: [
+                    {
+                        stage: "Foundation",
+                        caption: "Building a strong base",
+                        filenames: [
+                            "IMG_2026_001.jpg",
+                            "IMG_2026_002.jpg"
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const PROMPT_TEMPLATE_SUFFIX = "\nAllowed stages:\nFoundation, Column Work, Brick Masonry, Slab, Roof Work, Plaster, Electrical, Plumbing, Paint, Flooring, Windows & Doors, Final Finish, Unknown\n\nReturn ONLY this structure (do NOT include effects, the app will auto-generate them):\n" + JSON.stringify(promptExample, null, 2);
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadState();
+
+            setTimeout(() => {
+                const splash = document.getElementById('screen-splash');
+                const content = document.getElementById('app-content');
+                const footer = document.getElementById('app-footer');
+                
+                splash.classList.add('opacity-0');
+                setTimeout(() => {
+                    splash.remove();
+                    content.classList.remove('hidden');
+                    footer.classList.remove('hidden');
+                    
+                    const savedScreen = localStorage.getItem('currentScreen');
+                    if (savedScreen && savedScreen !== 'home') {
+                        switchScreen(savedScreen);
+                    }
+                }, 700);
+            }, 2500);
+
+            document.getElementById('photo-input').addEventListener('change', handlePhotoUploads);
+            document.getElementById('json-input').addEventListener('input', saveState);
+        });
+
+        function switchScreen(target) {
+            currentScreen = target;
+            
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-prompt').classList.add('hidden');
+            document.getElementById('screen-paste').classList.add('hidden');
+            document.getElementById('screen-preview').classList.add('hidden');
+
+            const backBtn = document.getElementById('nav-back');
+            const nextBtn = document.getElementById('nav-next');
+            const exportBtn = document.getElementById('nav-export');
+            const stepIndicator = document.getElementById('step-indicator');
+
+            stopReelEngine(); 
+
+            const headerProgress = document.getElementById('header-progress');
+
+            if (target === 'home') {
+                generatePromptTextUI();
+                document.getElementById('screen-home').classList.remove('hidden');
+                backBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                exportBtn.classList.add('hidden');
+                nextBtn.innerText = "NEXT: UPLOAD & PASTE";
+                nextBtn.disabled = false;
+                stepIndicator.innerText = "Step 1/3";
+                if(headerProgress) headerProgress.style.width = "33%";
+            } else if (target === 'paste') {
+                document.getElementById('screen-paste').classList.remove('hidden');
+                backBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                exportBtn.classList.add('hidden');
+                stepIndicator.innerText = "Step 2/3";
+                if(headerProgress) headerProgress.style.width = "66%";
+            } else if (target === 'preview') {
+                document.getElementById('screen-preview').classList.remove('hidden');
+                backBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                exportBtn.classList.remove('hidden');
+                stepIndicator.innerText = "Step 3/3";
+                if(headerProgress) headerProgress.style.width = "100%";
+                if(reelPlanData) buildCinematicPlayerEngine();
+            }
+            
+            saveState();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function navigateNext() {
+            if (currentScreen === 'home') switchScreen('paste');
+        }
+
+        function navigateBack() {
+            if (currentScreen === 'paste') switchScreen('home');
+            else if (currentScreen === 'preview') switchScreen('paste');
+        }
+
+        function handlePhotoUploads(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+
+            uploadedFiles = []; 
+            files.forEach((file) => {
+                const objectUrl = URL.createObjectURL(file);
+                uploadedFiles.push({
+                    id: file.name, 
+                    name: file.name,
+                    fileObj: file,
+                    url: objectUrl
+                });
+            });
+
+            renderPhotoListCards();
+            saveState();
+        }
+
+        let sortableInstance = null;
+
+        function renderPhotoListCards() {
+            // Update Text
+            const statusText = document.getElementById('upload-status-text');
+            if(statusText) {
+                if(uploadedFiles.length > 0) {
+                    statusText.innerText = uploadedFiles.length + " Photos Selected ✓";
+                    statusText.classList.add('text-amber-400');
+                } else {
+                    statusText.innerText = "Choose Photos (0 Selected)";
+                    statusText.classList.remove('text-amber-400');
+                }
+            }
+
+            // Render List HTML
+            const container = document.getElementById('upload-list-container');
+            const list = document.getElementById('photo-list');
+            
+            if (!container || !list) return;
+
+            if (!uploadedFiles.length) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            list.innerHTML = '';
+
+            uploadedFiles.forEach((photo) => {
+                const card = document.createElement('div');
+                card.className = 'premium-card rounded-xl p-3 flex items-center justify-between gap-3 select-none';
+                card.setAttribute('data-id', photo.name); // Using filename
+                
+                const displayId = photo.name.length > 15 ? photo.name.substring(0,12) + "..." : photo.name;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden flex-shrink-0">
+                            <img src="${photo.url}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-xs font-bold text-amber-500 tracking-wider truncate" title="${photo.name}">${displayId}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="deletePhotoCard('${photo.name}')" class="p-1.5 text-neutral-500 hover:text-red-400 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                        <div class="drag-handle p-1.5 text-neutral-600 cursor-grab active:cursor-grabbing touch-none">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+
+            // Re-initialize SortableJS for Drag & Drop
+            if (sortableInstance) sortableInstance.destroy();
+            if (typeof Sortable !== 'undefined') {
+                sortableInstance = new Sortable(list, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    ghostClass: 'opacity-50',
+                    onEnd: function () {
+                        const newOrderIds = Array.from(list.children).map(child => child.getAttribute('data-id'));
+                        const reorderedFiles = newOrderIds.map(id => uploadedFiles.find(p => p.name === id));
+                        uploadedFiles = reorderedFiles;
+                        saveState();
+                    }
+                });
+            }
+        }
+
+        function deletePhotoCard(id) {
+            uploadedFiles = uploadedFiles.filter(p => p.name !== id);
+            renderPhotoListCards();
+            saveState();
+        }
+
+        function generatePromptTextUI() {
+            const promptStr = PROMPT_TEMPLATE_PREFIX + "\n" + PROMPT_TEMPLATE_SUFFIX;
+            document.getElementById('prompt-box').innerText = promptStr;
+        }
+
+        function copyPrompt() {
+            const promptText = document.getElementById('prompt-box').innerText;
+            
+            const showSuccess = () => {
+                const btnText = document.getElementById('copy-btn-text');
+                btnText.innerText = "Prompt Copied! ✓";
+                btnText.classList.add("text-amber-400");
+                setTimeout(() => {
+                    btnText.innerText = "Copy Prompt to Clipboard";
+                    btnText.classList.remove("text-amber-400");
+                }, 2000);
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(promptText).then(showSuccess).catch(fallbackCopyTextToClipboard);
+            } else {
+                fallbackCopyTextToClipboard();
+            }
+
+            function fallbackCopyTextToClipboard() {
+                const textArea = document.createElement("textarea");
+                textArea.value = promptText;
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch (err) {
+                    alert("Copy failed. Please copy the text manually.");
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function validateAndProcessJSON() {
+            const inputData = document.getElementById('json-input').value.trim();
+            const errorBox = document.getElementById('error-feedback');
+            const validationBox = document.getElementById('validation-box');
+            
+            errorBox.classList.add('hidden');
+            validationBox.classList.remove('hidden');
+
+            const vJson = document.getElementById('v-json');
+            const vPhotos = document.getElementById('v-photos');
+            const vEffects = document.getElementById('v-effects');
+
+            vJson.className = "flex items-center gap-2 text-neutral-400"; vJson.innerHTML = "<span>⏳</span> Validating JSON format...";
+            vPhotos.className = "flex items-center gap-2 text-neutral-500"; vPhotos.innerHTML = "<span>●</span> Mapping Photo IDs...";
+            vEffects.className = "flex items-center gap-2 text-neutral-500"; vEffects.innerHTML = "<span>●</span> Processing Effects & Timing...";
+
+            setTimeout(() => {
+                let parsedObj = null;
+                try {
+                    let cleanStr = inputData;
+                    if (cleanStr.includes('```json')) {
+                        cleanStr = cleanStr.split('```json')[1].split('```')[0].trim();
+                    } else if (cleanStr.includes('```')) {
+                        cleanStr = cleanStr.split('```')[1].split('```')[0].trim();
+                    }
+                    parsedObj = JSON.parse(cleanStr);
+                    vJson.className = "flex items-center gap-2 text-green-400 font-medium"; vJson.innerHTML = "<span>✓</span> JSON Structure Validated";
+                } catch(e) {
+                    vJson.className = "flex items-center gap-2 text-red-400 font-medium"; vJson.innerHTML = "<span>✕</span> Invalid JSON Format";
+                    showValidationError("Could not parse JSON. Ensure your text forms a complete valid JSON structure.");
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (!parsedObj.reel || !Array.isArray(parsedObj.reel.scenes)) {
+                        vPhotos.className = "flex items-center gap-2 text-red-400 font-medium"; vPhotos.innerHTML = "<span>✕</span> Missing scenes array";
+                        showValidationError("Invalid schema layout. JSON must contain 'scenes' array inside 'reel'.");
+                        return;
+                    }
+
+                    let missingIds = [];
+                    let flattenedSlides = [];
+                    const effectsList = ['slow_zoom_in', 'pan_left', 'slow_zoom_out', 'pan_right', 'cinematic_zoom', 'dramatic_reveal'];
+                    let effectCounter = 0;
+
+                    parsedObj.reel.scenes.forEach(scene => {
+                        if(!Array.isArray(scene.filenames)) return;
+                        scene.filenames.forEach(filename => {
+                            const exists = uploadedFiles.some(p => p.name === filename);
+                            if (!exists) {
+                                missingIds.push(filename);
+                            } else {
+                                flattenedSlides.push({
+                                    filename: filename,
+                                    stage: scene.stage || "Construction",
+                                    caption: scene.caption || "",
+                                    effect: effectsList[effectCounter % effectsList.length], 
+                                    duration: 3
+                                });
+                                effectCounter++;
+                            }
+                        });
+                    });
+
+                    if (missingIds.length > 0) {
+                        vPhotos.className = "flex items-center gap-2 text-red-400 font-medium"; vPhotos.innerHTML = "<span>✕</span> Mapping Errors Detected";
+                        const missingText = missingIds.slice(0,3).join(', ') + (missingIds.length > 3 ? '...' : '');
+                        showValidationError("Photo Mismatch: Ensure you uploaded EXACTLY the photos you gave to AI. Missing: [" + missingText + "]");
+                        return;
+                    }
+                    if (flattenedSlides.length === 0) {
+                        showValidationError("No valid photos mapped from the JSON.");
+                        return;
+                    }
+
+                    vPhotos.className = "flex items-center gap-2 text-green-400 font-medium"; vPhotos.innerHTML = "<span>✓</span> Photos Mapped & Flattened";
+
+                    setTimeout(() => {
+                        vEffects.className = "flex items-center gap-2 text-green-400 font-medium"; vEffects.innerHTML = "<span>✓</span> Auto-Effects Applied";
+                        
+                        reelPlanData = {
+                            title: parsedObj.reel.title || "Project",
+                            slides: flattenedSlides
+                        };
+                        
+                        setTimeout(() => {
+                            switchScreen('preview');
+                        }, 800);
+                    }, 600);
+                }, 600);
+            }, 600);
+        }
+
+        function showValidationError(txt) {
+            const errorBox = document.getElementById('error-feedback');
+            errorBox.innerText = txt;
+            errorBox.classList.remove('hidden');
+        }
+
+        function buildCinematicPlayerEngine() {
+            const slidesContainer = document.getElementById('reel-slides-container');
+            const quickEditorsList = document.getElementById('editable-captions-list');
+            
+            slidesContainer.innerHTML = '';
+            quickEditorsList.innerHTML = '';
+
+            const effectOptions = [
+                {val: 'slow_zoom_in', label: 'Slow Zoom In'},
+                {val: 'slow_zoom_out', label: 'Slow Zoom Out'},
+                {val: 'pan_left', label: 'Pan Left'},
+                {val: 'pan_right', label: 'Pan Right'},
+                {val: 'cinematic_zoom', label: 'Cinematic Zoom'},
+                {val: 'dramatic_reveal', label: 'Dramatic Reveal'}
+            ];
+
+            reelPlanData.slides.forEach((slide, idx) => {
+                const targetPhoto = uploadedFiles.find(p => p.name === slide.filename); 
+                
+                const slideDiv = document.createElement('div');
+                slideDiv.id = `reel-slide-${idx}`;
+                slideDiv.className = 'absolute inset-0 w-full h-full opacity-0 slide-fade overflow-hidden bg-black flex items-center justify-center';
+                
+                const effectStyle = slide.effect || 'slow_zoom_in';
+                const durationTime = slide.duration || 3;
+
+                slideDiv.innerHTML = `
+                    <img id="img-slide-${idx}" src="${targetPhoto.url}" 
+                         class="w-full h-full object-cover origin-center effect-${effectStyle}" 
+                         style="--dur: ${durationTime}s;">
+                `;
+                slidesContainer.appendChild(slideDiv);
+
+                let selectHtml = `<select onchange="updateSlideEffectMemory(${idx}, this.value)" class="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-[10px] text-amber-500 focus-glow w-full mt-1">`;
+                effectOptions.forEach(opt => {
+                    selectHtml += `<option value="${opt.val}" ${effectStyle === opt.val ? 'selected' : ''}>${opt.label}</option>`;
+                });
+                selectHtml += `</select>`;
+
+                const editRow = document.createElement('div');
+                editRow.className = 'premium-card rounded-xl p-3 flex gap-3 border border-neutral-900';
+                editRow.innerHTML = `
+                    <div class="w-12 flex-shrink-0 flex flex-col gap-1 items-center">
+                        <div class="w-10 h-10 rounded bg-neutral-900 overflow-hidden border border-neutral-800">
+                            <img src="${targetPhoto.url}" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center">
+                        <input type="text" value="${slide.caption}" 
+                               oninput="updateSlideCaptionMemory(${idx}, this.value)" 
+                               class="w-full bg-neutral-900/60 border border-neutral-800 rounded-lg px-2 py-1.5 text-xs text-white focus-glow transition-all duration-300">
+                        ${selectHtml}
+                    </div>
+                `;
+                quickEditorsList.appendChild(editRow);
+            });
+
+            currentSlideIndex = 0;
+            setCaptionStyle(currentCaptionStyle);
+            startSlideShowSequenceLoop();
+        }
+
+        function updateSlideEffectMemory(idx, value) {
+            reelPlanData.slides[idx].effect = value;
+            saveState();
+            const img = document.getElementById(`img-slide-${idx}`);
+            if(img) {
+                img.className = `w-full h-full object-cover origin-center effect-${value}`;
+                if(idx === currentSlideIndex) void img.offsetWidth; 
+            }
+        }
+
+        function updateSlideCaptionMemory(idx, value) {
+            reelPlanData.slides[idx].caption = value;
+            if (idx === currentSlideIndex) {
+                document.getElementById('overlay-caption').innerText = value;
+            }
+            saveState();
+        }
+
+        function switchEditorTab(tabId) {
+            const tabs = ['tab-captions', 'tab-style', 'tab-audio', 'tab-global'];
+            tabs.forEach(id => {
+                const content = document.getElementById(id);
+                const btn = document.getElementById('btn-' + id);
+                if (id === tabId) {
+                    content.classList.remove('hidden');
+                    content.classList.add('block');
+                    btn.classList.add('text-amber-500', 'bg-neutral-800');
+                    btn.classList.remove('text-neutral-500');
+                } else {
+                    content.classList.add('hidden');
+                    content.classList.remove('block');
+                    btn.classList.remove('text-amber-500', 'bg-neutral-800');
+                    btn.classList.add('text-neutral-500');
+                }
+            });
+        }
+
+        function toggleAccordion(accordionId) {
+            const content = document.getElementById(accordionId + '-content');
+            const icon = document.getElementById(accordionId + '-icon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                if(icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                if(icon) icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function setCaptionStyle(styleName) {
+            currentCaptionStyle = styleName;
+            const styles = ['cinematic', 'boxed', 'strip', 'minimal_left'];
+            styles.forEach(s => {
+                const btn = document.getElementById('style-btn-' + s);
+                if (!btn) return;
+                if(s === styleName) {
+                    btn.classList.replace('border-neutral-800', 'border-amber-500');
+                    btn.classList.replace('hover:border-neutral-600', 'border-amber-400');
+                } else {
+                    btn.classList.replace('border-amber-500', 'border-neutral-800');
+                    btn.classList.replace('border-amber-400', 'hover:border-neutral-600');
+                }
+            });
+            applyCaptionStyleToDOM();
+            saveState();
+        }
+
+        function applyCaptionStyleToDOM() {
+            const container = document.getElementById('overlay-text-container');
+            const stageWrap = document.getElementById('overlay-stage-wrapper');
+            const stageTxt = document.getElementById('overlay-stage');
+            const capWrap = document.getElementById('overlay-caption-wrapper');
+            const capTxt = document.getElementById('overlay-caption');
+
+            container.className = "w-full flex flex-col transition-all duration-300 pb-[4cqw] px-[4cqw]";
+            stageWrap.className = "";
+            stageTxt.className = "font-bold uppercase drop-shadow-md text-[4cqw]";
+            capWrap.className = "";
+            capTxt.className = "font-bold drop-shadow-md leading-snug text-[5.5cqw] mt-[1cqw]";
+
+            if (currentCaptionStyle === 'cinematic') {
+                container.classList.add('items-center', 'text-center');
+                stageTxt.classList.add('text-[#FFB300]');
+                capTxt.classList.add('text-white');
+            } else if (currentCaptionStyle === 'boxed') {
+                container.classList.add('items-center', 'text-center');
+                stageWrap.className = "border border-[#FFB300] bg-black/50 backdrop-blur-sm inline-block px-[3cqw] py-[1cqw] mb-[1cqw]";
+                stageTxt.classList.add('text-[#FFB300]');
+                capTxt.classList.add('text-white');
+            } else if (currentCaptionStyle === 'strip') {
+                container.classList.add('items-center', 'text-center');
+                stageWrap.className = "bg-[#171717] inline-block px-[3cqw] py-[1cqw]";
+                stageTxt.className = "font-bold uppercase text-white text-[3.5cqw]";
+                capWrap.className = "bg-[#FFB300] shadow-lg inline-block mt-[0.5cqw] px-[4cqw] py-[1cqw]";
+                capTxt.className = "font-bold text-[#171717] text-[5cqw]";
+            } else if (currentCaptionStyle === 'minimal_left') {
+                container.classList.add('items-start', 'text-left');
+                stageWrap.className = "border-l-[0.8cqw] border-[#FFB300] pl-[2cqw]";
+                stageTxt.className = "font-bold uppercase text-[#d4d4d4] text-[3.5cqw]";
+                capWrap.className = "border-l-[0.8cqw] border-[#FFB300] pl-[2cqw] mt-[1cqw]";
+                capTxt.className = "font-bold text-white text-[5.5cqw]";
+            }
+        }
+
+        function startSlideShowSequenceLoop() {
+            if (!reelPlanData || !reelPlanData.slides.length) return;
+            isPlaying = true;
+            updatePlayPauseUIControls();
+            updateTotalTimeDisplay();
+            renderActiveSlideFramePointer();
+            startSeekbarAnimation();
+        }
+
+        function renderActiveSlideFramePointer() {
+            stopReelEngineTimersOnly();
+
+            const slides = reelPlanData.slides;
+            const totalSlides = slides.length;
+            
+            if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = 0; 
+            }
+
+            const activeSlideData = slides[currentSlideIndex];
+            const baseDurationMs = (activeSlideData.duration || 3) * 1000;
+            const durationMs = baseDurationMs / playbackSpeed;
+
+            for(let i=0; i<totalSlides; i++) {
+                const el = document.getElementById(`reel-slide-${i}`);
+                if (el) {
+                    if (i === currentSlideIndex) {
+                        el.classList.remove('opacity-0');
+                        el.classList.add('opacity-100');
+                        const img = el.querySelector('img');
+                        if (img) {
+                            const currentClass = img.className;
+                            img.className = '';
+                            void img.offsetWidth; 
+                            img.className = currentClass;
+                        }
+                    } else {
+                        el.classList.remove('opacity-100');
+                        el.classList.add('opacity-0');
+                    }
+                }
+            }
+
+            document.getElementById('overlay-stage').innerText = activeSlideData.stage || "Construction";
+            document.getElementById('overlay-caption').innerText = activeSlideData.caption || "";
+            applyCaptionStyleToDOM();
+
+            const progressBar = document.getElementById('reel-progress');
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            void progressBar.offsetWidth; 
+            
+            progressBar.style.transition = `width ${durationMs}ms linear`;
+            progressBar.style.width = '100%';
+
+            playbackElapsedTime = performance.now();
+            
+            slideTimer = setTimeout(() => {
+                currentSlideIndex++;
+                renderActiveSlideFramePointer();
+            }, durationMs);
+        }
+
+        function stopReelEngineTimersOnly() {
+            if (slideTimer) clearTimeout(slideTimer);
+            if (progressInterval) clearInterval(progressInterval);
+            if (seekbarAnimFrame) cancelAnimationFrame(seekbarAnimFrame);
+        }
+
+        function stopReelEngine() {
+            stopReelEngineTimersOnly();
+            isPlaying = false;
+            if (audioElement) audioElement.pause();
+            updatePlayPauseUIControls();
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                stopReelEngineTimersOnly();
+                const progressBar = document.getElementById('reel-progress');
+                progressBar.style.width = window.getComputedStyle(progressBar).width;
+                isPlaying = false;
+                if (audioElement) audioElement.pause();
+            } else {
+                renderActiveSlideFramePointer();
+                startSeekbarAnimation();
+                if (audioElement) audioElement.play().catch(() => {});
+            }
+            updatePlayPauseUIControls();
+        }
+
+        function restartReel() {
+            currentSlideIndex = 0;
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            }
+            renderActiveSlideFramePointer();
+            startSeekbarAnimation();
+            if (isPlaying && audioElement) audioElement.play().catch(() => {});
+        }
+
+        function updatePlayPauseUIControls() {
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const playerWindow = document.getElementById('reel-player-window');
+            if (isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                playerWindow.classList.remove('is-paused');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                playerWindow.classList.add('is-paused');
+            }
+        }
+
+        async function triggerMockExport() {
+            const btn = document.getElementById('nav-export');
+            const originalText = btn.innerText;
+            
+            btn.innerText = "PREPARING ASSETS...";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
+            try {
+                const loadedImages = {};
+                for (const slide of reelPlanData.slides) {
+                    if (!loadedImages[slide.filename]) {
+                        const targetPhoto = uploadedFiles.find(p => p.name === slide.filename);
+                        if (targetPhoto) {
+                            loadedImages[slide.filename] = await new Promise((resolve) => {
+                                const img = new Image();
+                                img.onload = () => resolve(img);
+                                img.src = targetPhoto.url;
+                            });
+                        }
+                    }
+                }
+
+                btn.innerText = "RECORDING REEL (360p)...";
+
+                const width = 360;
+                const height = 640;
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                const canvasStream = canvas.captureStream(30);
+                let finalStream = canvasStream;
+                let audioCtx = null;
+
+                // Add Audio to Stream
+                if (selectedAudioUrl) {
+                    try {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        audioCtx = new AudioContext();
+                        const audioDest = audioCtx.createMediaStreamDestination();
+                        
+                        const exportAudio = new Audio(selectedAudioUrl);
+                        exportAudio.crossOrigin = "anonymous";
+                        const audioSource = audioCtx.createMediaElementSource(exportAudio);
+                        audioSource.connect(audioDest);
+                        
+                        exportAudio.play();
+                        
+                        const audioTracks = audioDest.stream.getAudioTracks();
+                        if (audioTracks.length > 0) {
+                            finalStream = new MediaStream([canvasStream.getVideoTracks()[0], audioTracks[0]]);
+                        }
+                    } catch (e) {
+                        /* Audio mix failed */
+                    }
+                }
+
+                const chunks = [];
+                
+                let mimeType = 'video/webm';
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                    mimeType = 'video/webm;codecs=vp8';
+                } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                    mimeType = 'video/mp4';
+                }
+                
+                const recorder = new MediaRecorder(finalStream, { mimeType });
+                recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+                
+                recorder.onstop = () => {
+                    if (audioCtx) {
+                        audioCtx.close(); // Clean up audio memory
+                    }
+                    btn.innerText = "EXPORT SUCCESSFUL! ✓";
+                    btn.classList.remove('amber-btn');
+                    btn.classList.add('bg-green-500', 'text-neutral-950');
+
+                    const blob = new Blob(chunks, { type: mimeType });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `${reelPlanData.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}_reel.${ext}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                        btn.style.opacity = "1";
+                        btn.classList.add('amber-btn');
+                        btn.classList.remove('bg-green-500', 'text-neutral-950');
+                    }, 3000);
+                };
+
+                const slidesTimings = [];
+                let totalDurationMs = 0;
+                reelPlanData.slides.forEach(slide => {
+                    const durMs = (slide.duration || 3) * 1000;
+                    slidesTimings.push({
+                        start: totalDurationMs,
+                        end: totalDurationMs + durMs,
+                        durMs: durMs,
+                        slideData: slide
+                    });
+                    totalDurationMs += durMs;
+                });
+
+                recorder.start();
+                const recordStartTime = performance.now();
+
+                function drawFrame(now) {
+                    const elapsedMs = now - recordStartTime;
+                    
+                    const percent = Math.min(100, Math.floor((elapsedMs / totalDurationMs) * 100));
+                    if (percent % 5 === 0) btn.innerText = `RECORDING REEL ${percent}%...`;
+
+                    if (elapsedMs >= totalDurationMs) {
+                        recorder.stop();
+                        return;
+                    }
+
+                    let currentStageIndex = slidesTimings.findIndex(s => elapsedMs >= s.start && elapsedMs < s.end);
+                    const currentStage = slidesTimings[currentStageIndex];
+                    
+                    if (currentStage) {
+                        const slide = currentStage.slideData;
+                        const img = loadedImages[slide.filename];
+                        const slideElapsed = elapsedMs - currentStage.start;
+                        
+                        ctx.fillStyle = "#0B0B0C";
+                        ctx.fillRect(0, 0, width, height);
+
+                        const crossfadeMs = 800; // 0.8s cinematic crossfade
+                        let alphaCurrent = 1;
+                        let prevStage = null;
+                        
+                        // If not the first slide, grab the previous slide for blending
+                        if (currentStageIndex > 0 && slideElapsed < crossfadeMs) {
+                            prevStage = slidesTimings[currentStageIndex - 1];
+                            alphaCurrent = slideElapsed / crossfadeMs;
+                        }
+
+                        // Helper function to draw slides with continuous animation
+                        const drawSlideImg = (stageObj, stageElapsed, alpha) => {
+                            const sImg = loadedImages[stageObj.slideData.filename];
+                            if (!sImg) return;
+                            const sProg = stageElapsed / stageObj.durMs;
+                            ctx.save();
+                            ctx.globalAlpha = alpha;
+                            ctx.translate(width/2, height/2);
+                            
+                            let scale = 1; let tx = 0, ty = 0;
+                            const effect = stageObj.slideData.effect || 'slow_zoom_in';
+
+                            if (effect === 'slow_zoom_in') scale = 1 + (0.15 * sProg);
+                            else if (effect === 'slow_zoom_out') scale = 1.15 - (0.15 * sProg);
+                            else if (effect === 'pan_left') { scale = 1.1; tx = (width * 0.05) - (width * 0.1 * sProg); }
+                            else if (effect === 'pan_right') { scale = 1.1; tx = -(width * 0.05) + (width * 0.1 * sProg); }
+                            else if (effect === 'cinematic_zoom') scale = 1.02 + (0.10 * sProg);
+                            else if (effect === 'dramatic_reveal') { 
+                                scale = 1.2 - (0.2 * Math.min(sProg * 2, 1)); 
+                                ty = (height * 0.05) - (height * 0.05 * Math.min(sProg * 2, 1)); 
+                            }
+
+                            ctx.translate(tx, ty);
+                            ctx.scale(scale, scale);
+
+                            const imgAspect = sImg.width / sImg.height;
+                            const canvasAspect = width / height;
+                            let dw, dh;
+                            if (imgAspect > canvasAspect) { dh = height; dw = height * imgAspect; } 
+                            else { dw = width; dh = width / imgAspect; }
+
+                            ctx.drawImage(sImg, -dw/2, -dh/2, dw, dh);
+                            ctx.restore();
+                        };
+
+                        // 1. Draw previous slide (it will continue animating smoothly)
+                        if (prevStage) {
+                            drawSlideImg(prevStage, prevStage.durMs + slideElapsed, 1);
+                        }
+
+                        // 2. Draw current slide fading in over it
+                        if (img) {
+                            drawSlideImg(currentStage, slideElapsed, alphaCurrent);
+                        }
+
+                        const grad = ctx.createLinearGradient(0, height * 0.6, 0, height);
+                        grad.addColorStop(0, "rgba(0,0,0,0)");
+                        grad.addColorStop(1, "rgba(0,0,0,0.85)");
+                        ctx.fillStyle = grad;
+                        ctx.fillRect(0, height * 0.6, width, height * 0.4);
+
+                        const stageText = (slide.stage || "Construction").toUpperCase();
+                        const capText = slide.caption || "";
+                        
+                        ctx.save();
+                        if (currentCaptionStyle === 'cinematic') {
+                            ctx.textAlign = "center";
+                            ctx.font = "bold 14px Arial, sans-serif";
+                            ctx.fillStyle = "#FFB300"; 
+                            ctx.fillText(stageText, width/2, height - 50);
+                            ctx.font = "bold 20px Arial, sans-serif";
+                            ctx.fillStyle = "#ffffff";
+                            ctx.fillText(capText, width/2, height - 25);
+                        } 
+                        else if (currentCaptionStyle === 'boxed') {
+                            ctx.textAlign = "center";
+                            ctx.font = "bold 14px Arial, sans-serif";
+                            const stageWidth = ctx.measureText(stageText).width;
+                            ctx.fillStyle = "rgba(0,0,0,0.5)";
+                            ctx.fillRect((width/2) - (stageWidth/2) - 8, height - 68, stageWidth + 16, 24);
+                            ctx.strokeStyle = "#FFB300";
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect((width/2) - (stageWidth/2) - 8, height - 68, stageWidth + 16, 24);
+                            ctx.fillStyle = "#FFB300";
+                            ctx.fillText(stageText, width/2, height - 51);
+                            ctx.font = "bold 20px Arial, sans-serif";
+                            ctx.fillStyle = "#ffffff";
+                            ctx.fillText(capText, width/2, height - 20);
+                        }
+                        else if (currentCaptionStyle === 'strip') {
+                            ctx.textAlign = "center";
+                            ctx.font = "bold 12px Arial, sans-serif";
+                            const stageWidth = ctx.measureText(stageText).width;
+                            ctx.fillStyle = "#171717"; 
+                            ctx.fillRect((width/2) - (stageWidth/2) - 8, height - 70, stageWidth + 16, 20);
+                            ctx.fillStyle = "#ffffff";
+                            ctx.fillText(stageText, width/2, height - 56);
+
+                            ctx.font = "bold 18px Arial, sans-serif";
+                            const capWidth = ctx.measureText(capText).width;
+                            ctx.fillStyle = "#FFB300"; 
+                            ctx.fillRect((width/2) - (capWidth/2) - 10, height - 50, capWidth + 20, 28);
+                            ctx.fillStyle = "#171717";
+                            ctx.fillText(capText, width/2, height - 30);
+                        }
+                        else if (currentCaptionStyle === 'minimal_left') {
+                            ctx.textAlign = "left";
+                            ctx.font = "bold 12px Arial, sans-serif";
+                            ctx.fillStyle = "#FFB300"; 
+                            ctx.fillRect(20, height - 64, 3, 14);
+                            ctx.fillStyle = "#d4d4d4";
+                            ctx.fillText(stageText, 28, height - 52);
+                            ctx.font = "bold 20px Arial, sans-serif";
+                            ctx.fillStyle = "#FFB300";
+                            ctx.fillRect(20, height - 46, 3, 22);
+                            ctx.fillStyle = "#ffffff";
+                            ctx.fillText(capText, 28, height - 28);
+                        }
+                        ctx.restore();
+                    }
+                    requestAnimationFrame(drawFrame);
+                }
+                requestAnimationFrame(drawFrame);
+
+            } catch (err) {
+                btn.innerText = "EXPORT FAILED!";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                }, 2000);
+            }
+        }
+
+        /* --- Audio & Global Setting Functions --- */
+        function handleAudioSelection(val) {
+            const fileInput = document.getElementById('custom-audio-input');
+            const customLabel = document.getElementById('custom-audio-label');
+            
+            if (val === 'custom') {
+                fileInput.click();
+            } else {
+                fileInput.value = ''; 
+                customLabel.classList.add('hidden');
+                
+                if (val === 'none') selectedAudioUrl = null;
+                else selectedAudioUrl = val;
+                
+                setupAudioElement();
+            }
+        }
+
+        function handleCustomAudioUpload(e) {
+            const file = e.target.files[0];
+            const customLabel = document.getElementById('custom-audio-label');
+            if (file) {
+                selectedAudioUrl = URL.createObjectURL(file);
+                const displayId = file.name.length > 25 ? file.name.substring(0,22) + "..." : file.name;
+                customLabel.innerText = "🎵 " + displayId;
+                customLabel.classList.remove('hidden');
+                setupAudioElement();
+            } else {
+                document.getElementById('audio-track-select').value = 'none';
+                handleAudioSelection('none');
+            }
+        }
+
+        function setupAudioElement() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = "";
+            }
+            if (selectedAudioUrl) {
+                audioElement = new Audio(selectedAudioUrl);
+                audioElement.crossOrigin = "anonymous"; // Ye server ko batata hai ki hume audio allow kare
+                audioElement.loop = true;
+                // Agar Reel play ho rahi hai, to naya gana turant bajna shuru ho jaye
+                if (isPlaying) {
+                    audioElement.play().catch(() => {});
+                }
+            } else {
+                audioElement = null;
+            }
+        }
+
+        function applyGlobalDuration(sec) {
+            if (!sec || !reelPlanData) return;
+            const num = parseInt(sec);
+            reelPlanData.slides.forEach(slide => slide.duration = num);
+            saveState();
+            buildCinematicPlayerEngine(); 
+        }
+
+        function applyGlobalEffect(effect) {
+            if (!effect || !reelPlanData) return;
+            reelPlanData.slides.forEach(slide => slide.effect = effect);
+            saveState();
+            buildCinematicPlayerEngine(); 
+        }
+
+        /* --- New Advanced Controls (Speed, Fullscreen, Seekbar) --- */
+        function toggleSpeed() {
+            const speeds = [1, 1.5, 2];
+            let idx = speeds.indexOf(playbackSpeed);
+            playbackSpeed = speeds[(idx + 1) % speeds.length];
+            document.getElementById('speed-btn').innerText = playbackSpeed + 'x';
+            if (audioElement) audioElement.playbackRate = playbackSpeed;
+            if (isPlaying) renderActiveSlideFramePointer(); 
+        }
+
+        function toggleFullscreen() {
+            const player = document.getElementById('reel-player-window');
+            if (!document.fullscreenElement) {
+                if (player.requestFullscreen) player.requestFullscreen();
+                else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        function updateTotalTimeDisplay() {
+            if (!reelPlanData) return;
+            let total = 0;
+            reelPlanData.slides.forEach(s => total += (s.duration || 3));
+            document.getElementById('time-total').innerText = formatTime(total);
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' + s : s);
+        }
+
+        let isDraggingSeekbar = false;
+        function handleSeekbarDrag() { isDraggingSeekbar = true; }
+
+        function seekFromSlider() {
+            isDraggingSeekbar = false;
+            if (!reelPlanData) return;
+            const percent = document.getElementById('main-seekbar').value / 100;
+            
+            let totalDur = 0;
+            const slideStartTimes = [];
+            reelPlanData.slides.forEach(s => {
+                slideStartTimes.push(totalDur);
+                totalDur += (s.duration || 3) * 1000;
+            });
+            
+            const targetTimeMs = percent * totalDur;
+            let targetIndex = 0;
+            for (let i = 0; i < slideStartTimes.length; i++) {
+                if (targetTimeMs >= slideStartTimes[i]) targetIndex = i;
+            }
+            
+            currentSlideIndex = targetIndex;
+            if (audioElement && audioElement.duration) {
+                audioElement.currentTime = ((targetTimeMs/1000) * playbackSpeed) % audioElement.duration;
+            }
+            
+            renderActiveSlideFramePointer();
+            if (!isPlaying) togglePlayPause();
+        }
+
+        function startSeekbarAnimation() {
+            if (!reelPlanData || !isPlaying) return;
+            
+            let totalDur = 0;
+            const slideStartTimes = [];
+            reelPlanData.slides.forEach(s => {
+                slideStartTimes.push(totalDur);
+                totalDur += (s.duration || 3) * 1000;
+            });
+
+            function updateSeeker() {
+                if (!isPlaying || isDraggingSeekbar) return;
+                
+                const now = performance.now();
+                const slideElapsedMs = (now - playbackElapsedTime) * playbackSpeed;
+                const currentSlideBaseDur = (reelPlanData.slides[currentSlideIndex].duration || 3) * 1000;
+                
+                const clampedElapsed = Math.min(slideElapsedMs, currentSlideBaseDur);
+                const currentTotalElapsed = slideStartTimes[currentSlideIndex] + clampedElapsed;
+                
+                const percent = (currentTotalElapsed / totalDur) * 100;
+                
+                const seekbar = document.getElementById('main-seekbar');
+                if(seekbar) seekbar.value = percent;
+                
+                const timeCurEl = document.getElementById('time-current');
+                if(timeCurEl) timeCurEl.innerText = formatTime(currentTotalElapsed / 1000);
+                
+                if (isPlaying) seekbarAnimFrame = requestAnimationFrame(updateSeeker);
+            }
+            updateSeeker();
+        }
+    </script>
+</body>
+</html>
