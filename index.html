@@ -8,1477 +8,1703 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0B0B0C;
-            color: #E4E4E7;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .cinematic-bg {
-            background: radial-gradient(circle at top, #1C1C1E 0%, #0B0B0C 100%);
-        }
-        .premium-card {
-            background: rgba(28, 28, 30, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 179, 0, 0.1);
-        }
-        .amber-gradient-text {
-            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .amber-btn {
-            background: linear-gradient(135deg, #FFB300 0%, #FF8F00 100%);
-            box-shadow: 0 4px 20px rgba(255, 143, 0, 0.3);
-        }
-        .amber-btn:disabled {
-            background: #171717 !important;
-            box-shadow: none !important;
-            color: #737373 !important;
-            border: 1px solid #262626 !important;
-        }
-        /* Reel Engine Animations */
-        @keyframes slow_zoom_in {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.15); }
-        }
-        @keyframes slow_zoom_out {
-            0% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-        @keyframes pan_left {
-            0% { transform: scale(1.1) translateX(5%); }
-            100% { transform: scale(1.1) translateX(-5%); }
-        }
-        @keyframes pan_right {
-            0% { transform: scale(1.1) translateX(-5%); }
-            100% { transform: scale(1.1) translateX(5%); }
-        }
-        @keyframes cinematic_zoom {
-            0% { transform: scale(1.02); filter: brightness(0.8); }
-            100% { transform: scale(1.12); filter: brightness(1.1); }
-        }
-        @keyframes dramatic_reveal {
-            0% { transform: scale(1.2) translateY(5%); filter: blur(5px); }
-            100% { transform: scale(1) translateY(0); filter: blur(0); }
-        }
-        .effect-slow_zoom_in { animation: slow_zoom_in var(--dur) linear forwards; }
-        .effect-slow_zoom_out { animation: slow_zoom_out var(--dur) linear forwards; }
-        .effect-pan_left { animation: pan_left var(--dur) linear forwards; }
-        .effect-pan_right { animation: pan_right var(--dur) linear forwards; }
-        .effect-cinematic_zoom { animation: cinematic_zoom var(--dur) ease-out forwards; }
-        .effect-dramatic_reveal { animation: dramatic_reveal var(--dur) cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
-        
-        /* Smooth transitions */
-        .slide-fade { transition: opacity 0.8s ease-in-out; z-index: 1; }
-        .slide-fade.opacity-100 { z-index: 5; } /* Ensures active slide is on top during crossfade */
-        
-        /* Custom Elegant Scrollbars */
-        .no-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .no-scrollbar::-webkit-scrollbar-track { background: rgba(28, 28, 30, 0.3); border-radius: 4px; }
-        .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 179, 0, 0.3); border-radius: 4px; }
-        .no-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 179, 0, 0.8); }
-        .no-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(255, 179, 0, 0.3) rgba(28, 28, 30, 0.3); }
+        body { font-family:'Inter',sans-serif; background-color:#0B0B0C; color:#E4E4E7; -webkit-tap-highlight-color:transparent; }
+        .cinematic-bg { background: radial-gradient(circle at top, #1C1C1E 0%, #0B0B0C 100%); }
+        .premium-card { background:rgba(28,28,30,0.75); backdrop-filter:blur(12px); border:1px solid rgba(255,179,0,0.08); }
+        .amber-gradient-text { background:linear-gradient(135deg,#FFD54F 0%,#FFB300 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .amber-btn { background:linear-gradient(135deg,#FFB300 0%,#FF8F00 100%); box-shadow:0 4px 20px rgba(255,143,0,0.3); color:#0B0B0C; }
+        .amber-btn:disabled { background:#171717!important; box-shadow:none!important; color:#525252!important; border:1px solid #262626!important; }
 
-        /* Focus Glow */
-        .focus-glow:focus, .focus-glow:focus-within {
-            box-shadow: 0 0 0 2px rgba(255, 179, 0, 0.25);
-            border-color: rgba(255, 179, 0, 0.6) !important;
-            outline: none;
-        }
+        /* ── Reel Animations ── */
+        @keyframes slow_zoom_in    { 0%{transform:scale(1)}       100%{transform:scale(1.15)} }
+        @keyframes slow_zoom_out   { 0%{transform:scale(1.15)}    100%{transform:scale(1)} }
+        @keyframes pan_left        { 0%{transform:scale(1.1) translateX(5%)} 100%{transform:scale(1.1) translateX(-5%)} }
+        @keyframes pan_right       { 0%{transform:scale(1.1) translateX(-5%)} 100%{transform:scale(1.1) translateX(5%)} }
+        @keyframes cinematic_zoom  { 0%{transform:scale(1.02);filter:brightness(0.8)} 100%{transform:scale(1.12);filter:brightness(1.1)} }
+        @keyframes dramatic_reveal { 0%{transform:scale(1.2) translateY(5%);filter:blur(5px)} 100%{transform:scale(1) translateY(0);filter:blur(0)} }
 
-        /* Video Sync & Fullscreen Controls */
+        .effect-slow_zoom_in    { animation: slow_zoom_in    var(--dur,3s) linear       forwards; }
+        .effect-slow_zoom_out   { animation: slow_zoom_out   var(--dur,3s) linear       forwards; }
+        .effect-pan_left        { animation: pan_left        var(--dur,3s) linear       forwards; }
+        .effect-pan_right       { animation: pan_right       var(--dur,3s) linear       forwards; }
+        .effect-cinematic_zoom  { animation: cinematic_zoom  var(--dur,3s) ease-out     forwards; }
+        .effect-dramatic_reveal { animation: dramatic_reveal var(--dur,3s) cubic-bezier(0.1,0.8,0.2,1) forwards; }
+
+        /* Pause all animations when .is-paused */
         .is-paused img { animation-play-state: paused !important; }
-        #reel-player-window:fullscreen #fs-exit-btn { display: flex !important; }
-        #reel-player-window:-webkit-full-screen #fs-exit-btn { display: flex !important; }
+
+        /* Custom seekbar */
+        input[type=range].seek-input { -webkit-appearance:none; width:100%; height:4px; border-radius:4px; background:#262626; outline:none; cursor:pointer; }
+        input[type=range].seek-input::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#FFB300; cursor:pointer; box-shadow:0 0 6px rgba(255,179,0,0.6); transition:transform .15s; }
+        input[type=range].seek-input:active::-webkit-slider-thumb { transform:scale(1.3); }
+        input[type=range].seek-input::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#FFB300; border:none; cursor:pointer; }
+
+        /* Scrollbars */
+        .no-scrollbar::-webkit-scrollbar { width:3px; height:3px; }
+        .no-scrollbar::-webkit-scrollbar-track { background:rgba(28,28,30,.3); }
+        .no-scrollbar::-webkit-scrollbar-thumb { background:rgba(255,179,0,.3); border-radius:4px; }
+        .no-scrollbar { scrollbar-width:thin; scrollbar-color:rgba(255,179,0,.3) rgba(28,28,30,.3); }
+
+        /* Focus glow */
+        .focus-glow:focus, .focus-glow:focus-within { box-shadow:0 0 0 2px rgba(255,179,0,.25); border-color:rgba(255,179,0,.6)!important; outline:none; }
+
+        /* Drag-over highlight on drop zone */
+        .drag-over { border-color:rgba(255,179,0,.7)!important; background:rgba(255,179,0,.04)!important; }
+
+        /* Active slide in edit list */
+        .edit-card-active { border-color:rgba(255,179,0,.45)!important; background:rgba(255,179,0,.05)!important; }
+
+        /* Fullscreen exit button */
+        #reel-player-window:fullscreen       #fs-exit-btn { display:flex!important; }
+        #reel-player-window:-webkit-full-screen #fs-exit-btn { display:flex!important; }
+
+        /* Toast */
+        #toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:9999; transition:opacity .3s ease; pointer-events:none; white-space:nowrap; }
     </style>
 </head>
 <body class="cinematic-bg h-[100dvh] flex flex-col overflow-hidden antialiased selection:bg-amber-500/30">
 
-    <div id="screen-splash" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0C] transition-opacity duration-700">
-        <div class="text-center space-y-4 px-6 animate-pulse">
-            <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-amber-500/20">
-                <svg class="w-10 h-10 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </div>
-            <h1 class="text-4xl font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></h1>
-            <p class="text-neutral-400 text-sm tracking-wide max-w-xs mx-auto">Turn Construction Progress Into Cinematic Reels</p>
-            <div class="pt-8">
-                <div class="w-12 h-1 bg-neutral-800 mx-auto rounded-full overflow-hidden">
-                    <div class="w-full h-full bg-amber-500 animate-[pan_left_1s_infinite] origin-left"></div>
-                </div>
-            </div>
+<!-- ═══ TOAST ═══ -->
+<div id="toast" class="opacity-0 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl border backdrop-blur-md"></div>
+
+<!-- ═══ SPLASH ═══ -->
+<div id="screen-splash" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0C] transition-opacity duration-700">
+    <div class="text-center space-y-4 px-6">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-amber-500/20">
+            <svg class="w-10 h-10 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></h1>
+        <p class="text-neutral-400 text-sm tracking-wide">Turn Construction Progress Into Cinematic Reels</p>
+        <div class="pt-4 flex justify-center gap-1">
+            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style="animation-delay:0s"></span>
+            <span class="w-1.5 h-1.5 bg-amber-500/60 rounded-full animate-bounce" style="animation-delay:.15s"></span>
+            <span class="w-1.5 h-1.5 bg-amber-500/30 rounded-full animate-bounce" style="animation-delay:.3s"></span>
         </div>
     </div>
+</div>
 
-    <main class="flex-1 w-full max-w-md mx-auto px-4 pt-2 pb-20 hidden flex flex-col min-h-0" id="app-content">
-        
-        <header class="flex items-center justify-between py-4 border-b border-neutral-800/60 relative">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-neutral-900 font-bold text-sm">B</div>
-                <span class="text-lg font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></span>
+<!-- ═══ APP ═══ -->
+<main id="app-content" class="flex-1 w-full max-w-md mx-auto px-4 pt-2 pb-24 hidden flex flex-col min-h-0 overflow-hidden">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between py-3.5 border-b border-neutral-800/60 relative flex-shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-neutral-900 font-bold text-sm shadow-lg shadow-amber-500/20">B</div>
+            <span class="text-lg font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></span>
+        </div>
+        <span id="step-indicator" class="text-xs font-semibold bg-neutral-900 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20">Step 1/3</span>
+        <div id="header-progress" class="absolute bottom-0 left-0 h-[2px] bg-amber-500 transition-all duration-500 shadow-[0_0_8px_rgba(255,179,0,0.6)]" style="width:33%"></div>
+    </header>
+    <div class="mb-3 flex-shrink-0"></div>
+
+    <!-- ════════════════════════════════
+         SCREEN: HOME  (Step 1)
+    ════════════════════════════════ -->
+    <div id="screen-home" class="flex-1 flex flex-col min-h-0 space-y-3 overflow-y-auto no-scrollbar">
+
+        <div class="text-center flex-shrink-0">
+            <h2 class="text-xl font-bold text-white">Step 1: Get AI Plan</h2>
+            <p class="text-neutral-500 text-[11px] mt-1">Copy prompt → Give to AI with site photos → Get JSON</p>
+        </div>
+
+        <!-- 4-Step Guide -->
+        <div class="grid grid-cols-2 gap-2 flex-shrink-0">
+            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5 border border-amber-500/25">
+                <span class="w-5 h-5 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span class="text-[11px] text-neutral-200 leading-snug">Copy the prompt below</span>
             </div>
-            <span id="step-indicator" class="text-xs font-semibold bg-neutral-900 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20 shadow-[0_0_10px_rgba(255,179,0,0.1)]">Step 1/4</span>
-            <!-- Header Progress Line -->
-            <div class="absolute bottom-0 left-0 h-[2px] bg-amber-500 transition-all duration-500 shadow-[0_0_8px_rgba(255,179,0,0.6)]" id="header-progress" style="width: 25%;"></div>
-        </header>
-        <div class="mb-4"></div> <!-- Spacer -->
-
-        <div id="screen-home" class="flex-1 flex flex-col min-h-0 space-y-4">
-            <div class="text-center py-1 flex-shrink-0">
-                <h2 class="text-xl font-bold text-white">Step 1: Get AI Plan</h2>
-                <p class="text-neutral-400 text-xs mt-1">Copy prompt & give it to ChatGPT/Gemini with your photos</p>
-                <div class="mt-3 bg-red-500/10 border border-red-500/30 rounded-lg p-2 text-left flex items-start gap-2 shadow-sm">
-                    <span class="text-red-400 text-[11px] mt-0.5">⚠️</span>
-                    <p class="text-[11px] text-red-300 font-medium leading-snug">
-                        <strong class="text-red-400">Important:</strong> Always upload photos to AI using <b>File Manager/Documents</b>. Uploading from Gallery changes filenames and causes matching errors!
-                    </p>
-                </div>
+            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span class="text-[11px] text-neutral-400 leading-snug">Open ChatGPT or Gemini</span>
             </div>
-
-            <div class="flex-1 flex flex-col min-h-0 space-y-2">
-                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400 px-1 flex-shrink-0">AI Prompt (Copy This)</label>
-                <div class="flex-1 premium-card rounded-xl p-4 text-[11px] font-mono text-neutral-300 overflow-y-auto border border-neutral-800 leading-normal no-scrollbar" id="prompt-box">
-                </div>
+            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span class="text-[11px] text-neutral-400 leading-snug">Upload photos via <b class="text-neutral-200">Files app</b>, NOT Gallery</span>
             </div>
+            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+                <span class="text-[11px] text-neutral-400 leading-snug">Paste AI's JSON reply in Step 2</span>
+            </div>
+        </div>
 
-            <button onclick="copyPrompt()" class="w-full py-3 bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all active:scale-[0.98] flex-shrink-0">
-                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                <span id="copy-btn-text">Copy Prompt to Clipboard</span>
+        <!-- Warning -->
+        <div class="bg-red-500/10 border border-red-500/25 rounded-xl p-3 flex items-start gap-2 flex-shrink-0">
+            <span class="text-red-400 text-xs mt-0.5 flex-shrink-0">⚠️</span>
+            <p class="text-[11px] text-red-300 leading-snug"><strong class="text-red-400">Critical:</strong> Use Files/Documents app to upload photos to AI — Gallery auto-renames filenames and causes mismatch errors.</p>
+        </div>
+
+        <!-- Prompt Box -->
+        <div class="flex flex-col min-h-0 space-y-2" style="min-height:140px; flex:1;">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 px-1 flex-shrink-0">AI Prompt — Copy & Paste This</label>
+            <div id="prompt-box" class="flex-1 premium-card rounded-xl p-3.5 text-[11px] font-mono text-neutral-300 overflow-y-auto leading-relaxed no-scrollbar border border-neutral-800/80" style="min-height:100px"></div>
+        </div>
+
+        <button onclick="copyPrompt()" class="flex-shrink-0 w-full py-3 bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-800 active:scale-[0.98] transition-all">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span id="copy-btn-text">Copy Prompt to Clipboard</span>
+        </button>
+    </div>
+
+    <!-- ════════════════════════════════
+         SCREEN: PASTE  (Step 2)
+    ════════════════════════════════ -->
+    <div id="screen-paste" class="flex-1 flex flex-col min-h-0 space-y-3 hidden overflow-y-auto no-scrollbar">
+
+        <div class="text-center flex-shrink-0">
+            <h2 class="text-xl font-bold text-white">Step 2: Upload & Paste</h2>
+            <p class="text-neutral-500 text-[11px] mt-1">Upload the SAME photos, then paste AI's JSON</p>
+        </div>
+
+        <!-- Drop Zone -->
+        <div id="drop-zone"
+             class="flex-shrink-0 premium-card border-dashed border-2 border-amber-500/20 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 text-center"
+             onclick="document.getElementById('photo-input').click()">
+            <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
+            <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-neutral-200" id="upload-status-text">Drop photos here or tap to browse</p>
+                <p class="text-[10px] text-neutral-500 mt-0.5">Upload from Files app — not Gallery</p>
+            </div>
+        </div>
+
+        <!-- Photo Sequence Accordion -->
+        <div id="upload-list-container" class="hidden flex-shrink-0 premium-card rounded-xl border border-neutral-800 overflow-hidden">
+            <button onclick="toggleAccordion('sequence-accordion')" class="w-full flex items-center justify-between p-3 bg-neutral-900/50 hover:bg-neutral-800/60 transition-colors">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-500">📋 Adjust Photo Sequence (Drag to Reorder)</span>
+                <svg id="sequence-accordion-icon" class="w-4 h-4 text-neutral-500 transition-transform duration-200 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
+            <div id="sequence-accordion-content" class="hidden max-h-48 overflow-y-auto no-scrollbar p-2 border-t border-neutral-800">
+                <div id="photo-list" class="space-y-2"></div>
+            </div>
         </div>
 
-        <div id="screen-prompt" class="hidden"></div> <!-- Deprecated Screen -->
+        <!-- JSON Textarea -->
+        <textarea id="json-input"
+            class="flex-shrink-0 w-full h-32 premium-card rounded-xl p-4 font-mono text-[11px] text-amber-400 focus-glow border border-neutral-800 placeholder-neutral-700 transition-all no-scrollbar resize-none"
+            placeholder='Paste JSON from ChatGPT / Gemini here...'></textarea>
 
-        <div id="screen-paste" class="flex-1 flex flex-col min-h-0 space-y-3 hidden">
-            <div class="text-center py-1 flex-shrink-0">
-                <h2 class="text-xl font-bold text-white">Step 2: Upload & Paste</h2>
-                <p class="text-neutral-400 text-xs mt-1">Upload the SAME photos and paste AI's JSON</p>
-            </div>
-
-            <label class="flex-shrink-0 premium-card border-dashed border-2 border-amber-500/20 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-amber-500/40 transition-all text-center block">
-                <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
-                <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                </div>
-                <span class="text-xs font-medium text-neutral-200" id="upload-status-text">Choose Photos (0 Selected)</span>
-            </label>
-
-            <!-- Adjust Photo Sequence Accordion -->
-            <div id="upload-list-container" class="hidden flex-shrink-0 premium-card rounded-xl border border-neutral-800 overflow-hidden flex flex-col">
-                <button onclick="toggleAccordion('sequence-accordion')" class="w-full flex items-center justify-between p-3 bg-neutral-900/40 hover:bg-neutral-800/60 transition-colors">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-500">Adjust Photo Sequence</span>
-                    <svg id="sequence-accordion-icon" class="w-4 h-4 text-neutral-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <div id="sequence-accordion-content" class="hidden flex-col max-h-40 overflow-y-auto no-scrollbar p-2 border-t border-neutral-800">
-                    <div id="photo-list" class="space-y-2"></div>
-                </div>
-            </div>
-
-            <textarea id="json-input" class="flex-1 min-h-0 w-full premium-card rounded-xl p-4 font-mono text-[11px] text-amber-400 focus-glow border border-neutral-800 placeholder-neutral-600 transition-all duration-300 no-scrollbar resize-none" placeholder='Paste JSON from AI here...'></textarea>
-
-            <div id="validation-box" class="flex-shrink-0 premium-card rounded-xl p-3 border border-neutral-800 text-[11px] space-y-1 hidden">
-                <div id="v-json" class="flex items-center gap-2 text-neutral-500"><span>●</span> Validating JSON format...</div>
-                <div id="v-photos" class="flex items-center gap-2 text-neutral-500"><span>●</span> Flattening & Mapping Names...</div>
-                <div id="v-effects" class="flex items-center gap-2 text-neutral-500"><span>●</span> Assigning Auto-Effects...</div>
-            </div>
-            
-            <div id="error-feedback" class="flex-shrink-0 text-red-400 text-[10px] font-medium px-1 hidden"></div>
-
-            <button onclick="validateAndProcessJSON()" class="flex-shrink-0 w-full py-3.5 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98]">Validate & Generate Reel</button>
+        <!-- Validation Status -->
+        <div id="validation-box" class="hidden flex-shrink-0 premium-card rounded-xl p-3 border border-neutral-800 text-[11px] space-y-1.5">
+            <div id="v-json"    class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
+            <div id="v-photos"  class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
+            <div id="v-effects" class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
         </div>
 
-        <div id="screen-preview" class="flex-1 flex flex-col min-h-0 space-y-4 hidden">
-            
-            <!-- Fixed 9:16 Aspect Ratio -->
-            <div class="relative h-[42vh] aspect-[9/16] flex-shrink-0 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black border border-neutral-800 transition-all duration-300" id="reel-player-window" style="container-type: inline-size;">
-                
-                <!-- Fullscreen Exit Button (Hidden by default) -->
-                <button id="fs-exit-btn" onclick="toggleFullscreen(); event.stopPropagation();" class="hidden absolute top-4 left-4 z-50 p-2.5 bg-black/60 text-white rounded-full backdrop-blur-md border border-neutral-600 hover:bg-black/80 transition-all items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <!-- Error Box -->
+        <div id="error-feedback" class="hidden flex-shrink-0 bg-red-500/10 border border-red-500/25 rounded-xl p-3 space-y-1.5">
+            <p id="error-title" class="text-[11px] font-bold text-red-400"></p>
+            <div id="error-details" class="text-[10px] text-red-300/80 space-y-0.5 font-mono"></div>
+            <p id="error-fix" class="text-[10px] text-amber-400 font-medium pt-0.5"></p>
+        </div>
+
+        <button onclick="validateAndProcessJSON()" class="flex-shrink-0 w-full py-3.5 amber-btn font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98]">
+            Validate &amp; Generate Reel ▶
+        </button>
+    </div>
+
+    <!-- ════════════════════════════════
+         SCREEN: PREVIEW  (Step 3)
+    ════════════════════════════════ -->
+    <div id="screen-preview" class="flex-1 flex flex-col min-h-0 space-y-2 hidden">
+
+        <!-- Editable Project Title -->
+        <div class="flex-shrink-0 text-center">
+            <input id="project-title-input" type="text" placeholder="Project Name"
+                class="bg-transparent text-center text-sm font-bold text-white border-b border-neutral-700 focus:border-amber-500 outline-none pb-0.5 w-full max-w-[220px] transition-colors duration-300"
+                oninput="if(reelPlanData){reelPlanData.title=this.value;saveState();}">
+        </div>
+
+        <!-- Player -->
+        <div id="reel-player-window"
+             class="relative flex-shrink-0 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black border border-neutral-800"
+             style="height:41vh;aspect-ratio:9/16;container-type:inline-size;">
+
+            <!-- Fullscreen exit -->
+            <button id="fs-exit-btn" onclick="toggleFullscreen();event.stopPropagation();"
+                    class="hidden absolute top-3 left-3 z-50 p-2 bg-black/70 text-white rounded-full backdrop-blur-sm border border-neutral-600 items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+
+            <!-- Slide counter -->
+            <div class="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full border border-neutral-700/50">
+                <span id="slide-counter" class="text-[10px] text-white font-bold tracking-wide">1 / 1</span>
+            </div>
+
+            <!-- Slides -->
+            <div id="reel-slides-container" class="w-full h-full relative"></div>
+
+            <!-- Overlay -->
+            <div class="absolute inset-0 z-20 flex flex-col justify-between p-3 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/30">
+                <div class="w-full bg-neutral-800/50 h-0.5 rounded-full overflow-hidden">
+                    <div id="reel-progress" class="w-0 h-full bg-amber-500"></div>
+                </div>
+                <div id="overlay-text-container" class="w-full flex flex-col pb-1 px-2">
+                    <div id="overlay-stage-wrapper">
+                        <span id="overlay-stage" class="text-[10px] font-bold tracking-widest text-amber-400 uppercase drop-shadow-md"></span>
+                    </div>
+                    <div id="overlay-caption-wrapper">
+                        <p id="overlay-caption" class="text-sm font-semibold text-white drop-shadow-md leading-snug"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Click to play/pause, double-click fullscreen -->
+            <div class="absolute inset-0 z-30 cursor-pointer" onclick="togglePlayPause()" ondblclick="toggleFullscreen()"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex-shrink-0 flex flex-col gap-1.5 w-full max-w-xs mx-auto px-2">
+            <!-- Seekbar -->
+            <div class="flex items-center gap-2">
+                <span id="time-current" class="text-[10px] text-neutral-400 font-mono w-8 text-right tabular-nums">0:00</span>
+                <input type="range" id="main-seekbar" min="0" max="100" value="0" step="0.05"
+                       class="seek-input flex-1"
+                       oninput="handleSeekbarDrag()" onchange="seekFromSlider()">
+                <span id="time-total" class="text-[10px] text-neutral-400 font-mono w-8 tabular-nums">0:00</span>
+            </div>
+            <!-- Buttons -->
+            <div class="flex items-center justify-between px-4">
+                <button onclick="toggleSpeed()" id="speed-btn"
+                        class="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-[11px] font-bold text-neutral-400 hover:text-amber-500 hover:border-amber-500/40 transition-all">1x</button>
+                <button onclick="togglePlayPause()" id="play-pause-btn"
+                        class="p-3 rounded-full bg-amber-500 text-neutral-950 hover:scale-105 transition-all shadow-[0_0_18px_rgba(255,179,0,0.4)]">
+                    <svg id="play-icon"  class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" class="w-5 h-5"        fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
+                <button onclick="toggleFullscreen()"
+                        class="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-500 hover:border-amber-500/40 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                </button>
+            </div>
+        </div>
 
-                <div id="reel-slides-container" class="w-full h-full relative">
-                    </div>
-
-                <div class="absolute inset-0 z-20 flex flex-col justify-between p-4 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40">
-                    <!-- Visual Top Progress (Thin, Non-clickable) -->
-                    <div class="w-full bg-neutral-800/60 h-1 rounded-full overflow-hidden backdrop-blur-sm hidden md:block">
-                        <div id="reel-progress" class="w-0 h-full bg-amber-500 transition-all duration-100 ease-linear"></div>
-                    </div>
-
-                    <div></div>
-
-                    <div id="overlay-text-container" class="space-y-1 text-center pb-2 w-full px-4 flex flex-col items-center">
-                        <div id="overlay-stage-wrapper"><span id="overlay-stage" class="text-[10px] font-bold tracking-widest text-amber-400 uppercase drop-shadow-md">Foundation</span></div>
-                        <div id="overlay-caption-wrapper"><p id="overlay-caption" class="text-sm font-semibold text-white drop-shadow-md leading-snug">Project Progress Live</p></div>
-                    </div>
-                </div>
-
-                <div class="absolute inset-0 z-30 cursor-pointer" onclick="togglePlayPause()" ondblclick="toggleFullscreen()"></div>
+        <!-- Editor Tabs -->
+        <div class="flex-1 flex flex-col min-h-0 premium-card rounded-xl border border-neutral-800 overflow-hidden">
+            <!-- Tab Headers -->
+            <div class="flex items-center border-b border-neutral-800 bg-neutral-900/60 p-1 gap-0.5 flex-shrink-0">
+                <button onclick="switchEditorTab('tab-captions')" id="btn-tab-captions" class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-amber-500 bg-neutral-800">✏️ Edit</button>
+                <button onclick="switchEditorTab('tab-style')"    id="btn-tab-style"    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">✨ Style</button>
+                <button onclick="switchEditorTab('tab-audio')"    id="btn-tab-audio"    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">🎵 Music</button>
+                <button onclick="switchEditorTab('tab-global')"   id="btn-tab-global"   class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">⚙️ Global</button>
             </div>
 
-            <div class="flex flex-col gap-1.5 flex-shrink-0 w-full max-w-[280px] mx-auto px-2">
-                <!-- Advanced Seekbar Slider -->
-                <div class="flex items-center gap-2">
-                    <span id="time-current" class="text-[10px] text-neutral-400 font-mono w-8 text-right">0:00</span>
-                    <input type="range" id="main-seekbar" min="0" max="100" value="0" step="0.1" oninput="handleSeekbarDrag()" onchange="seekFromSlider()" class="flex-1 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-amber-500 outline-none focus-glow">
-                    <span id="time-total" class="text-[10px] text-neutral-400 font-mono w-8">0:00</span>
-                </div>
-                
-                <!-- 3 Buttons Row -->
-                <div class="flex items-center justify-between px-4 pb-1">
-                    <!-- Speed Button -->
-                    <button onclick="toggleSpeed()" id="speed-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-[10px] font-bold text-neutral-400 hover:text-amber-500 hover:border-amber-500/50 transition-all">
-                        1x
-                    </button>
-                    
-                    <!-- Play/Pause Button -->
-                    <button onclick="togglePlayPause()" id="play-pause-btn" class="p-2.5 rounded-full bg-amber-500 text-neutral-950 hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,179,0,0.3)]">
-                        <svg id="play-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
-                        <svg id="pause-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 01-2 0V8zm5-1a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                    </button>
+            <!-- Tab Contents -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-2">
 
-                    <!-- Fullscreen Button -->
-                    <button onclick="toggleFullscreen()" class="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-500 hover:border-amber-500/50 transition-all">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                    </button>
+                <!-- Edit Tab -->
+                <div id="tab-captions" class="block space-y-2">
+                    <div id="editable-captions-list" class="space-y-2 pb-1"></div>
                 </div>
-            </div>
 
-            <!-- Unified Editor Tabs Area -->
-            <div class="flex-1 flex flex-col min-h-0 premium-card rounded-xl border border-neutral-800 overflow-hidden mb-2">
-                
-                <!-- Tab Headers -->
-                <div class="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/60 p-1 flex-shrink-0">
-                    <button onclick="switchEditorTab('tab-captions')" id="btn-tab-captions" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-amber-500 bg-neutral-800">📝 Edit</button>
-                    <button onclick="switchEditorTab('tab-style')" id="btn-tab-style" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">✨ Style</button>
-                    <button onclick="switchEditorTab('tab-audio')" id="btn-tab-audio" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">🎵 Music</button>
-                    <button onclick="switchEditorTab('tab-global')" id="btn-tab-global" class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">⚙️ Settings</button>
-                </div>
-                
-                <!-- Tab Contents -->
-                <div class="flex-1 overflow-y-auto no-scrollbar relative p-2">
-                    
-                    <!-- Tab: Edit Captions (Default) -->
-                    <div id="tab-captions" class="block space-y-2">
-                        <div id="editable-captions-list" class="space-y-2 pb-2"></div>
-                    </div>
-
-                    <!-- Tab: Caption Style -->
-                    <div id="tab-style" class="hidden">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div onclick="setCaptionStyle('cinematic')" id="style-btn-cinematic" class="cursor-pointer rounded-lg border-2 border-amber-500 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-amber-400">
-                                <span class="text-[9px] font-bold text-amber-500 tracking-wider">CINEMATIC</span>
-                                <span class="text-[10px] text-white">Classic Center</span>
-                            </div>
-                            <div onclick="setCaptionStyle('boxed')" id="style-btn-boxed" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-neutral-600">
-                                <span class="text-[9px] font-bold text-amber-500 border border-amber-500 px-1">BOXED</span>
-                                <span class="text-[10px] text-white">Clean Frame</span>
-                            </div>
-                            <div onclick="setCaptionStyle('strip')" id="style-btn-strip" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-center justify-center gap-1 transition-all hover:border-neutral-600">
-                                <span class="text-[9px] font-bold text-white">BOLD STRIP</span>
-                                <span class="text-[10px] text-neutral-900 bg-amber-500 px-1 font-bold">Highlight Accent</span>
-                            </div>
-                            <div onclick="setCaptionStyle('minimal_left')" id="style-btn-minimal_left" class="cursor-pointer rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 flex flex-col items-start justify-center gap-1 pl-3 transition-all hover:border-neutral-600">
-                                <span class="text-[9px] font-bold text-neutral-400 border-l-2 border-amber-500 pl-1">MINIMAL</span>
-                                <span class="text-[10px] text-white border-l-2 border-amber-500 pl-1">Left Accent</span>
-                            </div>
+                <!-- Style Tab -->
+                <div id="tab-style" class="hidden">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div onclick="setCaptionStyle('cinematic')" id="style-btn-cinematic"
+                             class="cursor-pointer rounded-xl border-2 border-amber-500 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all">
+                            <span class="text-[9px] font-bold text-amber-500 tracking-wider">CINEMATIC</span>
+                            <span class="text-[10px] text-white">Classic Center</span>
+                        </div>
+                        <div onclick="setCaptionStyle('boxed')" id="style-btn-boxed"
+                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all hover:border-neutral-700">
+                            <span class="text-[9px] font-bold text-amber-500 border border-amber-500 px-1.5">BOXED</span>
+                            <span class="text-[10px] text-white">Clean Frame</span>
+                        </div>
+                        <div onclick="setCaptionStyle('strip')" id="style-btn-strip"
+                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all hover:border-neutral-700">
+                            <span class="text-[9px] font-bold text-white">BOLD STRIP</span>
+                            <span class="text-[10px] text-neutral-950 bg-amber-500 px-1.5 font-bold">Highlight</span>
+                        </div>
+                        <div onclick="setCaptionStyle('minimal_left')" id="style-btn-minimal_left"
+                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-start pl-4 gap-1 transition-all hover:border-neutral-700">
+                            <span class="text-[9px] font-bold text-neutral-400 border-l-2 border-amber-500 pl-1.5">MINIMAL</span>
+                            <span class="text-[10px] text-white border-l-2 border-amber-500 pl-1.5">Left Accent</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Tab: Audio & Music -->
-                    <div id="tab-audio" class="hidden space-y-3 p-1">
-                        <select id="audio-track-select" onchange="handleAudioSelection(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-3 text-xs text-white focus-glow outline-none shadow-inner">
-                            <option value="none">No Audio (Muted)</option>
-                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎵 Electronic Build-up (Free)</option>
-                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🎵 Upbeat Energy (Free)</option>
-                            <option value="custom">📁 Upload Custom MP3...</option>
-                        </select>
-                        <input type="file" id="custom-audio-input" accept="audio/mpeg,audio/wav,audio/aac" class="hidden" onchange="handleCustomAudioUpload(event)">
-                        <div id="custom-audio-label" class="text-[10px] text-amber-400 font-bold hidden px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-lg text-center tracking-wide">Custom track selected</div>
-                    </div>
+                <!-- Audio Tab -->
+                <div id="tab-audio" class="hidden space-y-3 pt-1">
+                    <select id="audio-track-select" onchange="handleAudioSelection(this.value)"
+                            class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-white focus-glow outline-none">
+                        <option value="none">🔇 No Audio (Muted)</option>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎵 Electronic Build-up</option>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🎵 Upbeat Energy</option>
+                        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">🎵 Calm Progress</option>
+                        <option value="custom">📁 Upload Custom MP3...</option>
+                    </select>
+                    <input type="file" id="custom-audio-input" accept="audio/mpeg,audio/wav,audio/aac" class="hidden" onchange="handleCustomAudioUpload(event)">
+                    <div id="custom-audio-label" class="hidden text-[10px] text-amber-400 font-bold px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-xl text-center tracking-wide"></div>
+                    <p class="text-[10px] text-neutral-600 text-center">Music plays in preview and is mixed into exported video</p>
+                </div>
 
-                    <!-- Tab: Global Settings -->
-                    <div id="tab-global" class="hidden grid grid-cols-2 gap-3 p-1">
+                <!-- Global Tab -->
+                <div id="tab-global" class="hidden pt-1">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Durations</label>
-                            <select onchange="applyGlobalDuration(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-2.5 text-xs text-white focus-glow outline-none">
-                                <option value="">-- Change All --</option>
-                                <option value="2">2 Sec (Fast)</option>
-                                <option value="3">3 Sec (Normal)</option>
-                                <option value="5">5 Sec (Slow)</option>
+                            <select onchange="applyGlobalDuration(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2.5 text-xs text-white focus-glow outline-none">
+                                <option value="">-- Set All --</option>
+                                <option value="2">2 sec (Fast)</option>
+                                <option value="3">3 sec (Normal)</option>
+                                <option value="5">5 sec (Slow)</option>
+                                <option value="8">8 sec (Epic)</option>
                             </select>
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Effects</label>
-                            <select onchange="applyGlobalEffect(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-2.5 text-xs text-white focus-glow outline-none">
-                                <option value="">-- Change All --</option>
+                            <select onchange="applyGlobalEffect(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2.5 text-xs text-white focus-glow outline-none">
+                                <option value="">-- Set All --</option>
                                 <option value="slow_zoom_in">Slow Zoom In</option>
+                                <option value="slow_zoom_out">Slow Zoom Out</option>
+                                <option value="pan_left">Pan Left</option>
+                                <option value="pan_right">Pan Right</option>
                                 <option value="cinematic_zoom">Cinematic Zoom</option>
                                 <option value="dramatic_reveal">Dramatic Reveal</option>
                             </select>
                         </div>
                     </div>
-
+                    <p class="text-[10px] text-neutral-600 text-center mt-3">Per-slide settings in Edit tab override these</p>
                 </div>
+
             </div>
-
-    </main>
-
-    <footer class="fixed bottom-0 left-0 right-0 bg-[#0B0B0C]/90 backdrop-blur-md border-t border-neutral-900 px-4 py-4 z-40 hidden" id="app-footer">
-        <div class="max-w-md mx-auto flex items-center justify-between gap-4">
-            <button id="nav-back" onclick="navigateBack()" class="px-5 py-3 rounded-xl text-sm font-semibold text-neutral-400 bg-neutral-950 border border-neutral-900 transition-colors hidden uppercase tracking-wider">Back</button>
-            <button id="nav-next" onclick="navigateNext()" class="flex-1 py-3 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide uppercase transition-all disabled:opacity-80 disabled:pointer-events-none" disabled>Continue</button>
-            <button id="nav-export" onclick="triggerMockExport()" class="flex-1 py-3 amber-btn text-neutral-950 font-bold rounded-xl text-sm tracking-wide transition-all hidden uppercase active:scale-[0.98]">Download MP4</button>
         </div>
-    </footer>
+    </div>
+</main>
 
-    <script>
-        let uploadedFiles = []; 
-        let reelPlanData = null; 
-        let currentScreen = 'home'; 
-        let currentSlideIndex = 0;
-        let slideTimer = null;
-        let progressInterval = null;
-        let isPlaying = false;
-        let playbackElapsedTime = 0;
-        let currentCaptionStyle = 'cinematic'; 
-        let selectedAudioUrl = null;
-        let audioElement = null;
-        let playbackSpeed = 1;
-        let seekbarAnimFrame = null; 
+<!-- ═══ FOOTER ═══ -->
+<footer id="app-footer" class="fixed bottom-0 left-0 right-0 bg-[#0B0B0C]/95 backdrop-blur-md border-t border-neutral-900 px-4 py-3.5 z-40 hidden">
+    <div class="max-w-md mx-auto flex items-center gap-3">
+        <button id="nav-back" onclick="navigateBack()" class="hidden px-5 py-3 rounded-xl text-xs font-bold text-neutral-400 bg-neutral-950 border border-neutral-900 uppercase tracking-wide hover:bg-neutral-900 transition-all active:scale-[0.98]">← Back</button>
+        <button id="nav-next" onclick="navigateNext()" disabled
+                class="flex-1 py-3 amber-btn font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none">Continue →</button>
+        <button id="nav-export" onclick="triggerExport()"
+                class="flex-1 py-3 amber-btn font-bold rounded-xl text-sm uppercase transition-all hidden active:scale-[0.98] overflow-hidden">
+            <span id="export-btn-content">⬇ Export Video</span>
+        </button>
+    </div>
+</footer>
 
-        const dbName = "BuildReelDB";
-        let db;
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL STATE
+═══════════════════════════════════════════════════════════════ */
+let uploadedFiles     = [];
+let reelPlanData      = null;
+let currentScreen     = 'home';
+let currentSlideIndex = 0;
+let slideTimer        = null;
+let isPlaying         = false;
+let currentCaptionStyle = 'cinematic';
+let selectedAudioUrl  = null;
+let audioElement      = null;
+let playbackSpeed     = 1;
+let seekbarAnimFrame  = null;
+let isDraggingSeekbar = false;
+let slideStartedAt    = 0;       // performance.now() when current slide began
+let slideElapsedAtPause = 0;     // ms already consumed before pause
+let sortableInstance  = null;
+let db;
 
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName, 1);
-                request.onupgradeneeded = (e) => {
-                    db = e.target.result;
-                    if (!db.objectStoreNames.contains('photos')) {
-                        db.createObjectStore('photos', { keyPath: 'id' });
-                    }
-                };
-                request.onsuccess = (e) => {
-                    db = e.target.result;
-                    resolve(db);
-                };
-                request.onerror = (e) => reject(e.target.error);
-            });
-        }
-
-        async function saveState() {
-            localStorage.setItem('currentScreen', currentScreen);
-            localStorage.setItem('captionStyle', currentCaptionStyle);
-            if (reelPlanData) localStorage.setItem('reelPlanData', JSON.stringify(reelPlanData));
-            const jsonInput = document.getElementById('json-input').value;
-            if (jsonInput) localStorage.setItem('jsonInput', jsonInput);
-
-            if (db) {
-                const tx = db.transaction('photos', 'readwrite');
-                const store = tx.objectStore('photos');
-                store.clear();
-                uploadedFiles.forEach(file => {
-                    store.put({ id: file.id, name: file.name, fileObj: file.fileObj });
-                });
-            }
-        }
-
-        async function loadState() {
-            await initDB();
-            
-            const savedJson = localStorage.getItem('jsonInput');
-            if (savedJson) document.getElementById('json-input').value = savedJson;
-
-            const savedPlan = localStorage.getItem('reelPlanData');
-            if (savedPlan) reelPlanData = JSON.parse(savedPlan);
-            
-            const savedStyle = localStorage.getItem('captionStyle');
-            if (savedStyle) currentCaptionStyle = savedStyle;
-
-            return new Promise((resolve) => {
-                const tx = db.transaction('photos', 'readonly');
-                const store = tx.objectStore('photos');
-                const request = store.getAll();
-                request.onsuccess = () => {
-                    const photos = request.result;
-                    if (photos && photos.length > 0) {
-                        uploadedFiles = photos.map(p => ({
-                            id: p.id,
-                            name: p.name,
-                            fileObj: p.fileObj,
-                            url: URL.createObjectURL(p.fileObj)
-                        }));
-                        renderPhotoListCards();
-                        document.getElementById('nav-next').disabled = uploadedFiles.length < 2;
-                    }
-                    resolve();
-                };
-            });
-        }
-
-        const PROMPT_TEMPLATE_PREFIX = "You are a cinematic construction reel planner.\nI will upload construction progress photos.\nAnalyse visually and create a cinematic Reel plan.\n\nCRITICAL INSTRUCTIONS:\n- Group photos of the SAME stage into a scene.\n- Use the EXACT ORIGINAL FILENAME of each photo.\n- Do NOT skip any photos. No placeholders.\n- Keep captions short (max 8 words).\n- Return ONLY valid JSON.";
-
-        const promptExample = {
-            reel: {
-                title: "Project Update",
-                scenes: [
-                    {
-                        stage: "Foundation",
-                        caption: "Building a strong base",
-                        filenames: [
-                            "IMG_2026_001.jpg",
-                            "IMG_2026_002.jpg"
-                        ]
-                    }
-                ]
-            }
+/* ═══════════════════════════════════════════════════════════════
+   INDEXEDDB  (photo persistence across sessions)
+═══════════════════════════════════════════════════════════════ */
+function initDB() {
+    return new Promise((res, rej) => {
+        const req = indexedDB.open('BuildReelDB', 1);
+        req.onupgradeneeded = e => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains('photos')) d.createObjectStore('photos', { keyPath: 'id' });
         };
+        req.onsuccess = e => { db = e.target.result; res(db); };
+        req.onerror   = e => rej(e.target.error);
+    });
+}
 
-        const PROMPT_TEMPLATE_SUFFIX = "\nAllowed stages:\nFoundation, Column Work, Brick Masonry, Slab, Roof Work, Plaster, Electrical, Plumbing, Paint, Flooring, Windows & Doors, Final Finish, Unknown\n\nReturn ONLY this structure (do NOT include effects, the app will auto-generate them):\n" + JSON.stringify(promptExample, null, 2);
+async function savePhotosToIDB() {
+    if (!db) return;
+    const tx    = db.transaction('photos', 'readwrite');
+    const store = tx.objectStore('photos');
+    store.clear();
+    uploadedFiles.forEach(f => store.put({ id: f.name, name: f.name, fileObj: f.fileObj }));
+}
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await loadState();
+async function saveState() {
+    localStorage.setItem('currentScreen',  currentScreen);
+    localStorage.setItem('captionStyle',   currentCaptionStyle);
+    if (reelPlanData)  localStorage.setItem('reelPlanData', JSON.stringify(reelPlanData));
+    const json = document.getElementById('json-input')?.value;
+    if (json)          localStorage.setItem('jsonInput', json);
+    await savePhotosToIDB();
+}
 
-            setTimeout(() => {
-                const splash = document.getElementById('screen-splash');
-                const content = document.getElementById('app-content');
-                const footer = document.getElementById('app-footer');
-                
-                splash.classList.add('opacity-0');
-                setTimeout(() => {
-                    splash.remove();
-                    content.classList.remove('hidden');
-                    footer.classList.remove('hidden');
-                    
-                    const savedScreen = localStorage.getItem('currentScreen');
-                    if (savedScreen && savedScreen !== 'home') {
-                        switchScreen(savedScreen);
-                    } else {
-                        switchScreen('home');
-                    }
-                }, 700);
-            }, 2500);
+async function loadState() {
+    await initDB();
 
-            document.getElementById('photo-input').addEventListener('change', handlePhotoUploads);
-            document.getElementById('json-input').addEventListener('input', saveState);
+    const savedJson = localStorage.getItem('jsonInput');
+    if (savedJson) { const el = document.getElementById('json-input'); if (el) el.value = savedJson; }
+
+    try {
+        const savedPlan = localStorage.getItem('reelPlanData');
+        if (savedPlan) reelPlanData = JSON.parse(savedPlan);
+    } catch (e) {}
+
+    const savedStyle = localStorage.getItem('captionStyle');
+    if (savedStyle) currentCaptionStyle = savedStyle;
+
+    return new Promise(resolve => {
+        const tx    = db.transaction('photos', 'readonly');
+        const store = tx.objectStore('photos');
+        const req   = store.getAll();
+        req.onsuccess = () => {
+            const photos = req.result || [];
+            if (photos.length > 0) {
+                revokeAllObjectUrls();
+                uploadedFiles = photos.map(p => ({
+                    id:      p.id,
+                    name:    p.name,
+                    fileObj: p.fileObj,
+                    url:     URL.createObjectURL(p.fileObj)
+                }));
+                renderPhotoListCards();
+            }
+            resolve();
+        };
+        req.onerror = () => resolve();
+    });
+}
+
+function revokeAllObjectUrls() {
+    uploadedFiles.forEach(f => { if (f.url) URL.revokeObjectURL(f.url); });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROMPT
+═══════════════════════════════════════════════════════════════ */
+const PROMPT_TEXT = `You are a cinematic construction reel planner.
+I will upload construction progress photos.
+Analyse visually and create a cinematic Reel plan.
+
+CRITICAL INSTRUCTIONS:
+- Group photos of the SAME stage into one scene.
+- Use the EXACT ORIGINAL FILENAME of each photo.
+- Do NOT skip any photos. No placeholders.
+- Keep captions short (max 8 words).
+- Return ONLY valid JSON. No extra text, no markdown.
+
+Allowed stages:
+Foundation, Column Work, Brick Masonry, Slab, Roof Work,
+Plaster, Electrical, Plumbing, Paint, Flooring,
+Windows & Doors, Final Finish, Unknown
+
+Return ONLY this JSON structure:
+{
+  "reel": {
+    "title": "Project Name",
+    "scenes": [
+      {
+        "stage": "Foundation",
+        "caption": "Building a strong base",
+        "filenames": ["IMG_001.jpg", "IMG_002.jpg"]
+      }
+    ]
+  }
+}`;
+
+function generatePromptTextUI() {
+    const box = document.getElementById('prompt-box');
+    if (box) box.innerText = PROMPT_TEXT;
+}
+
+function copyPrompt() {
+    const show = ok => {
+        const el = document.getElementById('copy-btn-text');
+        el.innerText = ok ? '✓ Copied! Now open ChatGPT or Gemini' : 'Copy failed — select text manually';
+        el.style.color = ok ? '#FFB300' : '#f87171';
+        setTimeout(() => { el.innerText = 'Copy Prompt to Clipboard'; el.style.color = ''; }, 2800);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(PROMPT_TEXT).then(() => show(true)).catch(() => fallbackCopy(show));
+    } else { fallbackCopy(show); }
+}
+
+function fallbackCopy(cb) {
+    const ta = document.createElement('textarea');
+    ta.value = PROMPT_TEXT;
+    Object.assign(ta.style, { position:'fixed', top:'0', left:'0', opacity:'0' });
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); cb(true); } catch { cb(false); }
+    document.body.removeChild(ta);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+function switchScreen(target) {
+    currentScreen = target;
+    stopReelEngine();
+
+    ['home','paste','preview'].forEach(id =>
+        document.getElementById('screen-' + id).classList.add('hidden')
+    );
+
+    const backBtn    = document.getElementById('nav-back');
+    const nextBtn    = document.getElementById('nav-next');
+    const exportBtn  = document.getElementById('nav-export');
+    const stepInd    = document.getElementById('step-indicator');
+    const headerProg = document.getElementById('header-progress');
+
+    backBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    exportBtn.classList.add('hidden');
+
+    if (target === 'home') {
+        generatePromptTextUI();
+        document.getElementById('screen-home').classList.remove('hidden');
+        nextBtn.innerText  = 'NEXT: Upload & Paste →';
+        nextBtn.disabled   = false;
+        stepInd.innerText  = 'Step 1/3';
+        headerProg.style.width = '33%';
+
+    } else if (target === 'paste') {
+        document.getElementById('screen-paste').classList.remove('hidden');
+        backBtn.classList.remove('hidden');
+        nextBtn.classList.add('hidden');
+        stepInd.innerText  = 'Step 2/3';
+        headerProg.style.width = '66%';
+
+    } else if (target === 'preview') {
+        document.getElementById('screen-preview').classList.remove('hidden');
+        backBtn.classList.remove('hidden');
+        nextBtn.classList.add('hidden');
+        exportBtn.classList.remove('hidden');
+        stepInd.innerText  = 'Step 3/3';
+        headerProg.style.width = '100%';
+        const titleInput = document.getElementById('project-title-input');
+        if (titleInput && reelPlanData) titleInput.value = reelPlanData.title || '';
+        if (reelPlanData) buildCinematicPlayerEngine();
+    }
+
+    saveState();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigateNext() { if (currentScreen === 'home') switchScreen('paste'); }
+function navigateBack() {
+    if (currentScreen === 'paste')   switchScreen('home');
+    else if (currentScreen === 'preview') switchScreen('paste');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHOTO UPLOAD & DRAG-DROP
+═══════════════════════════════════════════════════════════════ */
+function handlePhotoUploads(e) {
+    processPhotoFiles(Array.from(e.target.files));
+}
+
+function processPhotoFiles(files) {
+    if (!files.length) return;
+    revokeAllObjectUrls();
+    uploadedFiles = files.map(f => ({
+        id:      f.name,
+        name:    f.name,
+        fileObj: f,
+        url:     URL.createObjectURL(f)
+    }));
+    renderPhotoListCards();
+    saveState();
+    showToast(`✓ ${files.length} photos loaded`, 'success');
+}
+
+function renderPhotoListCards() {
+    const container  = document.getElementById('upload-list-container');
+    const list       = document.getElementById('photo-list');
+    const statusText = document.getElementById('upload-status-text');
+
+    if (statusText) {
+        statusText.innerText = uploadedFiles.length > 0
+            ? `✓ ${uploadedFiles.length} Photos Selected`
+            : 'Drop photos here or tap to browse';
+        statusText.style.color = uploadedFiles.length > 0 ? '#FFB300' : '';
+    }
+
+    if (!container || !list) return;
+
+    if (!uploadedFiles.length) { container.classList.add('hidden'); return; }
+
+    container.classList.remove('hidden');
+    list.innerHTML = '';
+
+    uploadedFiles.forEach(photo => {
+        const dn   = photo.name.length > 20 ? photo.name.slice(0, 17) + '…' : photo.name;
+        const card = document.createElement('div');
+        card.className  = 'premium-card rounded-xl p-2.5 flex items-center gap-3 select-none';
+        card.dataset.id = photo.name;
+        card.innerHTML  = `
+            <div class="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden flex-shrink-0">
+                <img src="${photo.url}" class="w-full h-full object-cover" loading="lazy">
+            </div>
+            <span class="flex-1 text-[11px] font-medium text-neutral-300 truncate" title="${photo.name}">${dn}</span>
+            <button onclick="deletePhotoCard('${photo.name}')"
+                    class="p-1.5 text-neutral-600 hover:text-red-400 transition-colors flex-shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+            <div class="drag-handle p-1.5 text-neutral-600 cursor-grab active:cursor-grabbing touch-none flex-shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </div>`;
+        list.appendChild(card);
+    });
+
+    // Auto-open accordion
+    const content = document.getElementById('sequence-accordion-content');
+    const icon    = document.getElementById('sequence-accordion-icon');
+    if (content) content.classList.remove('hidden');
+    if (icon)    icon.style.transform = 'rotate(180deg)';
+
+    // SortableJS
+    if (sortableInstance) sortableInstance.destroy();
+    if (typeof Sortable !== 'undefined') {
+        sortableInstance = new Sortable(list, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'opacity-40',
+            onEnd: () => {
+                const order = Array.from(list.children).map(c => c.dataset.id);
+                uploadedFiles = order.map(id => uploadedFiles.find(p => p.name === id));
+                saveState();
+            }
         });
+    }
+}
 
-        function switchScreen(target) {
-            currentScreen = target;
-            
-            document.getElementById('screen-home').classList.add('hidden');
-            document.getElementById('screen-prompt').classList.add('hidden');
-            document.getElementById('screen-paste').classList.add('hidden');
-            document.getElementById('screen-preview').classList.add('hidden');
+function deletePhotoCard(name) {
+    const ph = uploadedFiles.find(p => p.name === name);
+    if (ph?.url) URL.revokeObjectURL(ph.url);
+    uploadedFiles = uploadedFiles.filter(p => p.name !== name);
+    renderPhotoListCards();
+    saveState();
+}
 
-            const backBtn = document.getElementById('nav-back');
-            const nextBtn = document.getElementById('nav-next');
-            const exportBtn = document.getElementById('nav-export');
-            const stepIndicator = document.getElementById('step-indicator');
+function initDropZone() {
+    const zone = document.getElementById('drop-zone');
+    if (!zone) return;
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length) processPhotoFiles(files);
+        else showToast('Please drop image files only', 'error');
+    });
+}
 
-            stopReelEngine(); 
+function toggleAccordion(id) {
+    const content = document.getElementById(id + '-content');
+    const icon    = document.getElementById(id + '-icon');
+    if (!content) return;
+    const hidden = content.classList.contains('hidden');
+    content.classList.toggle('hidden', !hidden);
+    if (icon) icon.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
 
-            const headerProgress = document.getElementById('header-progress');
+/* ═══════════════════════════════════════════════════════════════
+   JSON VALIDATION
+═══════════════════════════════════════════════════════════════ */
+function validateAndProcessJSON() {
+    const raw   = document.getElementById('json-input').value.trim();
+    const vBox  = document.getElementById('validation-box');
+    const eBox  = document.getElementById('error-feedback');
 
-            if (target === 'home') {
-                generatePromptTextUI();
-                document.getElementById('screen-home').classList.remove('hidden');
-                backBtn.classList.add('hidden');
-                nextBtn.classList.remove('hidden');
-                exportBtn.classList.add('hidden');
-                nextBtn.innerText = "NEXT: UPLOAD & PASTE";
-                nextBtn.disabled = false;
-                stepIndicator.innerText = "Step 1/3";
-                if(headerProgress) headerProgress.style.width = "33%";
-            } else if (target === 'paste') {
-                document.getElementById('screen-paste').classList.remove('hidden');
-                backBtn.classList.remove('hidden');
-                nextBtn.classList.add('hidden');
-                exportBtn.classList.add('hidden');
-                stepIndicator.innerText = "Step 2/3";
-                if(headerProgress) headerProgress.style.width = "66%";
-            } else if (target === 'preview') {
-                document.getElementById('screen-preview').classList.remove('hidden');
-                backBtn.classList.remove('hidden');
-                nextBtn.classList.add('hidden');
-                exportBtn.classList.remove('hidden');
-                stepIndicator.innerText = "Step 3/3";
-                if(headerProgress) headerProgress.style.width = "100%";
-                if(reelPlanData) buildCinematicPlayerEngine();
-            }
-            
-            saveState();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    eBox.classList.add('hidden');
+    vBox.classList.remove('hidden');
+
+    const setV = (el, state, msg) => {
+        const icons  = { idle:'●', pending:'⏳', ok:'✓', err:'✕' };
+        const colors = { idle:'text-neutral-500', pending:'text-amber-400', ok:'text-green-400 font-semibold', err:'text-red-400 font-semibold' };
+        el.className = 'flex items-center gap-2 text-[11px] ' + colors[state];
+        el.innerHTML = `<span>${icons[state]}</span> ${msg}`;
+    };
+
+    const vJson   = document.getElementById('v-json');
+    const vPhotos = document.getElementById('v-photos');
+    const vEffects= document.getElementById('v-effects');
+
+    setV(vJson,   'pending', 'Validating JSON format...');
+    setV(vPhotos, 'idle',    'Mapping photos...');
+    setV(vEffects,'idle',    'Applying effects...');
+
+    setTimeout(() => {
+        // Step 1: Parse
+        let parsed = null;
+        try {
+            let s = raw;
+            const m = s.match(/```(?:json)?\s*([\s\S]*?)```/);
+            if (m) s = m[1].trim();
+            parsed = JSON.parse(s);
+            setV(vJson, 'ok', 'JSON format valid ✓');
+        } catch (e) {
+            setV(vJson, 'err', 'Invalid JSON — cannot parse');
+            showValError('JSON Parse Error',
+                [`Detail: ${e.message.slice(0, 80)}`],
+                '💡 Fix: Copy the AI response again. Make sure it starts with { and ends with }');
+            return;
         }
 
-        function navigateNext() {
-            if (currentScreen === 'home') switchScreen('paste');
-        }
-
-        function navigateBack() {
-            if (currentScreen === 'paste') switchScreen('home');
-            else if (currentScreen === 'preview') switchScreen('paste');
-        }
-
-        function handlePhotoUploads(e) {
-            const files = Array.from(e.target.files);
-            if (!files.length) return;
-
-            uploadedFiles = []; 
-            files.forEach((file) => {
-                const objectUrl = URL.createObjectURL(file);
-                uploadedFiles.push({
-                    id: file.name, 
-                    name: file.name,
-                    fileObj: file,
-                    url: objectUrl
-                });
-            });
-
-            renderPhotoListCards();
-            saveState();
-        }
-
-        let sortableInstance = null;
-
-        function renderPhotoListCards() {
-            // Update Text
-            const statusText = document.getElementById('upload-status-text');
-            if(statusText) {
-                if(uploadedFiles.length > 0) {
-                    statusText.innerText = uploadedFiles.length + " Photos Selected ✓";
-                    statusText.classList.add('text-amber-400');
-                } else {
-                    statusText.innerText = "Choose Photos (0 Selected)";
-                    statusText.classList.remove('text-amber-400');
-                }
-            }
-
-            // Render List HTML
-            const container = document.getElementById('upload-list-container');
-            const list = document.getElementById('photo-list');
-            
-            if (!container || !list) return;
-
-            if (!uploadedFiles.length) {
-                container.classList.add('hidden');
+        setTimeout(() => {
+            // Step 2: Schema + photo mapping
+            if (!parsed?.reel?.scenes || !Array.isArray(parsed.reel.scenes)) {
+                setV(vPhotos, 'err', 'Invalid structure');
+                showValError('Wrong JSON Structure',
+                    ['Expected: { "reel": { "scenes": [...] } }'],
+                    '💡 Fix: Use the exact prompt provided in Step 1');
                 return;
             }
-            
-            container.classList.remove('hidden');
-            list.innerHTML = '';
 
-            uploadedFiles.forEach((photo) => {
-                const card = document.createElement('div');
-                card.className = 'premium-card rounded-xl p-3 flex items-center justify-between gap-3 select-none';
-                card.setAttribute('data-id', photo.name); // Using filename
-                
-                const displayId = photo.name.length > 15 ? photo.name.substring(0,12) + "..." : photo.name;
+            const FX   = ['slow_zoom_in','pan_left','cinematic_zoom','slow_zoom_out','pan_right','dramatic_reveal'];
+            let fxIdx  = 0;
+            const missing = [];
+            const slides  = [];
 
-                card.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden flex-shrink-0">
-                            <img src="${photo.url}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex flex-col min-w-0">
-                            <span class="text-xs font-bold text-amber-500 tracking-wider truncate" title="${photo.name}">${displayId}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 flex-shrink-0">
-                        <button onclick="deletePhotoCard('${photo.name}')" class="p-1.5 text-neutral-500 hover:text-red-400 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                        <div class="drag-handle p-1.5 text-neutral-600 cursor-grab active:cursor-grabbing touch-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        </div>
-                    </div>
-                `;
-                list.appendChild(card);
+            parsed.reel.scenes.forEach(scene => {
+                if (!Array.isArray(scene.filenames)) return;
+                scene.filenames.forEach((filename, i) => {
+                    const found = uploadedFiles.find(p => p.name === filename);
+                    if (!found) { missing.push(filename); return; }
+                    // Auto-number caption when scene has multiple photos
+                    let caption = scene.caption || '';
+                    if (scene.filenames.length > 1) caption += ` • ${i + 1}/${scene.filenames.length}`;
+                    slides.push({
+                        filename,
+                        stage:    scene.stage || 'Construction',
+                        caption,
+                        effect:   FX[fxIdx++ % FX.length],
+                        duration: 3
+                    });
+                });
             });
 
-            // Re-initialize SortableJS for Drag & Drop
-            if (sortableInstance) sortableInstance.destroy();
-            if (typeof Sortable !== 'undefined') {
-                sortableInstance = new Sortable(list, {
-                    animation: 150,
-                    handle: '.drag-handle',
-                    ghostClass: 'opacity-50',
-                    onEnd: function () {
-                        const newOrderIds = Array.from(list.children).map(child => child.getAttribute('data-id'));
-                        const reorderedFiles = newOrderIds.map(id => uploadedFiles.find(p => p.name === id));
-                        uploadedFiles = reorderedFiles;
-                        saveState();
-                    }
-                });
-            }
-        }
-
-        function deletePhotoCard(id) {
-            uploadedFiles = uploadedFiles.filter(p => p.name !== id);
-            renderPhotoListCards();
-            saveState();
-        }
-
-        function generatePromptTextUI() {
-            const promptStr = PROMPT_TEMPLATE_PREFIX + "\n" + PROMPT_TEMPLATE_SUFFIX;
-            document.getElementById('prompt-box').innerText = promptStr;
-        }
-
-        function copyPrompt() {
-            const promptText = document.getElementById('prompt-box').innerText;
-            
-            const showSuccess = () => {
-                const btnText = document.getElementById('copy-btn-text');
-                btnText.innerText = "Prompt Copied! ✓";
-                btnText.classList.add("text-amber-400");
-                setTimeout(() => {
-                    btnText.innerText = "Copy Prompt to Clipboard";
-                    btnText.classList.remove("text-amber-400");
-                }, 2000);
-            };
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(promptText).then(showSuccess).catch(fallbackCopyTextToClipboard);
-            } else {
-                fallbackCopyTextToClipboard();
+            if (missing.length > 0) {
+                setV(vPhotos, 'err', `${missing.length} photo(s) not found`);
+                const details = missing.slice(0, 5).map(f => `• ${f}`);
+                if (missing.length > 5) details.push(`… and ${missing.length - 5} more`);
+                showValError(`Photo Mismatch — ${missing.length} file(s) not found`, details,
+                    '💡 Fix: Re-upload via Files app (not Gallery). Or check JSON filenames match exactly.');
+                return;
             }
 
-            function fallbackCopyTextToClipboard() {
-                const textArea = document.createElement("textarea");
-                textArea.value = promptText;
-                textArea.style.top = "0";
-                textArea.style.left = "0";
-                textArea.style.position = "fixed";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showSuccess();
-                } catch (err) {
-                    alert("Copy failed. Please copy the text manually.");
-                }
-                document.body.removeChild(textArea);
+            if (slides.length === 0) {
+                setV(vPhotos, 'err', 'No slides generated');
+                showValError('No valid slides', ['JSON has scenes but filenames did not match any uploaded photo.'],
+                    '💡 Fix: Ensure filenames in JSON exactly match your uploaded photo names.');
+                return;
             }
-        }
 
-        function validateAndProcessJSON() {
-            const inputData = document.getElementById('json-input').value.trim();
-            const errorBox = document.getElementById('error-feedback');
-            const validationBox = document.getElementById('validation-box');
-            
-            errorBox.classList.add('hidden');
-            validationBox.classList.remove('hidden');
-
-            const vJson = document.getElementById('v-json');
-            const vPhotos = document.getElementById('v-photos');
-            const vEffects = document.getElementById('v-effects');
-
-            vJson.className = "flex items-center gap-2 text-neutral-400"; vJson.innerHTML = "<span>⏳</span> Validating JSON format...";
-            vPhotos.className = "flex items-center gap-2 text-neutral-500"; vPhotos.innerHTML = "<span>●</span> Mapping Photo IDs...";
-            vEffects.className = "flex items-center gap-2 text-neutral-500"; vEffects.innerHTML = "<span>●</span> Processing Effects & Timing...";
+            setV(vPhotos, 'ok', `${slides.length} photos mapped ✓`);
 
             setTimeout(() => {
-                let parsedObj = null;
-                try {
-                    let cleanStr = inputData;
-                    if (cleanStr.includes('```json')) {
-                        cleanStr = cleanStr.split('```json')[1].split('```')[0].trim();
-                    } else if (cleanStr.includes('```')) {
-                        cleanStr = cleanStr.split('```')[1].split('```')[0].trim();
-                    }
-                    parsedObj = JSON.parse(cleanStr);
-                    vJson.className = "flex items-center gap-2 text-green-400 font-medium"; vJson.innerHTML = "<span>✓</span> JSON Structure Validated";
-                } catch(e) {
-                    vJson.className = "flex items-center gap-2 text-red-400 font-medium"; vJson.innerHTML = "<span>✕</span> Invalid JSON Format";
-                    showValidationError("Could not parse JSON. Ensure your text forms a complete valid JSON structure.");
-                    return;
-                }
+                setV(vEffects, 'ok', 'Auto-effects applied ✓');
+                reelPlanData = { title: parsed.reel.title || 'My Project', slides };
+                setTimeout(() => switchScreen('preview'), 700);
+            }, 500);
 
-                setTimeout(() => {
-                    if (!parsedObj.reel || !Array.isArray(parsedObj.reel.scenes)) {
-                        vPhotos.className = "flex items-center gap-2 text-red-400 font-medium"; vPhotos.innerHTML = "<span>✕</span> Missing scenes array";
-                        showValidationError("Invalid schema layout. JSON must contain 'scenes' array inside 'reel'.");
-                        return;
-                    }
+        }, 550);
+    }, 500);
+}
 
-                    let missingIds = [];
-                    let flattenedSlides = [];
-                    const effectsList = ['slow_zoom_in', 'pan_left', 'slow_zoom_out', 'pan_right', 'cinematic_zoom', 'dramatic_reveal'];
-                    let effectCounter = 0;
+function showValError(title, details, fix) {
+    document.getElementById('error-title').innerText = title;
+    document.getElementById('error-details').innerHTML = details.map(d => `<p>${d}</p>`).join('');
+    document.getElementById('error-fix').innerText = fix || '';
+    document.getElementById('error-feedback').classList.remove('hidden');
+}
 
-                    parsedObj.reel.scenes.forEach(scene => {
-                        if(!Array.isArray(scene.filenames)) return;
-                        scene.filenames.forEach(filename => {
-                            const exists = uploadedFiles.some(p => p.name === filename);
-                            if (!exists) {
-                                missingIds.push(filename);
-                            } else {
-                                flattenedSlides.push({
-                                    filename: filename,
-                                    stage: scene.stage || "Construction",
-                                    caption: scene.caption || "",
-                                    effect: effectsList[effectCounter % effectsList.length], 
-                                    duration: 3
-                                });
-                                effectCounter++;
-                            }
-                        });
+/* ═══════════════════════════════════════════════════════════════
+   REEL PLAYER ENGINE
+═══════════════════════════════════════════════════════════════ */
+function buildCinematicPlayerEngine() {
+    const slidesContainer = document.getElementById('reel-slides-container');
+    const captionsList    = document.getElementById('editable-captions-list');
+    if (!slidesContainer || !captionsList || !reelPlanData) return;
+
+    slidesContainer.innerHTML = '';
+    captionsList.innerHTML    = '';
+
+    const FX_OPTIONS = [
+        { val:'slow_zoom_in',    label:'Slow Zoom In' },
+        { val:'slow_zoom_out',   label:'Slow Zoom Out' },
+        { val:'pan_left',        label:'Pan Left' },
+        { val:'pan_right',       label:'Pan Right' },
+        { val:'cinematic_zoom',  label:'Cinematic Zoom' },
+        { val:'dramatic_reveal', label:'Dramatic Reveal' }
+    ];
+
+    reelPlanData.slides.forEach((slide, idx) => {
+        const photo    = uploadedFiles.find(p => p.name === slide.filename);
+        if (!photo) return;
+        const effect   = slide.effect   || 'slow_zoom_in';
+        const duration = slide.duration || 3;
+
+        // ── Slide div ──
+        const slideDiv = document.createElement('div');
+        slideDiv.id    = `reel-slide-${idx}`;
+        slideDiv.className = 'absolute inset-0 w-full h-full overflow-hidden bg-black';
+        slideDiv.style.cssText = 'opacity:0;z-index:1;transition:none;';
+        slideDiv.innerHTML = `<img id="img-slide-${idx}" src="${photo.url}"
+            class="w-full h-full object-cover origin-center effect-${effect}"
+            style="--dur:${duration}s;" draggable="false">`;
+        slidesContainer.appendChild(slideDiv);
+
+        // ── Edit card ──
+        let selHtml = `<select id="effect-select-${idx}" onchange="updateSlideEffect(${idx},this.value)"
+            class="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-1.5 py-1.5 text-[10px] text-amber-400 focus-glow outline-none min-w-0">`;
+        FX_OPTIONS.forEach(o => {
+            selHtml += `<option value="${o.val}" ${o.val === effect ? 'selected' : ''}>${o.label}</option>`;
+        });
+        selHtml += '</select>';
+
+        const editCard = document.createElement('div');
+        editCard.className    = 'premium-card rounded-xl p-2.5 flex gap-2.5 border border-transparent transition-all duration-300';
+        editCard.dataset.idx  = idx;
+        editCard.innerHTML    = `
+            <div class="w-10 h-10 rounded-lg bg-neutral-900 overflow-hidden border border-neutral-800 flex-shrink-0
+                        cursor-pointer hover:border-amber-500/60 transition-all relative group"
+                 onclick="jumpToSlide(${idx})" title="Jump to slide ${idx + 1}">
+                <img src="${photo.url}" class="w-full h-full object-cover" loading="lazy">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                    <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col gap-1.5 min-w-0">
+                <input type="text" value="${slide.caption.replace(/"/g,'&quot;')}"
+                       oninput="updateSlideCaption(${idx},this.value)"
+                       placeholder="Caption…"
+                       class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2 py-1.5 text-[11px] text-white focus-glow transition-all">
+                <div class="flex items-center gap-1.5">
+                    ${selHtml}
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <input type="number" min="1" max="15" value="${duration}"
+                               oninput="updateSlideDuration(${idx},this.value)"
+                               class="w-9 bg-neutral-950 border border-neutral-800 rounded-lg px-1 py-1.5 text-[10px] text-white text-center focus-glow">
+                        <span class="text-[10px] text-neutral-600">s</span>
+                    </div>
+                </div>
+            </div>`;
+        captionsList.appendChild(editCard);
+    });
+
+    currentSlideIndex   = 0;
+    slideElapsedAtPause = 0;
+    setCaptionStyle(currentCaptionStyle);
+    updateTotalTimeDisplay();
+    isPlaying = true;
+    updatePlayPauseUIControls();
+    renderActiveSlide();
+    startSeekbarAnimation();
+}
+
+/* ── Core render function ── */
+function renderActiveSlide() {
+    if (!reelPlanData?.slides?.length) return;
+    stopTimersOnly();
+
+    const slides = reelPlanData.slides;
+    const total  = slides.length;
+
+    // Loop back
+    if (currentSlideIndex >= total) {
+        currentSlideIndex = 0;
+        if (audioElement) { audioElement.currentTime = 0; if (isPlaying) audioElement.play().catch(()=>{}); }
+    }
+
+    const slide        = slides[currentSlideIndex];
+    const baseDurMs    = (slide.duration || 3) * 1000;
+    const effectiveDur = baseDurMs / playbackSpeed;
+    const prevIdx      = (currentSlideIndex - 1 + total) % total;
+
+    // ── Crossfade ──
+    for (let i = 0; i < total; i++) {
+        const el = document.getElementById(`reel-slide-${i}`);
+        if (!el) continue;
+
+        if (i === currentSlideIndex) {
+            // Restart CSS animation
+            const img = el.querySelector('img');
+            if (img) {
+                const cls = img.className.replace(/effect-\S+/g, '').trim();
+                const eff = slide.effect || 'slow_zoom_in';
+                img.className = '';
+                void img.offsetWidth;               // force reflow → restart animation
+                img.className = `${cls} effect-${eff}`;
+                img.style.setProperty('--dur', (slide.duration || 3) + 's');
+            }
+            // Fade in
+            el.style.transition = 'none';
+            el.style.opacity    = '0';
+            el.style.zIndex     = '5';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                el.style.transition = 'opacity 0.6s ease-in-out';
+                el.style.opacity    = '1';
+            }));
+
+        } else if (i === prevIdx && total > 1) {
+            // Previous: hold briefly, then fade out
+            el.style.zIndex     = '4';
+            el.style.opacity    = '1';
+            el.style.transition = 'none';
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.6s ease-in-out';
+                el.style.opacity    = '0';
+            }, 180);
+
+        } else {
+            el.style.opacity    = '0';
+            el.style.zIndex     = '1';
+            el.style.transition = 'none';
+        }
+    }
+
+    // Update overlay text
+    document.getElementById('overlay-stage').innerText   = slide.stage   || 'Construction';
+    document.getElementById('overlay-caption').innerText = slide.caption || '';
+    applyCaptionStyleToDOM();
+
+    // Slide counter
+    const counter = document.getElementById('slide-counter');
+    if (counter) counter.innerText = `${currentSlideIndex + 1} / ${total}`;
+
+    // Highlight edit card
+    highlightActiveEditCard(currentSlideIndex);
+
+    // Progress bar
+    const bar = document.getElementById('reel-progress');
+    if (bar) {
+        bar.style.transition = 'none';
+        bar.style.width      = '0%';
+        void bar.offsetWidth;
+        if (isPlaying) {
+            bar.style.transition = `width ${effectiveDur}ms linear`;
+            bar.style.width      = '100%';
+        }
+    }
+
+    // Mark start time
+    slideStartedAt      = performance.now();
+    slideElapsedAtPause = 0;
+
+    // Schedule next slide
+    if (isPlaying) {
+        slideTimer = setTimeout(() => {
+            currentSlideIndex++;
+            renderActiveSlide();
+        }, effectiveDur);
+    }
+}
+
+function highlightActiveEditCard(idx) {
+    const list = document.getElementById('editable-captions-list');
+    if (!list) return;
+    Array.from(list.children).forEach((c, i) => {
+        c.classList.toggle('edit-card-active', i === idx);
+    });
+    list.children[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function stopTimersOnly() {
+    clearTimeout(slideTimer);  slideTimer = null;
+    cancelAnimationFrame(seekbarAnimFrame); seekbarAnimFrame = null;
+}
+
+function stopReelEngine() {
+    stopTimersOnly();
+    isPlaying = false;
+    audioElement?.pause();
+    updatePlayPauseUIControls();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PLAY / PAUSE  (correct resume from exact position)
+═══════════════════════════════════════════════════════════════ */
+function togglePlayPause() {
+    if (isPlaying) {
+        // ── PAUSE ──
+        stopTimersOnly();
+        slideElapsedAtPause = (performance.now() - slideStartedAt) * playbackSpeed;
+        isPlaying = false;
+        audioElement?.pause();
+
+        // Freeze progress bar at current visual position
+        const bar = document.getElementById('reel-progress');
+        if (bar) {
+            const w = window.getComputedStyle(bar).width;
+            bar.style.transition = 'none';
+            bar.style.width      = w;
+        }
+
+    } else {
+        // ── RESUME ──
+        isPlaying = true;
+        if (audioElement) audioElement.play().catch(()=>{});
+
+        const slide = reelPlanData?.slides?.[currentSlideIndex];
+        if (!slide) { isPlaying = false; updatePlayPauseUIControls(); return; }
+
+        const totalSlideMs = (slide.duration || 3) * 1000;
+        const remainingMs  = Math.max(50, (totalSlideMs - slideElapsedAtPause) / playbackSpeed);
+
+        // Restore slideStartedAt so seekbar calculates correctly
+        slideStartedAt = performance.now() - (slideElapsedAtPause / playbackSpeed);
+
+        // Resume progress bar smoothly
+        const bar = document.getElementById('reel-progress');
+        if (bar) {
+            bar.style.transition = `width ${remainingMs}ms linear`;
+            bar.style.width      = '100%';
+        }
+
+        // Schedule remaining time
+        slideTimer = setTimeout(() => {
+            currentSlideIndex++;
+            renderActiveSlide();
+        }, remainingMs);
+
+        startSeekbarAnimation();
+    }
+    updatePlayPauseUIControls();
+}
+
+function updatePlayPauseUIControls() {
+    const playing = isPlaying;
+    document.getElementById('play-icon') ?.classList.toggle('hidden', playing);
+    document.getElementById('pause-icon')?.classList.toggle('hidden', !playing);
+    document.getElementById('reel-player-window')?.classList.toggle('is-paused', !playing);
+}
+
+function jumpToSlide(idx) {
+    if (!reelPlanData) return;
+    currentSlideIndex   = idx;
+    slideElapsedAtPause = 0;
+    isPlaying = true;
+    updatePlayPauseUIControls();
+    renderActiveSlide();
+    startSeekbarAnimation();
+    if (audioElement?.duration) {
+        let offset = 0;
+        for (let i = 0; i < idx; i++) offset += (reelPlanData.slides[i].duration || 3);
+        audioElement.currentTime = offset % audioElement.duration;
+        audioElement.play().catch(()=>{});
+    }
+}
+
+function toggleSpeed() {
+    const speeds    = [1, 1.5, 2];
+    playbackSpeed   = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
+    document.getElementById('speed-btn').innerText = playbackSpeed + 'x';
+    if (audioElement) audioElement.playbackRate = playbackSpeed;
+
+    if (isPlaying) {
+        // Recalculate remaining time at new speed
+        stopTimersOnly();
+        const slide     = reelPlanData?.slides?.[currentSlideIndex];
+        if (!slide) return;
+        const nowElapsed   = (performance.now() - slideStartedAt) * (playbackSpeed); // using new speed
+        slideElapsedAtPause = nowElapsed;
+        const totalMs      = (slide.duration || 3) * 1000;
+        const remainingMs  = Math.max(50, (totalMs - slideElapsedAtPause) / playbackSpeed);
+        slideStartedAt     = performance.now() - (slideElapsedAtPause / playbackSpeed);
+
+        const bar = document.getElementById('reel-progress');
+        if (bar) { bar.style.transition = `width ${remainingMs}ms linear`; bar.style.width = '100%'; }
+
+        slideTimer = setTimeout(() => { currentSlideIndex++; renderActiveSlide(); }, remainingMs);
+        startSeekbarAnimation();
+    }
+}
+
+function toggleFullscreen() {
+    const player = document.getElementById('reel-player-window');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        (player.requestFullscreen || player.webkitRequestFullscreen || (() => {})).call(player);
+    } else {
+        (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SEEKBAR
+═══════════════════════════════════════════════════════════════ */
+function getTimeline() {
+    let total = 0;
+    const times = [];
+    reelPlanData.slides.forEach(s => { times.push(total); total += (s.duration || 3) * 1000; });
+    return { times, totalMs: total };
+}
+
+function handleSeekbarDrag() {
+    isDraggingSeekbar = true;
+    stopTimersOnly();   // Prevent slide flip during drag
+    if (!reelPlanData) return;
+    const pct  = parseFloat(document.getElementById('main-seekbar').value) / 100;
+    const { totalMs } = getTimeline();
+    const el   = document.getElementById('time-current');
+    if (el) el.innerText = formatTime((pct * totalMs) / 1000);
+}
+
+function seekFromSlider() {
+    isDraggingSeekbar = false;
+    if (!reelPlanData) return;
+
+    const pct  = parseFloat(document.getElementById('main-seekbar').value) / 100;
+    const { times, totalMs } = getTimeline();
+    const targetMs = pct * totalMs;
+
+    let targetIdx = 0;
+    for (let i = times.length - 1; i >= 0; i--) {
+        if (targetMs >= times[i]) { targetIdx = i; break; }
+    }
+
+    currentSlideIndex   = targetIdx;
+    slideElapsedAtPause = targetMs - times[targetIdx];
+
+    if (audioElement?.duration) {
+        audioElement.currentTime = (targetMs / 1000) % audioElement.duration;
+    }
+
+    isPlaying = true;
+    updatePlayPauseUIControls();
+    if (audioElement) audioElement.play().catch(()=>{});
+    renderActiveSlide();
+    startSeekbarAnimation();
+}
+
+function startSeekbarAnimation() {
+    if (seekbarAnimFrame) cancelAnimationFrame(seekbarAnimFrame);
+    if (!reelPlanData) return;
+
+    const { times, totalMs } = getTimeline();
+    const seekbar   = document.getElementById('main-seekbar');
+    const timeCurEl = document.getElementById('time-current');
+
+    const tick = () => {
+        if (!isPlaying || isDraggingSeekbar) { seekbarAnimFrame = null; return; }
+        const elapsed   = (performance.now() - slideStartedAt) * playbackSpeed;
+        const slideMs   = (reelPlanData.slides[currentSlideIndex]?.duration || 3) * 1000;
+        const clamped   = Math.min(elapsed, slideMs);
+        const totalElapsed = (times[currentSlideIndex] || 0) + clamped;
+        const pct       = Math.min(100, (totalElapsed / totalMs) * 100);
+        if (seekbar)   seekbar.value       = pct;
+        if (timeCurEl) timeCurEl.innerText = formatTime(totalElapsed / 1000);
+        seekbarAnimFrame = requestAnimationFrame(tick);
+    };
+    seekbarAnimFrame = requestAnimationFrame(tick);
+}
+
+function updateTotalTimeDisplay() {
+    if (!reelPlanData) return;
+    let t = 0;
+    reelPlanData.slides.forEach(s => t += (s.duration || 3));
+    const el = document.getElementById('time-total');
+    if (el) el.innerText = formatTime(t);
+}
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SLIDE EDITORS
+═══════════════════════════════════════════════════════════════ */
+function updateSlideCaption(idx, val) {
+    if (!reelPlanData?.slides?.[idx]) return;
+    reelPlanData.slides[idx].caption = val;
+    if (idx === currentSlideIndex)
+        document.getElementById('overlay-caption').innerText = val;
+    saveState();
+}
+
+function updateSlideEffect(idx, val) {
+    if (!reelPlanData?.slides?.[idx]) return;
+    reelPlanData.slides[idx].effect = val;
+    const img = document.getElementById(`img-slide-${idx}`);
+    if (img) {
+        const base = img.className.replace(/effect-\S+/g, '').trim();
+        img.className = '';
+        void img.offsetWidth;
+        img.className = `${base} effect-${val}`;
+    }
+    saveState();
+}
+
+function updateSlideDuration(idx, val) {
+    if (!reelPlanData?.slides?.[idx]) return;
+    const n = Math.max(1, Math.min(15, parseInt(val) || 3));
+    reelPlanData.slides[idx].duration = n;
+    const img = document.getElementById(`img-slide-${idx}`);
+    if (img) img.style.setProperty('--dur', n + 's');
+    updateTotalTimeDisplay();
+    saveState();
+}
+
+function applyGlobalDuration(sec) {
+    if (!sec || !reelPlanData) return;
+    const n = parseInt(sec);
+    reelPlanData.slides.forEach((slide, idx) => {
+        slide.duration = n;
+        const img = document.getElementById(`img-slide-${idx}`);
+        if (img) img.style.setProperty('--dur', n + 's');
+        const input = document.querySelector(`#editable-captions-list>div:nth-child(${idx+1}) input[type="number"]`);
+        if (input) input.value = n;
+    });
+    updateTotalTimeDisplay();
+    saveState();
+    showToast(`All slides → ${n}s`, 'info');
+}
+
+function applyGlobalEffect(effect) {
+    if (!effect || !reelPlanData) return;
+    reelPlanData.slides.forEach((slide, idx) => {
+        slide.effect = effect;
+        const img = document.getElementById(`img-slide-${idx}`);
+        if (img) {
+            const base = img.className.replace(/effect-\S+/g,'').trim();
+            img.className = ''; void img.offsetWidth;
+            img.className = `${base} effect-${effect}`;
+        }
+        const sel = document.getElementById(`effect-select-${idx}`);
+        if (sel) sel.value = effect;
+    });
+    saveState();
+    showToast('Effect applied to all slides', 'info');
+    if (isPlaying) renderActiveSlide();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPTION STYLE
+═══════════════════════════════════════════════════════════════ */
+function setCaptionStyle(name) {
+    currentCaptionStyle = name;
+    ['cinematic','boxed','strip','minimal_left'].forEach(s => {
+        const btn = document.getElementById('style-btn-' + s);
+        if (!btn) return;
+        btn.classList.remove('border-amber-500', 'border-neutral-800');
+        btn.classList.add(s === name ? 'border-amber-500' : 'border-neutral-800');
+    });
+    applyCaptionStyleToDOM();
+    saveState();
+}
+
+function applyCaptionStyleToDOM() {
+    const con   = document.getElementById('overlay-text-container');
+    const sWrap = document.getElementById('overlay-stage-wrapper');
+    const sTxt  = document.getElementById('overlay-stage');
+    const cWrap = document.getElementById('overlay-caption-wrapper');
+    const cTxt  = document.getElementById('overlay-caption');
+    if (!con) return;
+
+    // Reset
+    con.className   = 'w-full flex flex-col transition-all duration-300 pb-[4cqw] px-[4cqw]';
+    sWrap.className = '';
+    sTxt.className  = 'font-bold uppercase drop-shadow-md text-[3.8cqw]';
+    cWrap.className = '';
+    cTxt.className  = 'font-bold drop-shadow-md leading-snug text-[5.5cqw] mt-[1cqw]';
+
+    if (currentCaptionStyle === 'cinematic') {
+        con.classList.add('items-center','text-center');
+        sTxt.classList.add('text-amber-400');
+        cTxt.classList.add('text-white');
+
+    } else if (currentCaptionStyle === 'boxed') {
+        con.classList.add('items-center','text-center');
+        sWrap.className = 'border border-amber-500 bg-black/50 backdrop-blur-sm inline-block px-[3cqw] py-[1cqw] mb-[1cqw]';
+        sTxt.classList.add('text-amber-400');
+        cTxt.classList.add('text-white');
+
+    } else if (currentCaptionStyle === 'strip') {
+        con.classList.add('items-center','text-center');
+        sWrap.className = 'bg-[#171717] inline-block px-[3cqw] py-[1cqw]';
+        sTxt.className  = 'font-bold uppercase text-white text-[3.5cqw]';
+        cWrap.className = 'bg-amber-500 inline-block mt-[0.5cqw] px-[4cqw] py-[1cqw]';
+        cTxt.className  = 'font-bold text-neutral-950 text-[5cqw]';
+
+    } else if (currentCaptionStyle === 'minimal_left') {
+        con.classList.add('items-start','text-left');
+        sWrap.className = 'border-l-[0.8cqw] border-amber-500 pl-[2cqw]';
+        sTxt.className  = 'font-bold uppercase text-neutral-300 text-[3.5cqw]';
+        cWrap.className = 'border-l-[0.8cqw] border-amber-500 pl-[2cqw] mt-[1cqw]';
+        cTxt.className  = 'font-bold text-white text-[5.5cqw]';
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EDITOR TABS
+═══════════════════════════════════════════════════════════════ */
+function switchEditorTab(tabId) {
+    ['tab-captions','tab-style','tab-audio','tab-global'].forEach(id => {
+        const content = document.getElementById(id);
+        const btn     = document.getElementById('btn-' + id);
+        if (!content || !btn) return;
+        const active = id === tabId;
+        content.classList.toggle('hidden', !active);
+        btn.classList.toggle('text-amber-500', active);
+        btn.classList.toggle('bg-neutral-800',  active);
+        btn.classList.toggle('text-neutral-500', !active);
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AUDIO
+═══════════════════════════════════════════════════════════════ */
+function handleAudioSelection(val) {
+    if (val === 'custom') { document.getElementById('custom-audio-input').click(); return; }
+    document.getElementById('custom-audio-label').classList.add('hidden');
+    selectedAudioUrl = val === 'none' ? null : val;
+    setupAudioElement();
+}
+
+function handleCustomAudioUpload(e) {
+    const file = e.target.files[0];
+    if (!file) { handleAudioSelection('none'); return; }
+    selectedAudioUrl = URL.createObjectURL(file);
+    const label = document.getElementById('custom-audio-label');
+    label.innerText = `🎵 ${file.name.length > 25 ? file.name.slice(0,22)+'…' : file.name}`;
+    label.classList.remove('hidden');
+    setupAudioElement();
+}
+
+function setupAudioElement() {
+    if (audioElement) { audioElement.pause(); audioElement.src = ''; audioElement = null; }
+    if (!selectedAudioUrl) return;
+    audioElement = new Audio();
+    audioElement.crossOrigin   = 'anonymous'; // Must be BEFORE src
+    audioElement.loop          = true;
+    audioElement.playbackRate  = playbackSpeed;
+    audioElement.src           = selectedAudioUrl; // Set AFTER crossOrigin
+    audioElement.load();
+    if (isPlaying) audioElement.play().catch(()=>{});
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPORT  (720p · 4 Mbps · Web Share API)
+═══════════════════════════════════════════════════════════════ */
+async function triggerExport() {
+    const btn        = document.getElementById('nav-export');
+    const contentEl  = document.getElementById('export-btn-content');
+    const origHTML   = contentEl.innerHTML;
+    btn.disabled     = true;
+
+    const setProgress = (pct, msg) => {
+        contentEl.innerHTML = `
+          <div class="flex flex-col gap-1 items-center w-full">
+            <span class="text-[11px] font-bold">${msg}</span>
+            <div class="w-40 bg-neutral-950/50 rounded-full h-1.5 overflow-hidden">
+              <div class="h-full bg-neutral-950 rounded-full transition-all duration-300" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+    };
+
+    const resetBtn = (success) => {
+        contentEl.innerHTML = success ? '✓ Export Done!' : '✕ Export Failed';
+        btn.classList.toggle('bg-green-500', success);
+        btn.classList.toggle('text-neutral-950', success);
+        btn.classList.toggle('amber-btn', !success);
+        setTimeout(() => {
+            contentEl.innerHTML = origHTML;
+            btn.disabled = false;
+            btn.className = btn.className.replace('bg-green-500 text-neutral-950','');
+            btn.classList.add('amber-btn');
+        }, 3000);
+    };
+
+    try {
+        setProgress(5, 'Loading images…');
+
+        // Pre-load all images
+        const imgCache = {};
+        for (const slide of reelPlanData.slides) {
+            if (!imgCache[slide.filename]) {
+                const photo = uploadedFiles.find(p => p.name === slide.filename);
+                if (photo) {
+                    imgCache[slide.filename] = await new Promise(res => {
+                        const img = new Image();
+                        img.onload  = () => res(img);
+                        img.onerror = () => res(null);
+                        img.src     = photo.url;
                     });
-
-                    if (missingIds.length > 0) {
-                        vPhotos.className = "flex items-center gap-2 text-red-400 font-medium"; vPhotos.innerHTML = "<span>✕</span> Mapping Errors Detected";
-                        const missingText = missingIds.slice(0,3).join(', ') + (missingIds.length > 3 ? '...' : '');
-                        showValidationError("Photo Mismatch: Ensure you uploaded EXACTLY the photos you gave to AI. Missing: [" + missingText + "]");
-                        return;
-                    }
-                    if (flattenedSlides.length === 0) {
-                        showValidationError("No valid photos mapped from the JSON.");
-                        return;
-                    }
-
-                    vPhotos.className = "flex items-center gap-2 text-green-400 font-medium"; vPhotos.innerHTML = "<span>✓</span> Photos Mapped & Flattened";
-
-                    setTimeout(() => {
-                        vEffects.className = "flex items-center gap-2 text-green-400 font-medium"; vEffects.innerHTML = "<span>✓</span> Auto-Effects Applied";
-                        
-                        reelPlanData = {
-                            title: parsedObj.reel.title || "Project",
-                            slides: flattenedSlides
-                        };
-                        
-                        setTimeout(() => {
-                            switchScreen('preview');
-                        }, 800);
-                    }, 600);
-                }, 600);
-            }, 600);
-        }
-
-        function showValidationError(txt) {
-            const errorBox = document.getElementById('error-feedback');
-            errorBox.innerText = txt;
-            errorBox.classList.remove('hidden');
-        }
-
-        function buildCinematicPlayerEngine() {
-            const slidesContainer = document.getElementById('reel-slides-container');
-            const quickEditorsList = document.getElementById('editable-captions-list');
-            
-            slidesContainer.innerHTML = '';
-            quickEditorsList.innerHTML = '';
-
-            const effectOptions = [
-                {val: 'slow_zoom_in', label: 'Slow Zoom In'},
-                {val: 'slow_zoom_out', label: 'Slow Zoom Out'},
-                {val: 'pan_left', label: 'Pan Left'},
-                {val: 'pan_right', label: 'Pan Right'},
-                {val: 'cinematic_zoom', label: 'Cinematic Zoom'},
-                {val: 'dramatic_reveal', label: 'Dramatic Reveal'}
-            ];
-
-            reelPlanData.slides.forEach((slide, idx) => {
-                const targetPhoto = uploadedFiles.find(p => p.name === slide.filename); 
-                
-                const slideDiv = document.createElement('div');
-                slideDiv.id = `reel-slide-${idx}`;
-                slideDiv.className = 'absolute inset-0 w-full h-full opacity-0 slide-fade overflow-hidden bg-black flex items-center justify-center';
-                
-                const effectStyle = slide.effect || 'slow_zoom_in';
-                const durationTime = slide.duration || 3;
-
-                slideDiv.innerHTML = `
-                    <img id="img-slide-${idx}" src="${targetPhoto.url}" 
-                         class="w-full h-full object-cover origin-center effect-${effectStyle}" 
-                         style="--dur: ${durationTime}s;">
-                `;
-                slidesContainer.appendChild(slideDiv);
-
-                let selectHtml = `<select onchange="updateSlideEffectMemory(${idx}, this.value)" class="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-[10px] text-amber-500 focus-glow w-full mt-1">`;
-                effectOptions.forEach(opt => {
-                    selectHtml += `<option value="${opt.val}" ${effectStyle === opt.val ? 'selected' : ''}>${opt.label}</option>`;
-                });
-                selectHtml += `</select>`;
-
-                const editRow = document.createElement('div');
-                editRow.className = 'premium-card rounded-xl p-3 flex gap-3 border border-neutral-900';
-                editRow.innerHTML = `
-                    <div class="w-12 flex-shrink-0 flex flex-col gap-1 items-center">
-                        <div class="w-10 h-10 rounded bg-neutral-900 overflow-hidden border border-neutral-800">
-                            <img src="${targetPhoto.url}" class="w-full h-full object-cover">
-                        </div>
-                    </div>
-                    <div class="flex-1 flex flex-col justify-center">
-                        <input type="text" value="${slide.caption}" 
-                               oninput="updateSlideCaptionMemory(${idx}, this.value)" 
-                               class="w-full bg-neutral-900/60 border border-neutral-800 rounded-lg px-2 py-1.5 text-xs text-white focus-glow transition-all duration-300">
-                        ${selectHtml}
-                    </div>
-                `;
-                quickEditorsList.appendChild(editRow);
-            });
-
-            currentSlideIndex = 0;
-            setCaptionStyle(currentCaptionStyle);
-            startSlideShowSequenceLoop();
-        }
-
-        function updateSlideEffectMemory(idx, value) {
-            reelPlanData.slides[idx].effect = value;
-            saveState();
-            const img = document.getElementById(`img-slide-${idx}`);
-            if(img) {
-                img.className = `w-full h-full object-cover origin-center effect-${value}`;
-                if(idx === currentSlideIndex) void img.offsetWidth; 
-            }
-        }
-
-        function updateSlideCaptionMemory(idx, value) {
-            reelPlanData.slides[idx].caption = value;
-            if (idx === currentSlideIndex) {
-                document.getElementById('overlay-caption').innerText = value;
-            }
-            saveState();
-        }
-
-        function switchEditorTab(tabId) {
-            const tabs = ['tab-captions', 'tab-style', 'tab-audio', 'tab-global'];
-            tabs.forEach(id => {
-                const content = document.getElementById(id);
-                const btn = document.getElementById('btn-' + id);
-                if (id === tabId) {
-                    content.classList.remove('hidden');
-                    content.classList.add('block');
-                    btn.classList.add('text-amber-500', 'bg-neutral-800');
-                    btn.classList.remove('text-neutral-500');
-                } else {
-                    content.classList.add('hidden');
-                    content.classList.remove('block');
-                    btn.classList.remove('text-amber-500', 'bg-neutral-800');
-                    btn.classList.add('text-neutral-500');
-                }
-            });
-        }
-
-        function toggleAccordion(accordionId) {
-            const content = document.getElementById(accordionId + '-content');
-            const icon = document.getElementById(accordionId + '-icon');
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                if(icon) icon.style.transform = 'rotate(180deg)';
-            } else {
-                content.classList.add('hidden');
-                if(icon) icon.style.transform = 'rotate(0deg)';
-            }
-        }
-
-        function setCaptionStyle(styleName) {
-            currentCaptionStyle = styleName;
-            const styles = ['cinematic', 'boxed', 'strip', 'minimal_left'];
-            styles.forEach(s => {
-                const btn = document.getElementById('style-btn-' + s);
-                if (!btn) return;
-                if(s === styleName) {
-                    btn.classList.replace('border-neutral-800', 'border-amber-500');
-                    btn.classList.replace('hover:border-neutral-600', 'border-amber-400');
-                } else {
-                    btn.classList.replace('border-amber-500', 'border-neutral-800');
-                    btn.classList.replace('border-amber-400', 'hover:border-neutral-600');
-                }
-            });
-            applyCaptionStyleToDOM();
-            saveState();
-        }
-
-        function applyCaptionStyleToDOM() {
-            const container = document.getElementById('overlay-text-container');
-            const stageWrap = document.getElementById('overlay-stage-wrapper');
-            const stageTxt = document.getElementById('overlay-stage');
-            const capWrap = document.getElementById('overlay-caption-wrapper');
-            const capTxt = document.getElementById('overlay-caption');
-
-            container.className = "w-full flex flex-col transition-all duration-300 pb-[4cqw] px-[4cqw]";
-            stageWrap.className = "";
-            stageTxt.className = "font-bold uppercase drop-shadow-md text-[4cqw]";
-            capWrap.className = "";
-            capTxt.className = "font-bold drop-shadow-md leading-snug text-[5.5cqw] mt-[1cqw]";
-
-            if (currentCaptionStyle === 'cinematic') {
-                container.classList.add('items-center', 'text-center');
-                stageTxt.classList.add('text-[#FFB300]');
-                capTxt.classList.add('text-white');
-            } else if (currentCaptionStyle === 'boxed') {
-                container.classList.add('items-center', 'text-center');
-                stageWrap.className = "border border-[#FFB300] bg-black/50 backdrop-blur-sm inline-block px-[3cqw] py-[1cqw] mb-[1cqw]";
-                stageTxt.classList.add('text-[#FFB300]');
-                capTxt.classList.add('text-white');
-            } else if (currentCaptionStyle === 'strip') {
-                container.classList.add('items-center', 'text-center');
-                stageWrap.className = "bg-[#171717] inline-block px-[3cqw] py-[1cqw]";
-                stageTxt.className = "font-bold uppercase text-white text-[3.5cqw]";
-                capWrap.className = "bg-[#FFB300] shadow-lg inline-block mt-[0.5cqw] px-[4cqw] py-[1cqw]";
-                capTxt.className = "font-bold text-[#171717] text-[5cqw]";
-            } else if (currentCaptionStyle === 'minimal_left') {
-                container.classList.add('items-start', 'text-left');
-                stageWrap.className = "border-l-[0.8cqw] border-[#FFB300] pl-[2cqw]";
-                stageTxt.className = "font-bold uppercase text-[#d4d4d4] text-[3.5cqw]";
-                capWrap.className = "border-l-[0.8cqw] border-[#FFB300] pl-[2cqw] mt-[1cqw]";
-                capTxt.className = "font-bold text-white text-[5.5cqw]";
-            }
-        }
-
-        function startSlideShowSequenceLoop() {
-            if (!reelPlanData || !reelPlanData.slides.length) return;
-            isPlaying = true;
-            updatePlayPauseUIControls();
-            updateTotalTimeDisplay();
-            renderActiveSlideFramePointer();
-            startSeekbarAnimation();
-        }
-
-        function renderActiveSlideFramePointer() {
-            stopReelEngineTimersOnly();
-
-            const slides = reelPlanData.slides;
-            const totalSlides = slides.length;
-            
-            if (currentSlideIndex >= totalSlides) {
-                currentSlideIndex = 0; 
-            }
-
-            const activeSlideData = slides[currentSlideIndex];
-            const baseDurationMs = (activeSlideData.duration || 3) * 1000;
-            const durationMs = baseDurationMs / playbackSpeed;
-
-            for(let i=0; i<totalSlides; i++) {
-                const el = document.getElementById(`reel-slide-${i}`);
-                if (el) {
-                    if (i === currentSlideIndex) {
-                        el.classList.remove('opacity-0');
-                        el.classList.add('opacity-100');
-                        const img = el.querySelector('img');
-                        if (img) {
-                            const currentClass = img.className;
-                            img.className = '';
-                            void img.offsetWidth; 
-                            img.className = currentClass;
-                        }
-                    } else {
-                        el.classList.remove('opacity-100');
-                        el.classList.add('opacity-0');
-                    }
                 }
             }
-
-            document.getElementById('overlay-stage').innerText = activeSlideData.stage || "Construction";
-            document.getElementById('overlay-caption').innerText = activeSlideData.caption || "";
-            applyCaptionStyleToDOM();
-
-            const progressBar = document.getElementById('reel-progress');
-            progressBar.style.transition = 'none';
-            progressBar.style.width = '0%';
-            void progressBar.offsetWidth; 
-            
-            progressBar.style.transition = `width ${durationMs}ms linear`;
-            progressBar.style.width = '100%';
-
-            playbackElapsedTime = performance.now();
-            
-            slideTimer = setTimeout(() => {
-                currentSlideIndex++;
-                renderActiveSlideFramePointer();
-            }, durationMs);
         }
 
-        function stopReelEngineTimersOnly() {
-            if (slideTimer) clearTimeout(slideTimer);
-            if (progressInterval) clearInterval(progressInterval);
-            if (seekbarAnimFrame) cancelAnimationFrame(seekbarAnimFrame);
-        }
+        setProgress(15, 'Setting up encoder…');
 
-        function stopReelEngine() {
-            stopReelEngineTimersOnly();
-            isPlaying = false;
-            if (audioElement) audioElement.pause();
-            updatePlayPauseUIControls();
-        }
+        // 720p canvas
+        const W = 720, H = 1280;
+        const canvas = document.createElement('canvas');
+        canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
-        function togglePlayPause() {
-            if (isPlaying) {
-                stopReelEngineTimersOnly();
-                const progressBar = document.getElementById('reel-progress');
-                progressBar.style.width = window.getComputedStyle(progressBar).width;
-                isPlaying = false;
-                if (audioElement) audioElement.pause();
-            } else {
-                renderActiveSlideFramePointer();
-                startSeekbarAnimation();
-                if (audioElement) audioElement.play().catch(() => {});
-            }
-            updatePlayPauseUIControls();
-        }
+        // Stream
+        const canvasStream = canvas.captureStream(30);
+        let finalStream    = canvasStream;
+        let audioCtx       = null;
 
-        function restartReel() {
-            currentSlideIndex = 0;
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.currentTime = 0;
-            }
-            renderActiveSlideFramePointer();
-            startSeekbarAnimation();
-            if (isPlaying && audioElement) audioElement.play().catch(() => {});
-        }
-
-        function updatePlayPauseUIControls() {
-            const playIcon = document.getElementById('play-icon');
-            const pauseIcon = document.getElementById('pause-icon');
-            const playerWindow = document.getElementById('reel-player-window');
-            if (isPlaying) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-                playerWindow.classList.remove('is-paused');
-            } else {
-                playIcon.classList.remove('hidden');
-                pauseIcon.classList.add('hidden');
-                playerWindow.classList.add('is-paused');
-            }
-        }
-
-        async function triggerMockExport() {
-            const btn = document.getElementById('nav-export');
-            const originalText = btn.innerText;
-            
-            btn.innerText = "PREPARING ASSETS...";
-            btn.disabled = true;
-            btn.style.opacity = "0.7";
-
+        if (selectedAudioUrl) {
             try {
-                const loadedImages = {};
-                for (const slide of reelPlanData.slides) {
-                    if (!loadedImages[slide.filename]) {
-                        const targetPhoto = uploadedFiles.find(p => p.name === slide.filename);
-                        if (targetPhoto) {
-                            loadedImages[slide.filename] = await new Promise((resolve) => {
-                                const img = new Image();
-                                img.onload = () => resolve(img);
-                                img.src = targetPhoto.url;
-                            });
-                        }
-                    }
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const dest   = audioCtx.createMediaStreamDestination();
+                const expAud = new Audio();
+                expAud.crossOrigin = 'anonymous';
+                expAud.src = selectedAudioUrl;
+                const src = audioCtx.createMediaElementSource(expAud);
+                src.connect(dest);
+                expAud.play();
+                const atracks = dest.stream.getAudioTracks();
+                if (atracks.length > 0)
+                    finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
+            } catch (e) { /* audio mix failed, export without */ }
+        }
+
+        // MIME type
+        let mimeType = 'video/webm;codecs=vp8';
+        if (!MediaRecorder.isTypeSupported(mimeType))
+            mimeType = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4';
+
+        const chunks   = [];
+        const recorder = new MediaRecorder(finalStream, { mimeType, videoBitsPerSecond: 4_000_000 });
+        recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+        // Timeline
+        const timings = [];
+        let totalMs = 0;
+        reelPlanData.slides.forEach(slide => {
+            const d = (slide.duration || 3) * 1000;
+            timings.push({ start: totalMs, end: totalMs + d, durMs: d, slide });
+            totalMs += d;
+        });
+
+        recorder.onstop = async () => {
+            if (audioCtx) audioCtx.close();
+            const blob     = new Blob(chunks, { type: mimeType });
+            const ext      = mimeType.includes('mp4') ? 'mp4' : 'webm';
+            const filename = `${(reelPlanData.title||'reel').toLowerCase().replace(/[^a-z0-9]/g,'_')}_reel.${ext}`;
+
+            // Try Web Share API (mobile)
+            let shared = false;
+            if (navigator.canShare) {
+                const file = new File([blob], filename, { type: mimeType });
+                if (navigator.canShare({ files: [file] })) {
+                    try { await navigator.share({ title: reelPlanData.title, files: [file] }); shared = true; }
+                    catch (e) { /* user cancelled */ }
                 }
-
-                btn.innerText = "RECORDING REEL (360p)...";
-
-                const width = 360;
-                const height = 640;
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-
-                const canvasStream = canvas.captureStream(30);
-                let finalStream = canvasStream;
-                let audioCtx = null;
-
-                // Add Audio to Stream
-                if (selectedAudioUrl) {
-                    try {
-                        const AudioContext = window.AudioContext || window.webkitAudioContext;
-                        audioCtx = new AudioContext();
-                        const audioDest = audioCtx.createMediaStreamDestination();
-                        
-                        const exportAudio = new Audio(selectedAudioUrl);
-                        exportAudio.crossOrigin = "anonymous";
-                        const audioSource = audioCtx.createMediaElementSource(exportAudio);
-                        audioSource.connect(audioDest);
-                        
-                        exportAudio.play();
-                        
-                        const audioTracks = audioDest.stream.getAudioTracks();
-                        if (audioTracks.length > 0) {
-                            finalStream = new MediaStream([canvasStream.getVideoTracks()[0], audioTracks[0]]);
-                        }
-                    } catch (e) {
-                        /* Audio mix failed */
-                    }
-                }
-
-                const chunks = [];
-                
-                let mimeType = 'video/webm';
-                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-                    mimeType = 'video/webm;codecs=vp8';
-                } else if (MediaRecorder.isTypeSupported('video/mp4')) {
-                    mimeType = 'video/mp4';
-                }
-                
-                const recorder = new MediaRecorder(finalStream, { mimeType });
-                recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-                
-                recorder.onstop = () => {
-                    if (audioCtx) {
-                        audioCtx.close(); // Clean up audio memory
-                    }
-                    btn.innerText = "EXPORT SUCCESSFUL! ✓";
-                    btn.classList.remove('amber-btn');
-                    btn.classList.add('bg-green-500', 'text-neutral-950');
-
-                    const blob = new Blob(chunks, { type: mimeType });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `${reelPlanData.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}_reel.${ext}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    setTimeout(() => {
-                        btn.innerText = originalText;
-                        btn.disabled = false;
-                        btn.style.opacity = "1";
-                        btn.classList.add('amber-btn');
-                        btn.classList.remove('bg-green-500', 'text-neutral-950');
-                    }, 3000);
-                };
-
-                const slidesTimings = [];
-                let totalDurationMs = 0;
-                reelPlanData.slides.forEach(slide => {
-                    const durMs = (slide.duration || 3) * 1000;
-                    slidesTimings.push({
-                        start: totalDurationMs,
-                        end: totalDurationMs + durMs,
-                        durMs: durMs,
-                        slideData: slide
-                    });
-                    totalDurationMs += durMs;
-                });
-
-                recorder.start();
-                const recordStartTime = performance.now();
-
-                function drawFrame(now) {
-                    const elapsedMs = now - recordStartTime;
-                    
-                    const percent = Math.min(100, Math.floor((elapsedMs / totalDurationMs) * 100));
-                    if (percent % 5 === 0) btn.innerText = `RECORDING REEL ${percent}%...`;
-
-                    if (elapsedMs >= totalDurationMs) {
-                        recorder.stop();
-                        return;
-                    }
-
-                    let currentStageIndex = slidesTimings.findIndex(s => elapsedMs >= s.start && elapsedMs < s.end);
-                    const currentStage = slidesTimings[currentStageIndex];
-                    
-                    if (currentStage) {
-                        const slide = currentStage.slideData;
-                        const img = loadedImages[slide.filename];
-                        const slideElapsed = elapsedMs - currentStage.start;
-                        
-                        ctx.fillStyle = "#0B0B0C";
-                        ctx.fillRect(0, 0, width, height);
-
-                        const crossfadeMs = 800; // 0.8s cinematic crossfade
-                        let alphaCurrent = 1;
-                        let prevStage = null;
-                        
-                        // If not the first slide, grab the previous slide for blending
-                        if (currentStageIndex > 0 && slideElapsed < crossfadeMs) {
-                            prevStage = slidesTimings[currentStageIndex - 1];
-                            alphaCurrent = slideElapsed / crossfadeMs;
-                        }
-
-                        // Helper function to draw slides with continuous animation
-                        const drawSlideImg = (stageObj, stageElapsed, alpha) => {
-                            const sImg = loadedImages[stageObj.slideData.filename];
-                            if (!sImg) return;
-                            const sProg = stageElapsed / stageObj.durMs;
-                            ctx.save();
-                            ctx.globalAlpha = alpha;
-                            ctx.translate(width/2, height/2);
-                            
-                            let scale = 1; let tx = 0, ty = 0;
-                            const effect = stageObj.slideData.effect || 'slow_zoom_in';
-
-                            if (effect === 'slow_zoom_in') scale = 1 + (0.15 * sProg);
-                            else if (effect === 'slow_zoom_out') scale = 1.15 - (0.15 * sProg);
-                            else if (effect === 'pan_left') { scale = 1.1; tx = (width * 0.05) - (width * 0.1 * sProg); }
-                            else if (effect === 'pan_right') { scale = 1.1; tx = -(width * 0.05) + (width * 0.1 * sProg); }
-                            else if (effect === 'cinematic_zoom') scale = 1.02 + (0.10 * sProg);
-                            else if (effect === 'dramatic_reveal') { 
-                                scale = 1.2 - (0.2 * Math.min(sProg * 2, 1)); 
-                                ty = (height * 0.05) - (height * 0.05 * Math.min(sProg * 2, 1)); 
-                            }
-
-                            ctx.translate(tx, ty);
-                            ctx.scale(scale, scale);
-
-                            const imgAspect = sImg.width / sImg.height;
-                            const canvasAspect = width / height;
-                            let dw, dh;
-                            if (imgAspect > canvasAspect) { dh = height; dw = height * imgAspect; } 
-                            else { dw = width; dh = width / imgAspect; }
-
-                            ctx.drawImage(sImg, -dw/2, -dh/2, dw, dh);
-                            ctx.restore();
-                        };
-
-                        // 1. Draw previous slide (it will continue animating smoothly)
-                        if (prevStage) {
-                            drawSlideImg(prevStage, prevStage.durMs + slideElapsed, 1);
-                        }
-
-                        // 2. Draw current slide fading in over it
-                        if (img) {
-                            drawSlideImg(currentStage, slideElapsed, alphaCurrent);
-                        }
-
-                        const grad = ctx.createLinearGradient(0, height * 0.6, 0, height);
-                        grad.addColorStop(0, "rgba(0,0,0,0)");
-                        grad.addColorStop(1, "rgba(0,0,0,0.85)");
-                        ctx.fillStyle = grad;
-                        ctx.fillRect(0, height * 0.6, width, height * 0.4);
-
-                        const stageText = (slide.stage || "Construction").toUpperCase();
-                        const capText = slide.caption || "";
-                        
-                        ctx.save();
-                        if (currentCaptionStyle === 'cinematic') {
-                            ctx.textAlign = "center";
-                            ctx.font = "bold 14px Arial, sans-serif";
-                            ctx.fillStyle = "#FFB300"; 
-                            ctx.fillText(stageText, width/2, height - 50);
-                            ctx.font = "bold 20px Arial, sans-serif";
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillText(capText, width/2, height - 25);
-                        } 
-                        else if (currentCaptionStyle === 'boxed') {
-                            ctx.textAlign = "center";
-                            ctx.font = "bold 14px Arial, sans-serif";
-                            const stageWidth = ctx.measureText(stageText).width;
-                            ctx.fillStyle = "rgba(0,0,0,0.5)";
-                            ctx.fillRect((width/2) - (stageWidth/2) - 8, height - 68, stageWidth + 16, 24);
-                            ctx.strokeStyle = "#FFB300";
-                            ctx.lineWidth = 1;
-                            ctx.strokeRect((width/2) - (stageWidth/2) - 8, height - 68, stageWidth + 16, 24);
-                            ctx.fillStyle = "#FFB300";
-                            ctx.fillText(stageText, width/2, height - 51);
-                            ctx.font = "bold 20px Arial, sans-serif";
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillText(capText, width/2, height - 20);
-                        }
-                        else if (currentCaptionStyle === 'strip') {
-                            ctx.textAlign = "center";
-                            ctx.font = "bold 12px Arial, sans-serif";
-                            const stageWidth = ctx.measureText(stageText).width;
-                            ctx.fillStyle = "#171717"; 
-                            ctx.fillRect((width/2) - (stageWidth/2) - 8, height - 70, stageWidth + 16, 20);
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillText(stageText, width/2, height - 56);
-
-                            ctx.font = "bold 18px Arial, sans-serif";
-                            const capWidth = ctx.measureText(capText).width;
-                            ctx.fillStyle = "#FFB300"; 
-                            ctx.fillRect((width/2) - (capWidth/2) - 10, height - 50, capWidth + 20, 28);
-                            ctx.fillStyle = "#171717";
-                            ctx.fillText(capText, width/2, height - 30);
-                        }
-                        else if (currentCaptionStyle === 'minimal_left') {
-                            ctx.textAlign = "left";
-                            ctx.font = "bold 12px Arial, sans-serif";
-                            ctx.fillStyle = "#FFB300"; 
-                            ctx.fillRect(20, height - 64, 3, 14);
-                            ctx.fillStyle = "#d4d4d4";
-                            ctx.fillText(stageText, 28, height - 52);
-                            ctx.font = "bold 20px Arial, sans-serif";
-                            ctx.fillStyle = "#FFB300";
-                            ctx.fillRect(20, height - 46, 3, 22);
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillText(capText, 28, height - 28);
-                        }
-                        ctx.restore();
-                    }
-                    requestAnimationFrame(drawFrame);
-                }
-                requestAnimationFrame(drawFrame);
-
-            } catch (err) {
-                btn.innerText = "EXPORT FAILED!";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                }, 2000);
             }
-        }
 
-        /* --- Audio & Global Setting Functions --- */
-        function handleAudioSelection(val) {
-            const fileInput = document.getElementById('custom-audio-input');
-            const customLabel = document.getElementById('custom-audio-label');
-            
-            if (val === 'custom') {
-                fileInput.click();
-            } else {
-                fileInput.value = ''; 
-                customLabel.classList.add('hidden');
-                
-                if (val === 'none') selectedAudioUrl = null;
-                else selectedAudioUrl = val;
-                
-                setupAudioElement();
+            // Fallback: direct download
+            if (!shared) {
+                const url = URL.createObjectURL(blob);
+                const a   = document.createElement('a');
+                a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
             }
-        }
 
-        function handleCustomAudioUpload(e) {
-            const file = e.target.files[0];
-            const customLabel = document.getElementById('custom-audio-label');
-            if (file) {
-                selectedAudioUrl = URL.createObjectURL(file);
-                const displayId = file.name.length > 25 ? file.name.substring(0,22) + "..." : file.name;
-                customLabel.innerText = "🎵 " + displayId;
-                customLabel.classList.remove('hidden');
-                setupAudioElement();
-            } else {
-                document.getElementById('audio-track-select').value = 'none';
-                handleAudioSelection('none');
+            resetBtn(true);
+        };
+
+        recorder.start();
+        const t0 = performance.now();
+        const FADE_MS = 650;
+
+        const drawFrame = now => {
+            const elapsed = now - t0;
+            if (elapsed >= totalMs) { recorder.stop(); return; }
+
+            const pct = Math.round((elapsed / totalMs) * 100);
+            if (pct % 4 === 0) setProgress(15 + pct * 0.82, `Encoding ${pct}%…`);
+
+            // Find current timing slot
+            let curIdx = 0;
+            for (let i = timings.length - 1; i >= 0; i--) {
+                if (elapsed >= timings[i].start) { curIdx = i; break; }
             }
-        }
+            const cur         = timings[curIdx];
+            const slideElapsed= elapsed - cur.start;
+            const prevSt      = curIdx > 0 ? timings[curIdx - 1] : null;
+            const alpha       = slideElapsed < FADE_MS ? slideElapsed / FADE_MS : 1;
 
-        function setupAudioElement() {
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.src = "";
+            ctx.fillStyle = '#0B0B0C';
+            ctx.fillRect(0, 0, W, H);
+
+            const drawSlide = (st, stEl, opacity) => {
+                const img = imgCache[st.slide.filename];
+                if (!img) return;
+                const prog = Math.min(1, stEl / st.durMs);
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                ctx.translate(W/2, H/2);
+                let sc = 1, tx = 0, ty = 0;
+                const eff = st.slide.effect || 'slow_zoom_in';
+                if      (eff === 'slow_zoom_in')   sc = 1 + 0.15 * prog;
+                else if (eff === 'slow_zoom_out')  sc = 1.15 - 0.15 * prog;
+                else if (eff === 'pan_left')       { sc = 1.1; tx =  W*0.05 - W*0.1*prog; }
+                else if (eff === 'pan_right')      { sc = 1.1; tx = -W*0.05 + W*0.1*prog; }
+                else if (eff === 'cinematic_zoom') sc = 1.02 + 0.1 * prog;
+                else if (eff === 'dramatic_reveal'){ sc = 1.2 - 0.2*Math.min(prog*2,1); ty = H*0.05*(1-Math.min(prog*2,1)); }
+                ctx.translate(tx, ty);
+                ctx.scale(sc, sc);
+                const iar = img.width / img.height;
+                const car = W / H;
+                const dw  = iar > car ? H * iar : W;
+                const dh  = iar > car ? H : W / iar;
+                ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
+                ctx.restore();
+            };
+
+            if (prevSt && alpha < 1) drawSlide(prevSt, prevSt.durMs + slideElapsed, 1);
+            drawSlide(cur, slideElapsed, alpha);
+
+            // Gradient
+            const grad = ctx.createLinearGradient(0, H*0.55, 0, H);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.88)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, H*0.55, W, H*0.45);
+
+            // Captions
+            drawCaptionOnCanvas(ctx, cur.slide, W, H);
+            requestAnimationFrame(drawFrame);
+        };
+        requestAnimationFrame(drawFrame);
+
+    } catch (err) {
+        console.error(err);
+        resetBtn(false);
+    }
+}
+
+function drawCaptionOnCanvas(ctx, slide, W, H) {
+    const stage = (slide.stage || 'Construction').toUpperCase();
+    const cap   = slide.caption || '';
+    ctx.save();
+    ctx.textBaseline = 'bottom';
+    ctx.shadowColor  = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur   = 10;
+
+    if (currentCaptionStyle === 'cinematic') {
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 22px Arial,sans-serif'; ctx.fillStyle = '#FFB300';
+        ctx.fillText(stage, W/2, H-54);
+        ctx.font = 'bold 30px Arial,sans-serif'; ctx.fillStyle = '#fff';
+        ctx.fillText(cap, W/2, H-18);
+
+    } else if (currentCaptionStyle === 'boxed') {
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px Arial,sans-serif';
+        const sw = ctx.measureText(stage).width;
+        ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(W/2-sw/2-12, H-82, sw+24, 28);
+        ctx.strokeStyle = '#FFB300'; ctx.lineWidth = 1.5;
+        ctx.strokeRect(W/2-sw/2-12, H-82, sw+24, 28);
+        ctx.fillStyle = '#FFB300'; ctx.fillText(stage, W/2, H-58);
+        ctx.shadowBlur = 10;
+        ctx.font = 'bold 30px Arial,sans-serif'; ctx.fillStyle = '#fff';
+        ctx.fillText(cap, W/2, H-18);
+
+    } else if (currentCaptionStyle === 'strip') {
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 18px Arial,sans-serif';
+        const sw = ctx.measureText(stage).width;
+        ctx.shadowBlur = 0; ctx.fillStyle = '#171717';
+        ctx.fillRect(W/2-sw/2-10, H-84, sw+20, 24);
+        ctx.fillStyle = '#fff'; ctx.fillText(stage, W/2, H-64);
+        ctx.font = 'bold 26px Arial,sans-serif';
+        const cw = ctx.measureText(cap).width;
+        ctx.fillStyle = '#FFB300';
+        ctx.fillRect(W/2-cw/2-14, H-54, cw+28, 38);
+        ctx.fillStyle = '#171717'; ctx.fillText(cap, W/2, H-20);
+
+    } else if (currentCaptionStyle === 'minimal_left') {
+        ctx.textAlign = 'left';
+        ctx.shadowBlur = 0; ctx.fillStyle = '#FFB300';
+        ctx.fillRect(24, H-86, 4, 20);
+        ctx.font = 'bold 18px Arial,sans-serif'; ctx.fillStyle = '#d4d4d4';
+        ctx.fillText(stage, 34, H-68);
+        ctx.fillStyle = '#FFB300'; ctx.fillRect(24, H-60, 4, 34);
+        ctx.font = 'bold 28px Arial,sans-serif'; ctx.fillStyle = '#fff';
+        ctx.fillText(cap, 34, H-26);
+    }
+    ctx.restore();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, type = 'info', duration = 2500) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    clearTimeout(toastTimer);
+
+    const styles = {
+        success: 'bg-green-500/20 border-green-500/40 text-green-300',
+        error:   'bg-red-500/20 border-red-500/40 text-red-300',
+        info:    'bg-amber-500/15 border-amber-500/35 text-amber-300'
+    };
+    el.className = `opacity-0 pointer-events-none px-4 py-2.5 rounded-xl text-xs font-semibold
+                    shadow-2xl border backdrop-blur-md max-w-[85vw] text-center
+                    ${styles[type] || styles.info}`;
+    el.innerText   = msg;
+    el.style.opacity = '1';
+    toastTimer = setTimeout(() => { el.style.opacity = '0'; }, duration);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+    const t0 = performance.now();
+    await loadState();
+    const loadTime = performance.now() - t0;
+
+    document.getElementById('photo-input').addEventListener('change', handlePhotoUploads);
+    document.getElementById('json-input').addEventListener('input', saveState);
+    initDropZone();
+
+    // Splash: minimum 1.2s
+    const delay = Math.max(0, 1200 - loadTime);
+    setTimeout(() => {
+        const splash  = document.getElementById('screen-splash');
+        const content = document.getElementById('app-content');
+        const footer  = document.getElementById('app-footer');
+        splash.style.opacity = '0';
+        setTimeout(() => {
+            splash.remove();
+            content.classList.remove('hidden');
+            footer.classList.remove('hidden');
+
+            const saved = localStorage.getItem('currentScreen');
+            switchScreen(saved && saved !== 'home' ? saved : 'home');
+
+            // Session recovery notification
+            if (uploadedFiles.length > 0 && reelPlanData) {
+                setTimeout(() =>
+                    showToast(`📂 Project restored — ${uploadedFiles.length} photos, ${reelPlanData.slides.length} slides`, 'info', 3500),
+                600);
             }
-            if (selectedAudioUrl) {
-                audioElement = new Audio(selectedAudioUrl);
-                audioElement.crossOrigin = "anonymous"; // Ye server ko batata hai ki hume audio allow kare
-                audioElement.loop = true;
-                // Agar Reel play ho rahi hai, to naya gana turant bajna shuru ho jaye
-                if (isPlaying) {
-                    audioElement.play().catch(() => {});
-                }
-            } else {
-                audioElement = null;
-            }
-        }
-
-        function applyGlobalDuration(sec) {
-            if (!sec || !reelPlanData) return;
-            const num = parseInt(sec);
-            reelPlanData.slides.forEach(slide => slide.duration = num);
-            saveState();
-            buildCinematicPlayerEngine(); 
-        }
-
-        function applyGlobalEffect(effect) {
-            if (!effect || !reelPlanData) return;
-            reelPlanData.slides.forEach(slide => slide.effect = effect);
-            saveState();
-            buildCinematicPlayerEngine(); 
-        }
-
-        /* --- New Advanced Controls (Speed, Fullscreen, Seekbar) --- */
-        function toggleSpeed() {
-            const speeds = [1, 1.5, 2];
-            let idx = speeds.indexOf(playbackSpeed);
-            playbackSpeed = speeds[(idx + 1) % speeds.length];
-            document.getElementById('speed-btn').innerText = playbackSpeed + 'x';
-            if (audioElement) audioElement.playbackRate = playbackSpeed;
-            if (isPlaying) renderActiveSlideFramePointer(); 
-        }
-
-        function toggleFullscreen() {
-            const player = document.getElementById('reel-player-window');
-            if (!document.fullscreenElement) {
-                if (player.requestFullscreen) player.requestFullscreen();
-                else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            }
-        }
-
-        function updateTotalTimeDisplay() {
-            if (!reelPlanData) return;
-            let total = 0;
-            reelPlanData.slides.forEach(s => total += (s.duration || 3));
-            document.getElementById('time-total').innerText = formatTime(total);
-        }
-
-        function formatTime(sec) {
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return m + ':' + (s < 10 ? '0' + s : s);
-        }
-
-        let isDraggingSeekbar = false;
-        function handleSeekbarDrag() { isDraggingSeekbar = true; }
-
-        function seekFromSlider() {
-            isDraggingSeekbar = false;
-            if (!reelPlanData) return;
-            const percent = document.getElementById('main-seekbar').value / 100;
-            
-            let totalDur = 0;
-            const slideStartTimes = [];
-            reelPlanData.slides.forEach(s => {
-                slideStartTimes.push(totalDur);
-                totalDur += (s.duration || 3) * 1000;
-            });
-            
-            const targetTimeMs = percent * totalDur;
-            let targetIndex = 0;
-            for (let i = 0; i < slideStartTimes.length; i++) {
-                if (targetTimeMs >= slideStartTimes[i]) targetIndex = i;
-            }
-            
-            currentSlideIndex = targetIndex;
-            if (audioElement && audioElement.duration) {
-                audioElement.currentTime = ((targetTimeMs/1000) * playbackSpeed) % audioElement.duration;
-            }
-            
-            renderActiveSlideFramePointer();
-            if (!isPlaying) togglePlayPause();
-        }
-
-        function startSeekbarAnimation() {
-            if (!reelPlanData || !isPlaying) return;
-            
-            let totalDur = 0;
-            const slideStartTimes = [];
-            reelPlanData.slides.forEach(s => {
-                slideStartTimes.push(totalDur);
-                totalDur += (s.duration || 3) * 1000;
-            });
-
-            function updateSeeker() {
-                if (!isPlaying || isDraggingSeekbar) return;
-                
-                const now = performance.now();
-                const slideElapsedMs = (now - playbackElapsedTime) * playbackSpeed;
-                const currentSlideBaseDur = (reelPlanData.slides[currentSlideIndex].duration || 3) * 1000;
-                
-                const clampedElapsed = Math.min(slideElapsedMs, currentSlideBaseDur);
-                const currentTotalElapsed = slideStartTimes[currentSlideIndex] + clampedElapsed;
-                
-                const percent = (currentTotalElapsed / totalDur) * 100;
-                
-                const seekbar = document.getElementById('main-seekbar');
-                if(seekbar) seekbar.value = percent;
-                
-                const timeCurEl = document.getElementById('time-current');
-                if(timeCurEl) timeCurEl.innerText = formatTime(currentTotalElapsed / 1000);
-                
-                if (isPlaying) seekbarAnimFrame = requestAnimationFrame(updateSeeker);
-            }
-            updateSeeker();
-        }
-    </script>
+        }, 600);
+    }, delay);
+});
+</script>
 </body>
 </html>
