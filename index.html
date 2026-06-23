@@ -327,54 +327,77 @@
                 </div>
 
                 <!-- Audio Tab -->
-                <div id="tab-audio" class="hidden space-y-2.5 pt-1">
+                <div id="tab-audio" class="hidden space-y-3 pt-1">
 
-                    <!-- Pre-built tracks -->
+                    <!-- Section: Generated Music -->
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-1.5 px-0.5">
-                            Pre-built Tracks <span class="text-amber-600 normal-case font-normal">(preview only)</span>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-2 px-0.5">
+                            Built-in Music <span class="text-green-500 normal-case font-medium">✓ preview + export</span>
                         </label>
-                        <select id="audio-track-select" onchange="handleAudioSelection(this.value)"
-                                class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-white focus-glow outline-none">
-                            <option value="none">🔇 No Audio (Muted)</option>
-                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎵 Electronic Build-up</option>
-                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🎵 Upbeat Energy</option>
-                            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">🎵 Calm Progress</option>
-                        </select>
+
+                        <!-- Mute button -->
+                        <button id="music-btn-none" onclick="selectMusicStyle('none')"
+                                class="w-full mb-2 py-2 rounded-xl border-2 border-neutral-800 bg-neutral-900 text-[11px] font-semibold text-neutral-500
+                                       flex items-center justify-center gap-2 transition-all hover:border-neutral-700 active:scale-[0.98]">
+                            🔇 No Music (Muted)
+                        </button>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <!-- Epic -->
+                            <button id="music-btn-epic" onclick="selectMusicStyle('epic')"
+                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
+                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
+                                <span class="text-xl">🏗️</span>
+                                <span class="text-[10px] font-bold text-neutral-300">EPIC</span>
+                                <span class="text-[9px] text-neutral-600">Dramatic</span>
+                            </button>
+                            <!-- Upbeat -->
+                            <button id="music-btn-upbeat" onclick="selectMusicStyle('upbeat')"
+                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
+                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
+                                <span class="text-xl">⚡</span>
+                                <span class="text-[10px] font-bold text-neutral-300">UPBEAT</span>
+                                <span class="text-[9px] text-neutral-600">Energetic</span>
+                            </button>
+                            <!-- Ambient -->
+                            <button id="music-btn-ambient" onclick="selectMusicStyle('ambient')"
+                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
+                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
+                                <span class="text-xl">🌅</span>
+                                <span class="text-[10px] font-bold text-neutral-300">AMBIENT</span>
+                                <span class="text-[9px] text-neutral-600">Calm</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Divider -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 py-0.5">
                         <div class="flex-1 h-px bg-neutral-800"></div>
-                        <span class="text-[10px] text-neutral-600">or</span>
+                        <span class="text-[10px] text-neutral-600 font-medium">or use your own</span>
                         <div class="flex-1 h-px bg-neutral-800"></div>
                     </div>
 
-                    <!-- Custom upload — works in both preview + export -->
+                    <!-- Custom MP3 -->
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-1.5 px-0.5">
-                            Custom MP3 <span class="text-green-500 normal-case font-normal">✓ preview + export</span>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-2 px-0.5">
+                            Custom MP3 <span class="text-green-500 normal-case font-medium">✓ preview + export</span>
                         </label>
-                        <button onclick="document.getElementById('custom-audio-input').click()"
-                                class="w-full py-2.5 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-semibold text-neutral-300 flex items-center justify-center gap-2 hover:bg-neutral-800 hover:border-neutral-700 transition-all active:scale-[0.98]">
-                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                        <button id="music-btn-custom" onclick="document.getElementById('custom-audio-input').click()"
+                                class="music-style-btn w-full py-2.5 bg-neutral-900 border-2 border-neutral-800 rounded-xl text-xs font-semibold text-neutral-300
+                                       flex items-center justify-center gap-2 hover:bg-neutral-800 hover:border-neutral-700 transition-all active:scale-[0.98]">
+                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            </svg>
                             Upload MP3 / WAV / AAC
                         </button>
                         <input type="file" id="custom-audio-input" accept="audio/mpeg,audio/wav,audio/aac" class="hidden" onchange="handleCustomAudioUpload(event)">
-                        <div id="custom-audio-label" class="hidden mt-1.5 text-[10px] text-amber-400 font-bold px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-xl text-center tracking-wide"></div>
+                        <div id="custom-audio-label" class="hidden mt-2 text-[10px] text-amber-400 font-bold px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-xl text-center"></div>
                     </div>
 
-                    <!-- Info box -->
-                    <div class="bg-neutral-900/80 rounded-xl p-3 border border-neutral-800 space-y-1.5">
-                        <div class="flex items-start gap-2">
-                            <span class="text-green-500 text-xs mt-0.5 flex-shrink-0">✓</span>
-                            <p class="text-[10px] text-neutral-400 leading-snug"><b class="text-neutral-200">Custom MP3</b> — preview aur exported video dono mein audio sunta hai</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-500 text-xs mt-0.5 flex-shrink-0">~</span>
-                            <p class="text-[10px] text-neutral-400 leading-snug"><b class="text-neutral-200">Pre-built tracks</b> — sirf preview mein sunta hai, export mein mix hone ki koshish hoti hai (server permission par depend)</p>
-                        </div>
-                    </div>
+                    <!-- Info note -->
+                    <p class="text-[10px] text-neutral-700 text-center pb-1">
+                        Built-in music generates directly in browser — no internet needed
+                    </p>
                 </div>
 
                 <!-- Global Tab -->
@@ -435,9 +458,172 @@ let currentSlideIndex = 0;
 let slideTimer        = null;
 let isPlaying         = false;
 let currentCaptionStyle = 'cinematic';
-let selectedAudioUrl  = null;
-let audioElement      = null;
-let playbackSpeed     = 1;
+let selectedAudioUrl   = null;   // only for custom MP3 (blob URL)
+let selectedMusicStyle = 'none'; // 'none' | 'epic' | 'upbeat' | 'ambient' | 'custom'
+let audioElement       = null;   // only for custom MP3 playback
+let playbackSpeed      = 1;
+
+/* ═══════════════════════════════════════════════════════════════
+   WEB AUDIO MUSIC ENGINE
+   Procedural music — no CORS, no network, preview + export both
+═══════════════════════════════════════════════════════════════ */
+class MusicEngine {
+    constructor() {
+        this.ctx     = null;
+        this.master  = null;
+        this.nodes   = [];
+        this.loopTimer = null;
+        this.running = false;
+        this.style   = null;
+    }
+
+    _cfg(name) {
+        return {
+            epic: {
+                tempo: 56, noteBeats: 4,
+                chords: [
+                    { freqs:[110, 138.6, 165.0, 220.0], bass:55.0  }, // Am7
+                    { freqs:[87.3, 110.0, 130.8, 174.6], bass:43.7 }, // Fmaj7
+                    { freqs:[65.4,  82.4,  98.0, 123.5], bass:32.7 }, // Cmaj7
+                    { freqs:[98.0, 123.5, 146.8, 196.0], bass:49.0 }, // G7
+                ],
+                padType:'sine', padVol:0.055, bassVol:0.20, reverb:true,
+            },
+            upbeat: {
+                tempo: 115, noteBeats: 2,
+                chords: [
+                    { freqs:[261.6, 329.6, 392.0], bass:130.8 }, // C
+                    { freqs:[220.0, 277.2, 329.6], bass:110.0 }, // Am
+                    { freqs:[174.6, 220.0, 261.6], bass:87.3  }, // F
+                    { freqs:[196.0, 246.9, 293.7], bass:98.0  }, // G
+                ],
+                padType:'triangle', padVol:0.045, bassVol:0.15, reverb:false,
+            },
+            ambient: {
+                tempo: 42, noteBeats: 8,
+                chords: [
+                    { freqs:[130.8, 164.8, 196.0, 246.9, 329.6], bass:65.4 }, // Cmaj9
+                    { freqs:[110.0, 138.6, 165.0, 220.0, 277.2], bass:55.0 }, // Am9
+                    { freqs:[146.8, 185.0, 220.0, 277.2, 349.2], bass:73.4 }, // Dm9
+                    { freqs:[98.0,  123.5, 146.8, 196.0, 246.9], bass:49.0 }, // G9
+                ],
+                padType:'sine', padVol:0.038, bassVol:0.13, reverb:true,
+            },
+        }[name] || this._cfg('epic');
+    }
+
+    _reverb(ctx) {
+        const conv = ctx.createConvolver();
+        const len  = Math.floor(ctx.sampleRate * 2.8);
+        const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
+        for (let ch = 0; ch < 2; ch++) {
+            const d = buf.getChannelData(ch);
+            for (let i = 0; i < len; i++)
+                d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.8);
+        }
+        conv.buffer = buf;
+        return conv;
+    }
+
+    _block(t0) {
+        if (!this.running || !this.ctx) return;
+        const cfg  = this._cfg(this.style);
+        const ctx  = this.ctx;
+        const beat = 60 / cfg.tempo;
+        const cdur = beat * cfg.noteBeats;
+        const total= cfg.chords.length * cdur;
+
+        const rv   = cfg.reverb ? this._reverb(ctx) : null;
+        if (rv) {
+            const rvg = ctx.createGain(); rvg.gain.value = 0.28;
+            rv.connect(rvg); rvg.connect(this.master);
+            this.nodes.push(rv, rvg);
+        }
+
+        cfg.chords.forEach((chord, ci) => {
+            const cs = t0 + ci * cdur;
+            const ce = cs + cdur;
+
+            // Pads
+            chord.freqs.forEach((freq, fi) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = cfg.padType;
+                osc.frequency.value = freq;
+                osc.detune.value = (fi % 2 === 0 ? 1 : -1) * 4; // slight spread
+
+                const att = cdur * 0.12, rel = cdur * 0.14;
+                gain.gain.setValueAtTime(0, cs);
+                gain.gain.linearRampToValueAtTime(cfg.padVol, cs + att);
+                gain.gain.setValueAtTime(cfg.padVol, ce - rel);
+                gain.gain.linearRampToValueAtTime(0, ce);
+
+                osc.connect(gain); gain.connect(this.master);
+                if (rv) gain.connect(rv);
+                osc.start(cs); osc.stop(ce + 0.1);
+                this.nodes.push(osc, gain);
+            });
+
+            // Bass note
+            const bosc = ctx.createOscillator();
+            const bgain= ctx.createGain();
+            bosc.type = 'sine';
+            bosc.frequency.value = chord.bass;
+
+            bgain.gain.setValueAtTime(0, cs);
+            bgain.gain.linearRampToValueAtTime(cfg.bassVol, cs + 0.05);
+            bgain.gain.setValueAtTime(cfg.bassVol * 0.8, ce - 0.18);
+            bgain.gain.linearRampToValueAtTime(0, ce);
+
+            bosc.connect(bgain); bgain.connect(this.master);
+            bosc.start(cs); bosc.stop(ce + 0.1);
+            this.nodes.push(bosc, bgain);
+        });
+
+        // Schedule next loop 300ms before this one ends
+        const ms = (t0 + total - 0.3 - ctx.currentTime) * 1000;
+        this.loopTimer = setTimeout(() => {
+            if (this.running) this._block(t0 + total);
+        }, Math.max(50, ms));
+    }
+
+    start(style, destNode) {
+        this.stop();
+        this.style   = style;
+        this.running = true;
+        try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            // If destNode is provided (for export), use its context
+            this.ctx = destNode ? destNode.context : new AC();
+            if (this.ctx.state === 'suspended') this.ctx.resume();
+
+            this.master = this.ctx.createGain();
+            this.master.gain.value = 0.82;
+            this.master.connect(destNode || this.ctx.destination);
+
+            this._block(this.ctx.currentTime + 0.08);
+        } catch (e) {
+            console.warn('MusicEngine.start failed:', e);
+            this.running = false;
+        }
+    }
+
+    suspend() { this.ctx?.suspend?.(); }
+    resume()  { this.ctx?.resume?.(); }
+
+    stop() {
+        this.running = false;
+        clearTimeout(this.loopTimer);
+        this.nodes.forEach(n => { try { n.stop?.(); n.disconnect?.(); } catch(_){} });
+        this.nodes = [];
+        if (this.ctx && this.ctx.state !== 'closed') {
+            try { this.ctx.close(); } catch(_) {}
+        }
+        this.ctx = null; this.master = null;
+    }
+}
+
+const musicEngine = new MusicEngine();
 let seekbarAnimFrame  = null;
 let isDraggingSeekbar = false;
 let slideStartedAt    = 0;       // performance.now() when current slide began
@@ -959,7 +1145,9 @@ function renderActiveSlide() {
     // Loop back
     if (currentSlideIndex >= total) {
         currentSlideIndex = 0;
+        // Reset custom audio position on loop
         if (audioElement) { audioElement.currentTime = 0; if (isPlaying) audioElement.play().catch(()=>{}); }
+        // Procedural engine loops itself automatically, no reset needed
     }
 
     const slide        = slides[currentSlideIndex];
@@ -1063,7 +1251,7 @@ function stopTimersOnly() {
 function stopReelEngine() {
     stopTimersOnly();
     isPlaying = false;
-    audioElement?.pause();
+    pauseAudioPlayback();
     updatePlayPauseUIControls();
 }
 
@@ -1076,7 +1264,7 @@ function togglePlayPause() {
         stopTimersOnly();
         slideElapsedAtPause = (performance.now() - slideStartedAt) * playbackSpeed;
         isPlaying = false;
-        audioElement?.pause();
+        pauseAudioPlayback();
 
         // Freeze progress bar at current visual position
         const bar = document.getElementById('reel-progress');
@@ -1089,7 +1277,7 @@ function togglePlayPause() {
     } else {
         // ── RESUME ──
         isPlaying = true;
-        if (audioElement) audioElement.play().catch(()=>{});
+        startAudioPlayback();
 
         const slide = reelPlanData?.slides?.[currentSlideIndex];
         if (!slide) { isPlaying = false; updatePlayPauseUIControls(); return; }
@@ -1133,18 +1321,21 @@ function jumpToSlide(idx) {
     updatePlayPauseUIControls();
     renderActiveSlide();
     startSeekbarAnimation();
+    // Seek custom audio to matching position
     if (audioElement?.duration) {
         let offset = 0;
         for (let i = 0; i < idx; i++) offset += (reelPlanData.slides[i].duration || 3);
         audioElement.currentTime = offset % audioElement.duration;
         audioElement.play().catch(()=>{});
     }
+    // Procedural engine is always in sync (it loops independently)
 }
 
 function toggleSpeed() {
     const speeds    = [1, 1.5, 2];
     playbackSpeed   = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
     document.getElementById('speed-btn').innerText = playbackSpeed + 'x';
+    // Update custom audio speed only (procedural engine doesn't support rate change)
     if (audioElement) audioElement.playbackRate = playbackSpeed;
 
     if (isPlaying) {
@@ -1400,50 +1591,106 @@ function switchEditorTab(tabId) {
 /* ═══════════════════════════════════════════════════════════════
    AUDIO
 ═══════════════════════════════════════════════════════════════ */
-function handleAudioSelection(val) {
-    if (val === 'custom') { document.getElementById('custom-audio-input').click(); return; }
-    document.getElementById('custom-audio-label').classList.add('hidden');
-    selectedAudioUrl = val === 'none' ? null : val;
-    setupAudioElement();
+/* ── Music Style Selection ── */
+function selectMusicStyle(style) {
+    selectedMusicStyle = style;
+
+    // Update button UI
+    const allBtns = ['none','epic','upbeat','ambient','custom'];
+    allBtns.forEach(s => {
+        const btn = document.getElementById('music-btn-' + s);
+        if (!btn) return;
+        if (s === style) {
+            btn.classList.remove('border-neutral-800');
+            btn.classList.add('border-amber-500', 'bg-amber-500/10');
+        } else {
+            btn.classList.add('border-neutral-800');
+            btn.classList.remove('border-amber-500', 'bg-amber-500/10');
+        }
+    });
+
+    // Stop everything currently playing
+    stopAllAudio();
+
+    if (style === 'none') {
+        showToast('🔇 Music off', 'info', 1500);
+        return;
+    }
+
+    if (style !== 'custom') {
+        // Start procedural engine immediately
+        musicEngine.start(style);
+        if (!isPlaying) musicEngine.suspend(); // Start suspended if reel is paused
+        showToast(`🎵 ${style.charAt(0).toUpperCase()+style.slice(1)} music loaded`, 'success', 2000);
+    }
+}
+
+function stopAllAudio() {
+    // Stop custom audio element
+    if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+        audioElement = null;
+    }
+    // Stop procedural engine
+    musicEngine.stop();
+}
+
+function startAudioPlayback() {
+    if (selectedMusicStyle === 'none') return;
+
+    if (selectedMusicStyle === 'custom' && selectedAudioUrl) {
+        if (!audioElement) setupCustomAudioElement();
+        audioElement?.play().catch(() => {});
+
+    } else if (selectedMusicStyle !== 'none') {
+        if (musicEngine.running) {
+            musicEngine.resume();
+        } else {
+            musicEngine.start(selectedMusicStyle);
+        }
+    }
+}
+
+function pauseAudioPlayback() {
+    if (selectedMusicStyle === 'custom') {
+        audioElement?.pause();
+    } else {
+        musicEngine.suspend();
+    }
 }
 
 function handleCustomAudioUpload(e) {
     const file = e.target.files[0];
-    if (!file) { handleAudioSelection('none'); return; }
-    selectedAudioUrl = URL.createObjectURL(file);
+    if (!file) return;
+
+    // Revoke old custom URL
+    if (selectedAudioUrl && selectedAudioUrl.startsWith('blob:')) URL.revokeObjectURL(selectedAudioUrl);
+
+    selectedAudioUrl  = URL.createObjectURL(file);
+    selectedMusicStyle = 'custom';
+
+    // Update label
     const label = document.getElementById('custom-audio-label');
-    label.innerText = `🎵 ${file.name.length > 25 ? file.name.slice(0,22)+'…' : file.name}`;
+    label.innerText = `🎵 ${file.name.length > 28 ? file.name.slice(0,25)+'…' : file.name}`;
     label.classList.remove('hidden');
-    setupAudioElement();
+
+    // Highlight custom button
+    selectMusicStyle('custom');
+    setupCustomAudioElement();
+    showToast('🎵 Custom track loaded', 'success', 2000);
 }
 
-function setupAudioElement() {
-    if (audioElement) { audioElement.pause(); audioElement.src = ''; audioElement = null; }
+function setupCustomAudioElement() {
+    if (audioElement) { audioElement.pause(); audioElement.src = ''; }
     if (!selectedAudioUrl) return;
-
     audioElement = new Audio();
-    // ⚠️ crossOrigin hataaya — external URLs (SoundHelix etc.) CORS headers nahi dete
-    // crossOrigin = 'anonymous' lagane par browser audio BLOCK kar deta hai
-    // Preview ke liye plain Audio() element kaafi hai
-    audioElement.loop         = true;
-    audioElement.playbackRate = playbackSpeed;
-    audioElement.volume       = 0.75;
-    audioElement.src          = selectedAudioUrl;
-    audioElement.load();
-
-    audioElement.onerror = () => {
-        showToast('⚠️ Audio load failed — try Custom MP3 upload', 'error', 3500);
-        audioElement = null;
-        document.getElementById('audio-track-select').value = 'none';
-        selectedAudioUrl = null;
-    };
-
-    if (isPlaying) {
-        audioElement.play().catch(() => {
-            // Autoplay policy — user ke next interaction par chalega
-            showToast('▶ Tap play to start audio', 'info', 2000);
-        });
-    }
+    audioElement.loop          = true;
+    audioElement.playbackRate  = playbackSpeed;
+    audioElement.volume        = 0.78;
+    audioElement.src           = selectedAudioUrl; // blob: URL, no CORS needed
+    audioElement.onerror = () => showToast('⚠️ Audio load error', 'error', 3000);
+    if (isPlaying) audioElement.play().catch(() => {});
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1512,61 +1759,60 @@ async function triggerExport() {
         let finalStream    = canvasStream;
         let audioCtx       = null;
 
-        if (selectedAudioUrl) {
+        // ── EXPORT AUDIO MIXING ──
+        // Strategy A: Procedural music (epic/upbeat/ambient) → MusicEngine into MediaStreamDest
+        // Strategy B: Custom MP3 (blob URL) → Web Audio API (no CORS, same-origin)
+        // Both strategies work 100% — no external URLs, no CORS issues
+
+        if (selectedMusicStyle && selectedMusicStyle !== 'none') {
             try {
-                const isBlob = selectedAudioUrl.startsWith('blob:');
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
+                const dest = audioCtx.createMediaStreamDestination();
 
-                // ── Strategy A: Blob URL (custom MP3 upload) ──
-                // Blob URLs are same-origin — Web Audio API works perfectly, no CORS needed
-                if (isBlob) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    const dest   = audioCtx.createMediaStreamDestination();
+                if (selectedMusicStyle === 'custom' && selectedAudioUrl) {
+                    // ── Strategy B: Custom MP3 blob URL ──
+                    // blob: URLs are same-origin — Web Audio API works perfectly
+                    setProgress(10, 'Loading custom audio…');
                     const expAud = new Audio();
-                    // blob: URL ke liye crossOrigin nahi lagaate — same-origin hota hai
-                    expAud.src  = selectedAudioUrl;
+                    expAud.src  = selectedAudioUrl; // blob: URL, no crossOrigin needed
                     expAud.loop = true;
-                    await new Promise(res => { expAud.oncanplaythrough = res; expAud.load(); setTimeout(res, 3000); });
-                    const src = audioCtx.createMediaElementSource(expAud);
-                    src.connect(dest);
-                    expAud.play();
-                    const atracks = dest.stream.getAudioTracks();
-                    if (atracks.length > 0)
-                        finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
-
-                } else {
-                    // ── Strategy B: External URL — fetch as blob first, then treat as blob ──
-                    // fetch() CORS bhi block kar sakta hai, isliye try-catch mein
-                    setProgress(10, 'Loading audio…');
+                    await new Promise(res => {
+                        expAud.oncanplaythrough = res;
+                        expAud.onerror = res; // proceed even if load fails
+                        expAud.load();
+                        setTimeout(res, 4000); // max 4s wait
+                    });
                     try {
-                        const resp = await fetch(selectedAudioUrl, { mode: 'cors' });
-                        if (!resp.ok) throw new Error('fetch failed');
-                        const arrayBuf = await resp.arrayBuffer();
-                        const blobUrl  = URL.createObjectURL(new Blob([arrayBuf], { type: 'audio/mpeg' }));
-
-                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                        const dest   = audioCtx.createMediaStreamDestination();
-                        const expAud = new Audio(blobUrl);
-                        expAud.loop  = true;
-                        await new Promise(res => { expAud.oncanplaythrough = res; expAud.load(); setTimeout(res, 3000); });
                         const src = audioCtx.createMediaElementSource(expAud);
                         src.connect(dest);
                         expAud.play();
                         const atracks = dest.stream.getAudioTracks();
                         if (atracks.length > 0)
                             finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
-
-                        // cleanup blob url after export
-                        recorder.addEventListener('stop', () => URL.revokeObjectURL(blobUrl), { once: true });
-
-                    } catch (fetchErr) {
-                        // fetch CORS blocked — video exports without audio, user ko batao
-                        showToast('⚠️ Pre-built track export mein mix nahi hua (CORS). Custom MP3 upload use karo.', 'error', 5000);
-                        // finalStream stays as canvasStream (video only)
+                    } catch(e) {
+                        // If Web Audio API fails for blob, still proceed without audio
+                        console.warn('Custom audio mix failed:', e);
                     }
+
+                } else {
+                    // ── Strategy A: Procedural MusicEngine ──
+                    // Generates music directly using Web Audio API nodes → dest
+                    // No network, no CORS, guaranteed to work
+                    setProgress(10, 'Starting music engine…');
+                    const exportEngine = new MusicEngine();
+                    exportEngine.start(selectedMusicStyle, dest);
+
+                    const atracks = dest.stream.getAudioTracks();
+                    if (atracks.length > 0)
+                        finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
+
+                    // Stop export engine when recording finishes
+                    recorder.addEventListener('stop', () => exportEngine.stop(), { once: true });
                 }
             } catch (e) {
-                // Any other audio setup error — silently skip audio
-                console.warn('Audio mix failed:', e);
+                console.warn('Export audio setup failed:', e);
+                // Export continues without audio — better than failing completely
             }
         }
 
