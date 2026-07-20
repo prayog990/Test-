@@ -1,2051 +1,706 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BuildReel AI - Cinematic Construction Reels</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family:'Inter',sans-serif; background-color:#0B0B0C; color:#E4E4E7; -webkit-tap-highlight-color:transparent; }
-        .cinematic-bg { background: radial-gradient(circle at top, #1C1C1E 0%, #0B0B0C 100%); }
-        .premium-card { background:rgba(28,28,30,0.75); backdrop-filter:blur(12px); border:1px solid rgba(255,179,0,0.08); }
-        .amber-gradient-text { background:linear-gradient(135deg,#FFD54F 0%,#FFB300 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .amber-btn { background:linear-gradient(135deg,#FFB300 0%,#FF8F00 100%); box-shadow:0 4px 20px rgba(255,143,0,0.3); color:#0B0B0C; }
-        .amber-btn:disabled { background:#171717!important; box-shadow:none!important; color:#525252!important; border:1px solid #262626!important; }
-
-        /* ── Reel Animations ── */
-        @keyframes slow_zoom_in    { 0%{transform:scale(1)}       100%{transform:scale(1.15)} }
-        @keyframes slow_zoom_out   { 0%{transform:scale(1.15)}    100%{transform:scale(1)} }
-        @keyframes pan_left        { 0%{transform:scale(1.1) translateX(5%)} 100%{transform:scale(1.1) translateX(-5%)} }
-        @keyframes pan_right       { 0%{transform:scale(1.1) translateX(-5%)} 100%{transform:scale(1.1) translateX(5%)} }
-        @keyframes cinematic_zoom  { 0%{transform:scale(1.02);filter:brightness(0.8)} 100%{transform:scale(1.12);filter:brightness(1.1)} }
-        @keyframes dramatic_reveal { 0%{transform:scale(1.2) translateY(5%);filter:blur(5px)} 100%{transform:scale(1) translateY(0);filter:blur(0)} }
-
-        .effect-slow_zoom_in    { animation: slow_zoom_in    var(--dur,3s) linear       forwards; }
-        .effect-slow_zoom_out   { animation: slow_zoom_out   var(--dur,3s) linear       forwards; }
-        .effect-pan_left        { animation: pan_left        var(--dur,3s) linear       forwards; }
-        .effect-pan_right       { animation: pan_right       var(--dur,3s) linear       forwards; }
-        .effect-cinematic_zoom  { animation: cinematic_zoom  var(--dur,3s) ease-out     forwards; }
-        .effect-dramatic_reveal { animation: dramatic_reveal var(--dur,3s) cubic-bezier(0.1,0.8,0.2,1) forwards; }
-
-        /* Pause all animations when .is-paused */
-        .is-paused img { animation-play-state: paused !important; }
-
-        /* Custom seekbar */
-        input[type=range].seek-input { -webkit-appearance:none; width:100%; height:4px; border-radius:4px; background:#262626; outline:none; cursor:pointer; }
-        input[type=range].seek-input::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#FFB300; cursor:pointer; box-shadow:0 0 6px rgba(255,179,0,0.6); transition:transform .15s; }
-        input[type=range].seek-input:active::-webkit-slider-thumb { transform:scale(1.3); }
-        input[type=range].seek-input::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#FFB300; border:none; cursor:pointer; }
-
-        /* Scrollbars */
-        .no-scrollbar::-webkit-scrollbar { width:3px; height:3px; }
-        .no-scrollbar::-webkit-scrollbar-track { background:rgba(28,28,30,.3); }
-        .no-scrollbar::-webkit-scrollbar-thumb { background:rgba(255,179,0,.3); border-radius:4px; }
-        .no-scrollbar { scrollbar-width:thin; scrollbar-color:rgba(255,179,0,.3) rgba(28,28,30,.3); }
-
-        /* Focus glow */
-        .focus-glow:focus, .focus-glow:focus-within { box-shadow:0 0 0 2px rgba(255,179,0,.25); border-color:rgba(255,179,0,.6)!important; outline:none; }
-
-        /* Drag-over highlight on drop zone */
-        .drag-over { border-color:rgba(255,179,0,.7)!important; background:rgba(255,179,0,.04)!important; }
-
-        /* Active slide in edit list */
-        .edit-card-active { border-color:rgba(255,179,0,.45)!important; background:rgba(255,179,0,.05)!important; }
-
-        /* Fullscreen exit button */
-        #reel-player-window:fullscreen       #fs-exit-btn { display:flex!important; }
-        #reel-player-window:-webkit-full-screen #fs-exit-btn { display:flex!important; }
-
-        /* Toast */
-        #toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:9999; transition:opacity .3s ease; pointer-events:none; white-space:nowrap; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OpenRouter Model Explorer</title>
+<style>
+:root {
+--bg-color: #0f1115;
+--card-bg: rgba(255, 255, 255, 0.03);
+--card-border: rgba(255, 255, 255, 0.08);
+--primary: #3b82f6;
+--primary-hover: #2563eb;
+--danger: #ef4444;
+--danger-hover: #dc2626;
+--text-main: #f8fafc;
+--text-muted: #94a3b8;
+--glass-blur: blur(12px);
+--radius: 16px;
+--radius-sm: 8px;
+}
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+body {
+background-color: var(--bg-color);
+color: var(--text-main);
+line-height: 1.5;
+/* Padding added to prevent mobile keyboards from obscuring the bottom panel */
+padding-bottom: 40vh;
+overflow-x: hidden;
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+header {
+text-align: center;
+margin-bottom: 30px;
+padding: 20px 0;
+}
+h1 {
+font-size: 24px;
+font-weight: 700;
+background: linear-gradient(to right, #60a5fa, #a78bfa);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin-bottom: 8px;
+}
+.subtitle {
+color: var(--text-muted);
+font-size: 14px;
+}
+.glass-card {
+background: var(--card-bg);
+backdrop-filter: var(--glass-blur);
+-webkit-backdrop-filter: var(--glass-blur);
+border: 1px solid var(--card-border);
+border-radius: var(--radius);
+padding: 20px;
+margin-bottom: 20px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+/* Form Elements */
+input, select, textarea {
+width: 100%;
+background: rgba(0, 0, 0, 0.3);
+border: 1px solid var(--card-border);
+color: var(--text-main);
+padding: 12px 16px;
+border-radius: var(--radius-sm);
+font-size: 16px; /* Prevents iOS zoom */
+margin-bottom: 15px;
+outline: none;
+transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+border-color: var(--primary);
+}
+.btn-group {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+button {
+background: var(--primary);
+color: white;
+border: none;
+padding: 12px 20px;
+border-radius: var(--radius-sm);
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+transition: background 0.2s, transform 0.1s;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+flex: 1;
+min-width: fit-content;
+}
+button:active { transform: scale(0.98); }
+button:hover { background: var(--primary-hover); }
+button.danger { background: var(--danger); }
+button.danger:hover { background: var(--danger-hover); }
+button.secondary { background: rgba(255,255,255,0.1); }
+button.secondary:hover { background: rgba(255,255,255,0.15); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+/* Layout Grids */
+.controls-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 15px;
+}
+@media (min-width: 768px) {
+.controls-grid { grid-template-columns: 2fr 1fr 1fr; }
+}
+.models-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 20px;
+margin-top: 20px;
+}
+@media (min-width: 768px) {
+.models-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+.models-grid { grid-template-columns: repeat(3, 1fr); }
+}
+/* Model Card */
+.model-card {
+display: flex;
+flex-direction: column;
+transition: border-color 0.2s, transform 0.2s;
+}
+.model-card:hover {
+border-color: rgba(255,255,255,0.2);
+}
+.model-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 10px;
+}
+.model-title {
+font-size: 16px;
+font-weight: 600;
+word-break: break-word;
+}
+.model-provider {
+font-size: 12px;
+color: var(--primary);
+background: rgba(59, 130, 246, 0.1);
+padding: 4px 8px;
+border-radius: 12px;
+}
+.model-desc {
+font-size: 13px;
+color: var(--text-muted);
+margin-bottom: 15px;
+flex-grow: 1;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.badges {
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+margin-bottom: 15px;
+}
+.badge {
+font-size: 11px;
+padding: 4px 8px;
+border-radius: 12px;
+background: rgba(255,255,255,0.1);
+}
+.badge.free { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.badge.vision { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.badge.reasoning { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+/* Selected Details Panel */
+#details-panel {
+display: none;
+border-color: var(--primary);
+}
+.detail-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 15px;
+margin-bottom: 20px;
+font-size: 14px;
+}
+.detail-item span {
+display: block;
+color: var(--text-muted);
+font-size: 12px;
+margin-bottom: 4px;
+}
+/* Test Panel */
+#response-box {
+background: rgba(0,0,0,0.4);
+padding: 15px;
+border-radius: var(--radius-sm);
+min-height: 100px;
+font-size: 14px;
+white-space: pre-wrap;
+word-wrap: break-word;
+margin-top: 15px;
+display: none;
+border: 1px solid var(--card-border);
+}
+.hidden { display: none !important; }
+.loader {
+border: 3px solid rgba(255,255,255,0.1);
+border-top: 3px solid var(--primary);
+border-radius: 50%;
+width: 24px;
+height: 24px;
+animation: spin 1s linear infinite;
+margin: 20px auto;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* Toast */
+#toast {
+position: fixed;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%) translateY(100px);
+background: #333;
+color: white;
+padding: 12px 24px;
+border-radius: 30px;
+font-size: 14px;
+opacity: 0;
+transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+z-index: 1000;
+box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+#toast.show {
+transform: translateX(-50%) translateY(0);
+opacity: 1;
+}
+</style>
 </head>
-<body class="cinematic-bg h-[100dvh] flex flex-col overflow-hidden antialiased selection:bg-amber-500/30">
-
-<!-- ═══ TOAST ═══ -->
-<div id="toast" class="opacity-0 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl border backdrop-blur-md"></div>
-
-<!-- ═══ SPLASH ═══ -->
-<div id="screen-splash" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0C] transition-opacity duration-700">
-    <div class="text-center space-y-4 px-6">
-        <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-amber-500/20">
-            <svg class="w-10 h-10 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-        </div>
-        <h1 class="text-4xl font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></h1>
-        <p class="text-neutral-400 text-sm tracking-wide">Turn Construction Progress Into Cinematic Reels</p>
-        <div class="pt-4 flex justify-center gap-1">
-            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style="animation-delay:0s"></span>
-            <span class="w-1.5 h-1.5 bg-amber-500/60 rounded-full animate-bounce" style="animation-delay:.15s"></span>
-            <span class="w-1.5 h-1.5 bg-amber-500/30 rounded-full animate-bounce" style="animation-delay:.3s"></span>
-        </div>
-    </div>
+<body>
+<div class="container">
+<header>
+<h1>OpenRouter Model Explorer</h1>
+<div class="subtitle">Explore, Filter and Test OpenRouter Models</div>
+</header>
+<!-- API Key Section -->
+<div class="glass-card" id="api-section">
+<div id="api-input-view">
+<input type="password" id="api-key-input" placeholder="Enter OpenRouter API Key (sk-or-v1-...)">
+<div class="btn-group">
+<button id="toggle-key-btn" class="secondary">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+Show
+</button>
+<button id="save-key-btn">Save Key</button>
 </div>
-
-<!-- ═══ APP ═══ -->
-<main id="app-content" class="flex-1 w-full max-w-md mx-auto px-4 pt-2 pb-24 hidden flex flex-col min-h-0 overflow-hidden">
-
-    <!-- Header -->
-    <header class="flex items-center justify-between py-3.5 border-b border-neutral-800/60 relative flex-shrink-0">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-neutral-900 font-bold text-sm shadow-lg shadow-amber-500/20">B</div>
-            <span class="text-lg font-bold tracking-tight text-white">BuildReel <span class="amber-gradient-text">AI</span></span>
-        </div>
-        <span id="step-indicator" class="text-xs font-semibold bg-neutral-900 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20">Step 1/3</span>
-        <div id="header-progress" class="absolute bottom-0 left-0 h-[2px] bg-amber-500 transition-all duration-500 shadow-[0_0_8px_rgba(255,179,0,0.6)]" style="width:33%"></div>
-    </header>
-    <div class="mb-3 flex-shrink-0"></div>
-
-    <!-- ════════════════════════════════
-         SCREEN: HOME  (Step 1)
-    ════════════════════════════════ -->
-    <div id="screen-home" class="flex-1 flex flex-col min-h-0 space-y-3 overflow-y-auto no-scrollbar">
-
-        <div class="text-center flex-shrink-0">
-            <h2 class="text-xl font-bold text-white">Step 1: Get AI Plan</h2>
-            <p class="text-neutral-500 text-[11px] mt-1">Copy prompt → Give to AI with site photos → Get JSON</p>
-        </div>
-
-        <!-- 4-Step Guide -->
-        <div class="grid grid-cols-2 gap-2 flex-shrink-0">
-            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5 border border-amber-500/25">
-                <span class="w-5 h-5 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-                <span class="text-[11px] text-neutral-200 leading-snug">Copy the prompt below</span>
-            </div>
-            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
-                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-                <span class="text-[11px] text-neutral-400 leading-snug">Open ChatGPT or Gemini</span>
-            </div>
-            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
-                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-                <span class="text-[11px] text-neutral-400 leading-snug">Upload photos via <b class="text-neutral-200">Files app</b>, NOT Gallery</span>
-            </div>
-            <div class="premium-card rounded-xl p-3 flex items-start gap-2.5">
-                <span class="w-5 h-5 rounded-full bg-neutral-800 text-neutral-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-                <span class="text-[11px] text-neutral-400 leading-snug">Paste AI's JSON reply in Step 2</span>
-            </div>
-        </div>
-
-        <!-- Warning -->
-        <div class="bg-red-500/10 border border-red-500/25 rounded-xl p-3 flex items-start gap-2 flex-shrink-0">
-            <span class="text-red-400 text-xs mt-0.5 flex-shrink-0">⚠️</span>
-            <p class="text-[11px] text-red-300 leading-snug"><strong class="text-red-400">Critical:</strong> Use Files/Documents app to upload photos to AI — Gallery auto-renames filenames and causes mismatch errors.</p>
-        </div>
-
-        <!-- Prompt Box -->
-        <div class="flex flex-col min-h-0 space-y-2" style="min-height:140px; flex:1;">
-            <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 px-1 flex-shrink-0">AI Prompt — Copy & Paste This</label>
-            <div id="prompt-box" class="flex-1 premium-card rounded-xl p-3.5 text-[11px] font-mono text-neutral-300 overflow-y-auto leading-relaxed no-scrollbar border border-neutral-800/80" style="min-height:100px"></div>
-        </div>
-
-        <button onclick="copyPrompt()" class="flex-shrink-0 w-full py-3 bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-800 active:scale-[0.98] transition-all">
-            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-            <span id="copy-btn-text">Copy Prompt to Clipboard</span>
-        </button>
-    </div>
-
-    <!-- ════════════════════════════════
-         SCREEN: PASTE  (Step 2)
-    ════════════════════════════════ -->
-    <div id="screen-paste" class="flex-1 flex flex-col min-h-0 space-y-3 hidden overflow-y-auto no-scrollbar">
-
-        <div class="text-center flex-shrink-0">
-            <h2 class="text-xl font-bold text-white">Step 2: Upload & Paste</h2>
-            <p class="text-neutral-500 text-[11px] mt-1">Upload the SAME photos, then paste AI's JSON</p>
-        </div>
-
-        <!-- Drop Zone -->
-        <div id="drop-zone"
-             class="flex-shrink-0 premium-card border-dashed border-2 border-amber-500/20 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 text-center"
-             onclick="document.getElementById('photo-input').click()">
-            <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 transition-transform">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
-            <div>
-                <p class="text-sm font-semibold text-neutral-200" id="upload-status-text">Drop photos here or tap to browse</p>
-                <p class="text-[10px] text-neutral-500 mt-0.5">Upload from Files app — not Gallery</p>
-            </div>
-        </div>
-
-        <!-- Photo Sequence Accordion -->
-        <div id="upload-list-container" class="hidden flex-shrink-0 premium-card rounded-xl border border-neutral-800 overflow-hidden">
-            <button onclick="toggleAccordion('sequence-accordion')" class="w-full flex items-center justify-between p-3 bg-neutral-900/50 hover:bg-neutral-800/60 transition-colors">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-500">📋 Adjust Photo Sequence (Drag to Reorder)</span>
-                <svg id="sequence-accordion-icon" class="w-4 h-4 text-neutral-500 transition-transform duration-200 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div id="sequence-accordion-content" class="hidden max-h-48 overflow-y-auto no-scrollbar p-2 border-t border-neutral-800">
-                <div id="photo-list" class="space-y-2"></div>
-            </div>
-        </div>
-
-        <!-- JSON Textarea -->
-        <textarea id="json-input"
-            class="flex-shrink-0 w-full h-32 premium-card rounded-xl p-4 font-mono text-[11px] text-amber-400 focus-glow border border-neutral-800 placeholder-neutral-700 transition-all no-scrollbar resize-none"
-            placeholder='Paste JSON from ChatGPT / Gemini here...'></textarea>
-
-        <!-- Validation Status -->
-        <div id="validation-box" class="hidden flex-shrink-0 premium-card rounded-xl p-3 border border-neutral-800 text-[11px] space-y-1.5">
-            <div id="v-json"    class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
-            <div id="v-photos"  class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
-            <div id="v-effects" class="flex items-center gap-2 text-neutral-500"><span>●</span> Waiting...</div>
-        </div>
-
-        <!-- Error Box -->
-        <div id="error-feedback" class="hidden flex-shrink-0 bg-red-500/10 border border-red-500/25 rounded-xl p-3 space-y-1.5">
-            <p id="error-title" class="text-[11px] font-bold text-red-400"></p>
-            <div id="error-details" class="text-[10px] text-red-300/80 space-y-0.5 font-mono"></div>
-            <p id="error-fix" class="text-[10px] text-amber-400 font-medium pt-0.5"></p>
-        </div>
-
-        <button onclick="validateAndProcessJSON()" class="flex-shrink-0 w-full py-3.5 amber-btn font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98]">
-            Validate &amp; Generate Reel ▶
-        </button>
-    </div>
-
-    <!-- ════════════════════════════════
-         SCREEN: PREVIEW  (Step 3)
-    ════════════════════════════════ -->
-    <div id="screen-preview" class="flex-1 flex flex-col min-h-0 space-y-2 hidden">
-
-        <!-- Editable Project Title -->
-        <div class="flex-shrink-0 text-center">
-            <input id="project-title-input" type="text" placeholder="Project Name"
-                class="bg-transparent text-center text-sm font-bold text-white border-b border-neutral-700 focus:border-amber-500 outline-none pb-0.5 w-full max-w-[220px] transition-colors duration-300"
-                oninput="if(reelPlanData){reelPlanData.title=this.value;saveState();}">
-        </div>
-
-        <!-- Player -->
-        <div id="reel-player-window"
-             class="relative flex-shrink-0 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black border border-neutral-800"
-             style="height:41vh;aspect-ratio:9/16;container-type:inline-size;">
-
-            <!-- Fullscreen exit -->
-            <button id="fs-exit-btn" onclick="toggleFullscreen();event.stopPropagation();"
-                    class="hidden absolute top-3 left-3 z-50 p-2 bg-black/70 text-white rounded-full backdrop-blur-sm border border-neutral-600 items-center justify-center">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-
-            <!-- Slide counter -->
-            <div class="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full border border-neutral-700/50">
-                <span id="slide-counter" class="text-[10px] text-white font-bold tracking-wide">1 / 1</span>
-            </div>
-
-            <!-- Slides -->
-            <div id="reel-slides-container" class="w-full h-full relative"></div>
-
-            <!-- Overlay -->
-            <div class="absolute inset-0 z-20 flex flex-col justify-between p-3 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/30">
-                <div class="w-full bg-neutral-800/50 h-0.5 rounded-full overflow-hidden">
-                    <div id="reel-progress" class="w-0 h-full bg-amber-500"></div>
-                </div>
-                <div id="overlay-text-container" class="w-full flex flex-col pb-1 px-2">
-                    <div id="overlay-stage-wrapper">
-                        <span id="overlay-stage" class="text-[10px] font-bold tracking-widest text-amber-400 uppercase drop-shadow-md"></span>
-                    </div>
-                    <div id="overlay-caption-wrapper">
-                        <p id="overlay-caption" class="text-sm font-semibold text-white drop-shadow-md leading-snug"></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Click to play/pause, double-click fullscreen -->
-            <div class="absolute inset-0 z-30 cursor-pointer" onclick="togglePlayPause()" ondblclick="toggleFullscreen()"></div>
-        </div>
-
-        <!-- Controls -->
-        <div class="flex-shrink-0 flex flex-col gap-1.5 w-full max-w-xs mx-auto px-2">
-            <!-- Seekbar -->
-            <div class="flex items-center gap-2">
-                <span id="time-current" class="text-[10px] text-neutral-400 font-mono w-8 text-right tabular-nums">0:00</span>
-                <input type="range" id="main-seekbar" min="0" max="100" value="0" step="0.05"
-                       class="seek-input flex-1"
-                       oninput="handleSeekbarDrag()" onchange="seekFromSlider()">
-                <span id="time-total" class="text-[10px] text-neutral-400 font-mono w-8 tabular-nums">0:00</span>
-            </div>
-            <!-- Buttons -->
-            <div class="flex items-center justify-between px-4">
-                <button onclick="toggleSpeed()" id="speed-btn"
-                        class="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-[11px] font-bold text-neutral-400 hover:text-amber-500 hover:border-amber-500/40 transition-all">1x</button>
-                <button onclick="togglePlayPause()" id="play-pause-btn"
-                        class="p-3 rounded-full bg-amber-500 text-neutral-950 hover:scale-105 transition-all shadow-[0_0_18px_rgba(255,179,0,0.4)]">
-                    <svg id="play-icon"  class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    <svg id="pause-icon" class="w-5 h-5"        fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                </button>
-                <button onclick="toggleFullscreen()"
-                        class="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-500 hover:border-amber-500/40 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Editor Tabs -->
-        <div class="flex-1 flex flex-col min-h-0 premium-card rounded-xl border border-neutral-800 overflow-hidden">
-            <!-- Tab Headers -->
-            <div class="flex items-center border-b border-neutral-800 bg-neutral-900/60 p-1 gap-0.5 flex-shrink-0">
-                <button onclick="switchEditorTab('tab-captions')" id="btn-tab-captions" class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-amber-500 bg-neutral-800">✏️ Edit</button>
-                <button onclick="switchEditorTab('tab-style')"    id="btn-tab-style"    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">✨ Style</button>
-                <button onclick="switchEditorTab('tab-audio')"    id="btn-tab-audio"    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">🎵 Music</button>
-                <button onclick="switchEditorTab('tab-global')"   id="btn-tab-global"   class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all text-neutral-500 hover:text-neutral-300">⚙️ Global</button>
-            </div>
-
-            <!-- Tab Contents -->
-            <div class="flex-1 overflow-y-auto no-scrollbar p-2">
-
-                <!-- Edit Tab -->
-                <div id="tab-captions" class="block space-y-2">
-                    <div id="editable-captions-list" class="space-y-2 pb-1"></div>
-                </div>
-
-                <!-- Style Tab -->
-                <div id="tab-style" class="hidden">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div onclick="setCaptionStyle('cinematic')" id="style-btn-cinematic"
-                             class="cursor-pointer rounded-xl border-2 border-amber-500 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all">
-                            <span class="text-[9px] font-bold text-amber-500 tracking-wider">CINEMATIC</span>
-                            <span class="text-[10px] text-white">Classic Center</span>
-                        </div>
-                        <div onclick="setCaptionStyle('boxed')" id="style-btn-boxed"
-                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all hover:border-neutral-700">
-                            <span class="text-[9px] font-bold text-amber-500 border border-amber-500 px-1.5">BOXED</span>
-                            <span class="text-[10px] text-white">Clean Frame</span>
-                        </div>
-                        <div onclick="setCaptionStyle('strip')" id="style-btn-strip"
-                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-center gap-1 transition-all hover:border-neutral-700">
-                            <span class="text-[9px] font-bold text-white">BOLD STRIP</span>
-                            <span class="text-[10px] text-neutral-950 bg-amber-500 px-1.5 font-bold">Highlight</span>
-                        </div>
-                        <div onclick="setCaptionStyle('minimal_left')" id="style-btn-minimal_left"
-                             class="cursor-pointer rounded-xl border-2 border-neutral-800 bg-neutral-900 p-3 flex flex-col items-start pl-4 gap-1 transition-all hover:border-neutral-700">
-                            <span class="text-[9px] font-bold text-neutral-400 border-l-2 border-amber-500 pl-1.5">MINIMAL</span>
-                            <span class="text-[10px] text-white border-l-2 border-amber-500 pl-1.5">Left Accent</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Audio Tab -->
-                <div id="tab-audio" class="hidden space-y-3 pt-1">
-
-                    <!-- Section: Generated Music -->
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-2 px-0.5">
-                            Built-in Music <span class="text-green-500 normal-case font-medium">✓ preview + export</span>
-                        </label>
-
-                        <!-- Mute button -->
-                        <button id="music-btn-none" onclick="selectMusicStyle('none')"
-                                class="w-full mb-2 py-2 rounded-xl border-2 border-neutral-800 bg-neutral-900 text-[11px] font-semibold text-neutral-500
-                                       flex items-center justify-center gap-2 transition-all hover:border-neutral-700 active:scale-[0.98]">
-                            🔇 No Music (Muted)
-                        </button>
-
-                        <div class="grid grid-cols-3 gap-2">
-                            <!-- Epic -->
-                            <button id="music-btn-epic" onclick="selectMusicStyle('epic')"
-                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
-                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
-                                <span class="text-xl">🏗️</span>
-                                <span class="text-[10px] font-bold text-neutral-300">EPIC</span>
-                                <span class="text-[9px] text-neutral-600">Dramatic</span>
-                            </button>
-                            <!-- Upbeat -->
-                            <button id="music-btn-upbeat" onclick="selectMusicStyle('upbeat')"
-                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
-                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
-                                <span class="text-xl">⚡</span>
-                                <span class="text-[10px] font-bold text-neutral-300">UPBEAT</span>
-                                <span class="text-[9px] text-neutral-600">Energetic</span>
-                            </button>
-                            <!-- Ambient -->
-                            <button id="music-btn-ambient" onclick="selectMusicStyle('ambient')"
-                                    class="music-style-btn rounded-xl border-2 border-neutral-800 bg-neutral-900 p-2.5 flex flex-col items-center gap-1
-                                           transition-all hover:border-neutral-700 active:scale-[0.97]">
-                                <span class="text-xl">🌅</span>
-                                <span class="text-[10px] font-bold text-neutral-300">AMBIENT</span>
-                                <span class="text-[9px] text-neutral-600">Calm</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Divider -->
-                    <div class="flex items-center gap-2 py-0.5">
-                        <div class="flex-1 h-px bg-neutral-800"></div>
-                        <span class="text-[10px] text-neutral-600 font-medium">or use your own</span>
-                        <div class="flex-1 h-px bg-neutral-800"></div>
-                    </div>
-
-                    <!-- Custom MP3 -->
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block mb-2 px-0.5">
-                            Custom MP3 <span class="text-green-500 normal-case font-medium">✓ preview + export</span>
-                        </label>
-                        <button id="music-btn-custom" onclick="document.getElementById('custom-audio-input').click()"
-                                class="music-style-btn w-full py-2.5 bg-neutral-900 border-2 border-neutral-800 rounded-xl text-xs font-semibold text-neutral-300
-                                       flex items-center justify-center gap-2 hover:bg-neutral-800 hover:border-neutral-700 transition-all active:scale-[0.98]">
-                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                            </svg>
-                            Upload MP3 / WAV / AAC
-                        </button>
-                        <input type="file" id="custom-audio-input" accept="audio/mpeg,audio/wav,audio/aac" class="hidden" onchange="handleCustomAudioUpload(event)">
-                        <div id="custom-audio-label" class="hidden mt-2 text-[10px] text-amber-400 font-bold px-3 py-2 border border-amber-500/30 bg-amber-500/10 rounded-xl text-center"></div>
-                    </div>
-
-                    <!-- Info note -->
-                    <p class="text-[10px] text-neutral-700 text-center pb-1">
-                        Built-in music generates directly in browser — no internet needed
-                    </p>
-                </div>
-
-                <!-- Global Tab -->
-                <div id="tab-global" class="hidden pt-1">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Durations</label>
-                            <select onchange="applyGlobalDuration(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2.5 text-xs text-white focus-glow outline-none">
-                                <option value="">-- Set All --</option>
-                                <option value="2">2 sec (Fast)</option>
-                                <option value="3">3 sec (Normal)</option>
-                                <option value="5">5 sec (Slow)</option>
-                                <option value="8">8 sec (Epic)</option>
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">All Effects</label>
-                            <select onchange="applyGlobalEffect(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2.5 text-xs text-white focus-glow outline-none">
-                                <option value="">-- Set All --</option>
-                                <option value="slow_zoom_in">Slow Zoom In</option>
-                                <option value="slow_zoom_out">Slow Zoom Out</option>
-                                <option value="pan_left">Pan Left</option>
-                                <option value="pan_right">Pan Right</option>
-                                <option value="cinematic_zoom">Cinematic Zoom</option>
-                                <option value="dramatic_reveal">Dramatic Reveal</option>
-                            </select>
-                        </div>
-                    </div>
-                    <p class="text-[10px] text-neutral-600 text-center mt-3">Per-slide settings in Edit tab override these</p>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</main>
-
-<!-- ═══ FOOTER ═══ -->
-<footer id="app-footer" class="fixed bottom-0 left-0 right-0 bg-[#0B0B0C]/95 backdrop-blur-md border-t border-neutral-900 px-4 py-3.5 z-40 hidden">
-    <div class="max-w-md mx-auto flex items-center gap-3">
-        <button id="nav-back" onclick="navigateBack()" class="hidden px-5 py-3 rounded-xl text-xs font-bold text-neutral-400 bg-neutral-950 border border-neutral-900 uppercase tracking-wide hover:bg-neutral-900 transition-all active:scale-[0.98]">← Back</button>
-        <button id="nav-next" onclick="navigateNext()" disabled
-                class="flex-1 py-3 amber-btn font-bold rounded-xl text-sm tracking-wide uppercase transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none">Continue →</button>
-        <button id="nav-export" onclick="triggerExport()"
-                class="flex-1 py-3 amber-btn font-bold rounded-xl text-sm uppercase transition-all hidden active:scale-[0.98] overflow-hidden">
-            <span id="export-btn-content">⬇ Export Video</span>
-        </button>
-    </div>
-</footer>
-
+</div>
+<div id="api-saved-view" class="hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+<span style="color: #4ade80; display: flex; align-items: center; gap: 8px;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+API Key Saved Securely
+</span>
+</div>
+<div class="btn-group">
+<button id="test-conn-btn" class="secondary">Test Connection</button>
+<button id="delete-key-btn" class="danger">Delete Key</button>
+</div>
+</div>
+</div>
+<!-- Details & Test Panel -->
+<div class="glass-card" id="details-panel">
+<h2 id="det-title" style="margin-bottom: 15px;">Model Name</h2>
+<div class="detail-grid">
+<div class="detail-item"><span>Model ID</span><div id="det-id"></div></div>
+<div class="detail-item"><span>Provider</span><div id="det-provider"></div></div>
+<div class="detail-item"><span>Context Length</span><div id="det-context"></div></div>
+<div class="detail-item"><span>Pricing (1M tokens)</span><div id="det-price"></div></div>
+</div>
+<button id="copy-id-btn" class="secondary" style="width: 100%; margin-bottom: 20px;">Copy Model ID</button>
+<div style="border-top: 1px solid var(--card-border); padding-top: 20px;">
+<h3 style="margin-bottom: 10px; font-size: 16px;">Test Model</h3>
+<textarea id="prompt-input" rows="4" placeholder="Write a prompt..."></textarea>
+<button id="test-model-btn" style="width: 100%;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+Test Selected Model
+</button>
+<div id="response-box"></div>
+</div>
+</div>
+<!-- Controls -->
+<div class="glass-card">
+<div class="controls-grid">
+<input type="text" id="search-input" placeholder="Search models by name, ID or description...">
+<select id="category-select">
+<option value="All">All Categories</option>
+<option value="Coding">Coding</option>
+<option value="Reasoning">Reasoning</option>
+<option value="Chat">Chat</option>
+<option value="Writing">Writing</option>
+<option value="Translation">Translation</option>
+<option value="Vision">Vision</option>
+<option value="Image Prompting">Image Prompting</option>
+<option value="Video Prompting">Video Prompting</option>
+<option value="Free">Free</option>
+<option value="Paid">Paid</option>
+</select>
+<select id="sort-select">
+<option value="Recommended">Recommended</option>
+<option value="Alphabetical">Alphabetical</option>
+<option value="Context">Context Length</option>
+</select>
+</div>
+<button id="refresh-btn" class="secondary" style="width: 100%; margin-top: 15px;">Refresh Models</button>
+</div>
+<!-- Models Grid -->
+<div id="loader" class="loader hidden"></div>
+<div class="models-grid" id="models-container"></div>
+</div>
+<div id="toast">Message</div>
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   GLOBAL STATE
-═══════════════════════════════════════════════════════════════ */
-let uploadedFiles     = [];
-let reelPlanData      = null;
-let currentScreen     = 'home';
-let currentSlideIndex = 0;
-let slideTimer        = null;
-let isPlaying         = false;
-let currentCaptionStyle = 'cinematic';
-let selectedAudioUrl   = null;   // only for custom MP3 (blob URL)
-let selectedMusicStyle = 'none'; // 'none' | 'epic' | 'upbeat' | 'ambient' | 'custom'
-let audioElement       = null;   // only for custom MP3 playback
-let playbackSpeed      = 1;
-
-/* ═══════════════════════════════════════════════════════════════
-   WEB AUDIO MUSIC ENGINE
-   Procedural music — no CORS, no network, preview + export both
-═══════════════════════════════════════════════════════════════ */
-class MusicEngine {
-    constructor() {
-        this.ctx     = null;
-        this.master  = null;
-        this.nodes   = [];
-        this.loopTimer = null;
-        this.running = false;
-        this.style   = null;
-    }
-
-    _cfg(name) {
-        return {
-            epic: {
-                tempo: 56, noteBeats: 4,
-                chords: [
-                    { freqs:[110, 138.6, 165.0, 220.0], bass:55.0  }, // Am7
-                    { freqs:[87.3, 110.0, 130.8, 174.6], bass:43.7 }, // Fmaj7
-                    { freqs:[65.4,  82.4,  98.0, 123.5], bass:32.7 }, // Cmaj7
-                    { freqs:[98.0, 123.5, 146.8, 196.0], bass:49.0 }, // G7
-                ],
-                padType:'sine', padVol:0.055, bassVol:0.20, reverb:true,
-            },
-            upbeat: {
-                tempo: 115, noteBeats: 2,
-                chords: [
-                    { freqs:[261.6, 329.6, 392.0], bass:130.8 }, // C
-                    { freqs:[220.0, 277.2, 329.6], bass:110.0 }, // Am
-                    { freqs:[174.6, 220.0, 261.6], bass:87.3  }, // F
-                    { freqs:[196.0, 246.9, 293.7], bass:98.0  }, // G
-                ],
-                padType:'triangle', padVol:0.045, bassVol:0.15, reverb:false,
-            },
-            ambient: {
-                tempo: 42, noteBeats: 8,
-                chords: [
-                    { freqs:[130.8, 164.8, 196.0, 246.9, 329.6], bass:65.4 }, // Cmaj9
-                    { freqs:[110.0, 138.6, 165.0, 220.0, 277.2], bass:55.0 }, // Am9
-                    { freqs:[146.8, 185.0, 220.0, 277.2, 349.2], bass:73.4 }, // Dm9
-                    { freqs:[98.0,  123.5, 146.8, 196.0, 246.9], bass:49.0 }, // G9
-                ],
-                padType:'sine', padVol:0.038, bassVol:0.13, reverb:true,
-            },
-        }[name] || this._cfg('epic');
-    }
-
-    _reverb(ctx) {
-        const conv = ctx.createConvolver();
-        const len  = Math.floor(ctx.sampleRate * 2.8);
-        const buf  = ctx.createBuffer(2, len, ctx.sampleRate);
-        for (let ch = 0; ch < 2; ch++) {
-            const d = buf.getChannelData(ch);
-            for (let i = 0; i < len; i++)
-                d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.8);
-        }
-        conv.buffer = buf;
-        return conv;
-    }
-
-    _block(t0) {
-        if (!this.running || !this.ctx) return;
-        const cfg  = this._cfg(this.style);
-        const ctx  = this.ctx;
-        const beat = 60 / cfg.tempo;
-        const cdur = beat * cfg.noteBeats;
-        const total= cfg.chords.length * cdur;
-
-        const rv   = cfg.reverb ? this._reverb(ctx) : null;
-        if (rv) {
-            const rvg = ctx.createGain(); rvg.gain.value = 0.28;
-            rv.connect(rvg); rvg.connect(this.master);
-            this.nodes.push(rv, rvg);
-        }
-
-        cfg.chords.forEach((chord, ci) => {
-            const cs = t0 + ci * cdur;
-            const ce = cs + cdur;
-
-            // Pads
-            chord.freqs.forEach((freq, fi) => {
-                const osc  = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = cfg.padType;
-                osc.frequency.value = freq;
-                osc.detune.value = (fi % 2 === 0 ? 1 : -1) * 4; // slight spread
-
-                const att = cdur * 0.12, rel = cdur * 0.14;
-                gain.gain.setValueAtTime(0, cs);
-                gain.gain.linearRampToValueAtTime(cfg.padVol, cs + att);
-                gain.gain.setValueAtTime(cfg.padVol, ce - rel);
-                gain.gain.linearRampToValueAtTime(0, ce);
-
-                osc.connect(gain); gain.connect(this.master);
-                if (rv) gain.connect(rv);
-                osc.start(cs); osc.stop(ce + 0.1);
-                this.nodes.push(osc, gain);
-            });
-
-            // Bass note
-            const bosc = ctx.createOscillator();
-            const bgain= ctx.createGain();
-            bosc.type = 'sine';
-            bosc.frequency.value = chord.bass;
-
-            bgain.gain.setValueAtTime(0, cs);
-            bgain.gain.linearRampToValueAtTime(cfg.bassVol, cs + 0.05);
-            bgain.gain.setValueAtTime(cfg.bassVol * 0.8, ce - 0.18);
-            bgain.gain.linearRampToValueAtTime(0, ce);
-
-            bosc.connect(bgain); bgain.connect(this.master);
-            bosc.start(cs); bosc.stop(ce + 0.1);
-            this.nodes.push(bosc, bgain);
-        });
-
-        // Schedule next loop 300ms before this one ends
-        const ms = (t0 + total - 0.3 - ctx.currentTime) * 1000;
-        this.loopTimer = setTimeout(() => {
-            if (this.running) this._block(t0 + total);
-        }, Math.max(50, ms));
-    }
-
-    start(style, destNode) {
-        this.stop();
-        this.style   = style;
-        this.running = true;
-        try {
-            const AC = window.AudioContext || window.webkitAudioContext;
-            // If destNode is provided (for export), use its context
-            this.ctx = destNode ? destNode.context : new AC();
-            if (this.ctx.state === 'suspended') this.ctx.resume();
-
-            this.master = this.ctx.createGain();
-            this.master.gain.value = 0.82;
-            this.master.connect(destNode || this.ctx.destination);
-
-            this._block(this.ctx.currentTime + 0.08);
-        } catch (e) {
-            console.warn('MusicEngine.start failed:', e);
-            this.running = false;
-        }
-    }
-
-    suspend() { this.ctx?.suspend?.(); }
-    resume()  { this.ctx?.resume?.(); }
-
-    stop() {
-        this.running = false;
-        clearTimeout(this.loopTimer);
-        this.nodes.forEach(n => { try { n.stop?.(); n.disconnect?.(); } catch(_){} });
-        this.nodes = [];
-        if (this.ctx && this.ctx.state !== 'closed') {
-            try { this.ctx.close(); } catch(_) {}
-        }
-        this.ctx = null; this.master = null;
-    }
+// --- Constants ---
+const API_MODELS_URL = 'https://openrouter.ai/api/v1/models';
+const API_CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const STORAGE_KEYS = {
+API_KEY: 'or_api_key',
+CATEGORY: 'or_category',
+SORT: 'or_sort',
+SEARCH: 'or_search',
+MODEL_ID: 'or_model_id'
+};
+const RECOMMENDED_MODELS = [
+'anthropic/claude-3.5-sonnet',
+'google/gemini-1.5-pro',
+'qwen/qwen-2.5-72b-instruct',
+'deepseek/deepseek-coder',
+'openai/gpt-4o',
+'meta-llama/llama-3.1-405b-instruct',
+'google/gemini-flash-1.5-exp'
+];
+// --- State ---
+const state = {
+models: [],
+apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '',
+category: localStorage.getItem(STORAGE_KEYS.CATEGORY) || 'All',
+sort: localStorage.getItem(STORAGE_KEYS.SORT) || 'Recommended',
+search: localStorage.getItem(STORAGE_KEYS.SEARCH) || '',
+selectedModelId: localStorage.getItem(STORAGE_KEYS.MODEL_ID) || null
+};
+// --- DOM Elements ---
+const els = {
+apiInputView: document.getElementById('api-input-view'),
+apiSavedView: document.getElementById('api-saved-view'),
+apiKeyInput: document.getElementById('api-key-input'),
+toggleKeyBtn: document.getElementById('toggle-key-btn'),
+saveKeyBtn: document.getElementById('save-key-btn'),
+deleteKeyBtn: document.getElementById('delete-key-btn'),
+testConnBtn: document.getElementById('test-conn-btn'),
+searchInput: document.getElementById('search-input'),
+categorySelect: document.getElementById('category-select'),
+sortSelect: document.getElementById('sort-select'),
+refreshBtn: document.getElementById('refresh-btn'),
+modelsContainer: document.getElementById('models-container'),
+loader: document.getElementById('loader'),
+detailsPanel: document.getElementById('details-panel'),
+detTitle: document.getElementById('det-title'),
+detId: document.getElementById('det-id'),
+detProvider: document.getElementById('det-provider'),
+detContext: document.getElementById('det-context'),
+detPrice: document.getElementById('det-price'),
+copyIdBtn: document.getElementById('copy-id-btn'),
+promptInput: document.getElementById('prompt-input'),
+testModelBtn: document.getElementById('test-model-btn'),
+responseBox: document.getElementById('response-box'),
+toast: document.getElementById('toast')
+};
+// --- Utility Functions ---
+function showToast(message, isError = false) {
+els.toast.textContent = message;
+els.toast.style.background = isError ? '#ef4444' : '#10b981';
+els.toast.classList.add('show');
+setTimeout(() => els.toast.classList.remove('show'), 3000);
 }
-
-const musicEngine = new MusicEngine();
-let seekbarAnimFrame  = null;
-let isDraggingSeekbar = false;
-let slideStartedAt    = 0;       // performance.now() when current slide began
-let slideElapsedAtPause = 0;     // ms already consumed before pause
-let sortableInstance  = null;
-let db;
-
-/* ═══════════════════════════════════════════════════════════════
-   INDEXEDDB  (photo persistence across sessions)
-═══════════════════════════════════════════════════════════════ */
-function initDB() {
-    return new Promise((res, rej) => {
-        const req = indexedDB.open('BuildReelDB', 1);
-        req.onupgradeneeded = e => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains('photos')) d.createObjectStore('photos', { keyPath: 'id' });
-        };
-        req.onsuccess = e => { db = e.target.result; res(db); };
-        req.onerror   = e => rej(e.target.error);
-    });
+function formatNumber(num) {
+return new Intl.NumberFormat('en-US').format(num);
 }
-
-async function savePhotosToIDB() {
-    if (!db) return;
-    const tx    = db.transaction('photos', 'readwrite');
-    const store = tx.objectStore('photos');
-    store.clear();
-    uploadedFiles.forEach(f => store.put({ id: f.name, name: f.name, fileObj: f.fileObj }));
+function parsePricing(pricing) {
+if (!pricing) return { prompt: 0, completion: 0 };
+const p = parseFloat(pricing.prompt) || 0;
+const c = parseFloat(pricing.completion) || 0;
+return { prompt: p, completion: c };
 }
-
-async function saveState() {
-    localStorage.setItem('currentScreen',  currentScreen);
-    localStorage.setItem('captionStyle',   currentCaptionStyle);
-    if (reelPlanData)  localStorage.setItem('reelPlanData', JSON.stringify(reelPlanData));
-    const json = document.getElementById('json-input')?.value;
-    if (json)          localStorage.setItem('jsonInput', json);
-    await savePhotosToIDB();
+function isModelFree(model) {
+const p = parsePricing(model.pricing);
+return p.prompt === 0 && p.completion === 0;
 }
-
-async function loadState() {
-    await initDB();
-
-    const savedJson = localStorage.getItem('jsonInput');
-    if (savedJson) { const el = document.getElementById('json-input'); if (el) el.value = savedJson; }
-
-    try {
-        const savedPlan = localStorage.getItem('reelPlanData');
-        if (savedPlan) reelPlanData = JSON.parse(savedPlan);
-    } catch (e) {}
-
-    const savedStyle = localStorage.getItem('captionStyle');
-    if (savedStyle) currentCaptionStyle = savedStyle;
-
-    return new Promise(resolve => {
-        const tx    = db.transaction('photos', 'readonly');
-        const store = tx.objectStore('photos');
-        const req   = store.getAll();
-        req.onsuccess = () => {
-            const photos = req.result || [];
-            if (photos.length > 0) {
-                revokeAllObjectUrls();
-                uploadedFiles = photos.map(p => ({
-                    id:      p.id,
-                    name:    p.name,
-                    fileObj: p.fileObj,
-                    url:     URL.createObjectURL(p.fileObj)
-                }));
-                renderPhotoListCards();
-            }
-            resolve();
-        };
-        req.onerror = () => resolve();
-    });
+// --- Categorization Logic ---
+function getModelCategories(model) {
+const cats = new Set(['All']);
+const id = model.id.toLowerCase();
+const desc = (model.description || '').toLowerCase();
+if (isModelFree(model)) cats.add('Free');
+else cats.add('Paid');
+if (id.includes('coder') || id.includes('qwen') || id.includes('gemini') || id.includes('claude') || desc.includes('code')) {
+cats.add('Coding');
 }
-
-function revokeAllObjectUrls() {
-    uploadedFiles.forEach(f => { if (f.url) URL.revokeObjectURL(f.url); });
+if (id.includes('reasoning') || id.includes('o1') || id.includes('r1') || id.includes('math') || desc.includes('reasoning')) {
+cats.add('Reasoning');
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   PROMPT
-═══════════════════════════════════════════════════════════════ */
-const PROMPT_TEXT = `You are a cinematic construction reel planner.
-I will upload construction progress photos.
-Analyse visually and create a cinematic Reel plan.
-
-CRITICAL INSTRUCTIONS:
-- Group photos of the SAME stage into one scene.
-- Use the EXACT ORIGINAL FILENAME of each photo.
-- Do NOT skip any photos. No placeholders.
-- Keep captions short (max 8 words).
-- Return ONLY valid JSON. No extra text, no markdown.
-
-Allowed stages:
-Foundation, Column Work, Brick Masonry, Slab, Roof Work,
-Plaster, Electrical, Plumbing, Paint, Flooring,
-Windows & Doors, Final Finish, Unknown
-
-Return ONLY this JSON structure:
-{
-  "reel": {
-    "title": "Project Name",
-    "scenes": [
-      {
-        "stage": "Foundation",
-        "caption": "Building a strong base",
-        "filenames": ["IMG_001.jpg", "IMG_002.jpg"]
-      }
-    ]
-  }
-}`;
-
-function generatePromptTextUI() {
-    const box = document.getElementById('prompt-box');
-    if (box) box.innerText = PROMPT_TEXT;
+if (id.includes('vision') || id.includes('gpt-4o') || id.includes('gemini-1.5') || id.includes('claude-3') || (model.architecture && model.architecture.modality && model.architecture.modality.includes('image'))) {
+cats.add('Vision');
 }
-
-function copyPrompt() {
-    const show = ok => {
-        const el = document.getElementById('copy-btn-text');
-        el.innerText = ok ? '✓ Copied! Now open ChatGPT or Gemini' : 'Copy failed — select text manually';
-        el.style.color = ok ? '#FFB300' : '#f87171';
-        setTimeout(() => { el.innerText = 'Copy Prompt to Clipboard'; el.style.color = ''; }, 2800);
-    };
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(PROMPT_TEXT).then(() => show(true)).catch(() => fallbackCopy(show));
-    } else { fallbackCopy(show); }
+if (id.includes('chat') || id.includes('instruct') || id.includes('llama')) {
+cats.add('Chat');
+cats.add('Writing');
 }
-
-function fallbackCopy(cb) {
-    const ta = document.createElement('textarea');
-    ta.value = PROMPT_TEXT;
-    Object.assign(ta.style, { position:'fixed', top:'0', left:'0', opacity:'0' });
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); cb(true); } catch { cb(false); }
-    document.body.removeChild(ta);
+if (id.includes('claude') || id.includes('gpt') || id.includes('gemini')) {
+cats.add('Image Prompting');
+cats.add('Video Prompting');
+cats.add('Translation');
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════════════ */
-function switchScreen(target) {
-    currentScreen = target;
-    stopReelEngine();
-
-    ['home','paste','preview'].forEach(id =>
-        document.getElementById('screen-' + id).classList.add('hidden')
-    );
-
-    const backBtn    = document.getElementById('nav-back');
-    const nextBtn    = document.getElementById('nav-next');
-    const exportBtn  = document.getElementById('nav-export');
-    const stepInd    = document.getElementById('step-indicator');
-    const headerProg = document.getElementById('header-progress');
-
-    backBtn.classList.add('hidden');
-    nextBtn.classList.remove('hidden');
-    exportBtn.classList.add('hidden');
-
-    if (target === 'home') {
-        generatePromptTextUI();
-        document.getElementById('screen-home').classList.remove('hidden');
-        nextBtn.innerText  = 'NEXT: Upload & Paste →';
-        nextBtn.disabled   = false;
-        stepInd.innerText  = 'Step 1/3';
-        headerProg.style.width = '33%';
-
-    } else if (target === 'paste') {
-        document.getElementById('screen-paste').classList.remove('hidden');
-        backBtn.classList.remove('hidden');
-        nextBtn.classList.add('hidden');
-        stepInd.innerText  = 'Step 2/3';
-        headerProg.style.width = '66%';
-
-    } else if (target === 'preview') {
-        document.getElementById('screen-preview').classList.remove('hidden');
-        backBtn.classList.remove('hidden');
-        nextBtn.classList.add('hidden');
-        exportBtn.classList.remove('hidden');
-        stepInd.innerText  = 'Step 3/3';
-        headerProg.style.width = '100%';
-        const titleInput = document.getElementById('project-title-input');
-        if (titleInput && reelPlanData) titleInput.value = reelPlanData.title || '';
-        if (reelPlanData) buildCinematicPlayerEngine();
-    }
-
-    saveState();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+return Array.from(cats);
 }
-
-function navigateNext() { if (currentScreen === 'home') switchScreen('paste'); }
-function navigateBack() {
-    if (currentScreen === 'paste')   switchScreen('home');
-    else if (currentScreen === 'preview') switchScreen('paste');
+// --- API & Data Handling ---
+async function fetchModels(force = false) {
+if (state.models.length > 0 && !force) return;
+els.loader.classList.remove('hidden');
+els.modelsContainer.innerHTML = '';
+try {
+const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 15000);
+const response = await fetch(API_MODELS_URL, { signal: controller.signal });
+clearTimeout(timeoutId);
+if (!response.ok) throw new Error(HTTP error! status: ${response.status});
+const data = await response.json();
+state.models = data.data;
+applyFiltersAndRender();
+} catch (error) {
+let msg = "Failed to fetch models. ";
+if (error.name === 'AbortError') msg += "Request timed out.";
+else if (!navigator.onLine) msg += "No internet connection.";
+else msg += error.message;
+showToast(msg, true);
+} finally {
+els.loader.classList.add('hidden');
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   PHOTO UPLOAD & DRAG-DROP
-═══════════════════════════════════════════════════════════════ */
-function handlePhotoUploads(e) {
-    processPhotoFiles(Array.from(e.target.files));
 }
-
-function processPhotoFiles(files) {
-    if (!files.length) return;
-    revokeAllObjectUrls();
-    uploadedFiles = files.map(f => ({
-        id:      f.name,
-        name:    f.name,
-        fileObj: f,
-        url:     URL.createObjectURL(f)
-    }));
-    renderPhotoListCards();
-    saveState();
-    showToast(`✓ ${files.length} photos loaded`, 'success');
+function applyFiltersAndRender() {
+let filtered = state.models.filter(model => {
+// Category Filter
+const cats = getModelCategories(model);
+if (!cats.includes(state.category)) return false;
+// Search Filter
+if (state.search) {
+const q = state.search.toLowerCase();
+const provider = model.id.split('/')[0].toLowerCase();
+const nameMatch = model.name.toLowerCase().includes(q);
+const idMatch = model.id.toLowerCase().includes(q);
+const descMatch = (model.description || '').toLowerCase().includes(q);
+const provMatch = provider.includes(q);
+if (!nameMatch && !idMatch && !descMatch && !provMatch) return false;
 }
-
-function renderPhotoListCards() {
-    const container  = document.getElementById('upload-list-container');
-    const list       = document.getElementById('photo-list');
-    const statusText = document.getElementById('upload-status-text');
-
-    if (statusText) {
-        statusText.innerText = uploadedFiles.length > 0
-            ? `✓ ${uploadedFiles.length} Photos Selected`
-            : 'Drop photos here or tap to browse';
-        statusText.style.color = uploadedFiles.length > 0 ? '#FFB300' : '';
-    }
-
-    if (!container || !list) return;
-
-    if (!uploadedFiles.length) { container.classList.add('hidden'); return; }
-
-    container.classList.remove('hidden');
-    list.innerHTML = '';
-
-    uploadedFiles.forEach(photo => {
-        const dn   = photo.name.length > 20 ? photo.name.slice(0, 17) + '…' : photo.name;
-        const card = document.createElement('div');
-        card.className  = 'premium-card rounded-xl p-2.5 flex items-center gap-3 select-none';
-        card.dataset.id = photo.name;
-        card.innerHTML  = `
-            <div class="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden flex-shrink-0">
-                <img src="${photo.url}" class="w-full h-full object-cover" loading="lazy">
-            </div>
-            <span class="flex-1 text-[11px] font-medium text-neutral-300 truncate" title="${photo.name}">${dn}</span>
-            <button onclick="deletePhotoCard('${photo.name}')"
-                    class="p-1.5 text-neutral-600 hover:text-red-400 transition-colors flex-shrink-0">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-            </button>
-            <div class="drag-handle p-1.5 text-neutral-600 cursor-grab active:cursor-grabbing touch-none flex-shrink-0">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </div>`;
-        list.appendChild(card);
-    });
-
-    // Auto-open accordion
-    const content = document.getElementById('sequence-accordion-content');
-    const icon    = document.getElementById('sequence-accordion-icon');
-    if (content) content.classList.remove('hidden');
-    if (icon)    icon.style.transform = 'rotate(180deg)';
-
-    // SortableJS
-    if (sortableInstance) sortableInstance.destroy();
-    if (typeof Sortable !== 'undefined') {
-        sortableInstance = new Sortable(list, {
-            animation: 150,
-            handle: '.drag-handle',
-            ghostClass: 'opacity-40',
-            onEnd: () => {
-                const order = Array.from(list.children).map(c => c.dataset.id);
-                uploadedFiles = order.map(id => uploadedFiles.find(p => p.name === id));
-                saveState();
-            }
-        });
-    }
-}
-
-function deletePhotoCard(name) {
-    const ph = uploadedFiles.find(p => p.name === name);
-    if (ph?.url) URL.revokeObjectURL(ph.url);
-    uploadedFiles = uploadedFiles.filter(p => p.name !== name);
-    renderPhotoListCards();
-    saveState();
-}
-
-function initDropZone() {
-    const zone = document.getElementById('drop-zone');
-    if (!zone) return;
-    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-        if (files.length) processPhotoFiles(files);
-        else showToast('Please drop image files only', 'error');
-    });
-}
-
-function toggleAccordion(id) {
-    const content = document.getElementById(id + '-content');
-    const icon    = document.getElementById(id + '-icon');
-    if (!content) return;
-    const hidden = content.classList.contains('hidden');
-    content.classList.toggle('hidden', !hidden);
-    if (icon) icon.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   JSON VALIDATION
-═══════════════════════════════════════════════════════════════ */
-function validateAndProcessJSON() {
-    const raw   = document.getElementById('json-input').value.trim();
-    const vBox  = document.getElementById('validation-box');
-    const eBox  = document.getElementById('error-feedback');
-
-    eBox.classList.add('hidden');
-    vBox.classList.remove('hidden');
-
-    const setV = (el, state, msg) => {
-        const icons  = { idle:'●', pending:'⏳', ok:'✓', err:'✕' };
-        const colors = { idle:'text-neutral-500', pending:'text-amber-400', ok:'text-green-400 font-semibold', err:'text-red-400 font-semibold' };
-        el.className = 'flex items-center gap-2 text-[11px] ' + colors[state];
-        el.innerHTML = `<span>${icons[state]}</span> ${msg}`;
-    };
-
-    const vJson   = document.getElementById('v-json');
-    const vPhotos = document.getElementById('v-photos');
-    const vEffects= document.getElementById('v-effects');
-
-    setV(vJson,   'pending', 'Validating JSON format...');
-    setV(vPhotos, 'idle',    'Mapping photos...');
-    setV(vEffects,'idle',    'Applying effects...');
-
-    setTimeout(() => {
-        // Step 1: Parse
-        let parsed = null;
-        try {
-            let s = raw;
-            const m = s.match(/```(?:json)?\s*([\s\S]*?)```/);
-            if (m) s = m[1].trim();
-            parsed = JSON.parse(s);
-            setV(vJson, 'ok', 'JSON format valid ✓');
-        } catch (e) {
-            setV(vJson, 'err', 'Invalid JSON — cannot parse');
-            showValError('JSON Parse Error',
-                [`Detail: ${e.message.slice(0, 80)}`],
-                '💡 Fix: Copy the AI response again. Make sure it starts with { and ends with }');
-            return;
-        }
-
-        setTimeout(() => {
-            // Step 2: Schema + photo mapping
-            if (!parsed?.reel?.scenes || !Array.isArray(parsed.reel.scenes)) {
-                setV(vPhotos, 'err', 'Invalid structure');
-                showValError('Wrong JSON Structure',
-                    ['Expected: { "reel": { "scenes": [...] } }'],
-                    '💡 Fix: Use the exact prompt provided in Step 1');
-                return;
-            }
-
-            const FX   = ['slow_zoom_in','pan_left','cinematic_zoom','slow_zoom_out','pan_right','dramatic_reveal'];
-            let fxIdx  = 0;
-            const missing = [];
-            const slides  = [];
-
-            parsed.reel.scenes.forEach(scene => {
-                if (!Array.isArray(scene.filenames)) return;
-                scene.filenames.forEach((filename, i) => {
-                    const found = uploadedFiles.find(p => p.name === filename);
-                    if (!found) { missing.push(filename); return; }
-                    // Auto-number caption when scene has multiple photos
-                    let caption = scene.caption || '';
-                    if (scene.filenames.length > 1) caption += ` • ${i + 1}/${scene.filenames.length}`;
-                    slides.push({
-                        filename,
-                        stage:    scene.stage || 'Construction',
-                        caption,
-                        effect:   FX[fxIdx++ % FX.length],
-                        duration: 3
-                    });
-                });
-            });
-
-            if (missing.length > 0) {
-                setV(vPhotos, 'err', `${missing.length} photo(s) not found`);
-                const details = missing.slice(0, 5).map(f => `• ${f}`);
-                if (missing.length > 5) details.push(`… and ${missing.length - 5} more`);
-                showValError(`Photo Mismatch — ${missing.length} file(s) not found`, details,
-                    '💡 Fix: Re-upload via Files app (not Gallery). Or check JSON filenames match exactly.');
-                return;
-            }
-
-            if (slides.length === 0) {
-                setV(vPhotos, 'err', 'No slides generated');
-                showValError('No valid slides', ['JSON has scenes but filenames did not match any uploaded photo.'],
-                    '💡 Fix: Ensure filenames in JSON exactly match your uploaded photo names.');
-                return;
-            }
-
-            setV(vPhotos, 'ok', `${slides.length} photos mapped ✓`);
-
-            setTimeout(() => {
-                setV(vEffects, 'ok', 'Auto-effects applied ✓');
-                reelPlanData = { title: parsed.reel.title || 'My Project', slides };
-                setTimeout(() => switchScreen('preview'), 700);
-            }, 500);
-
-        }, 550);
-    }, 500);
-}
-
-function showValError(title, details, fix) {
-    document.getElementById('error-title').innerText = title;
-    document.getElementById('error-details').innerHTML = details.map(d => `<p>${d}</p>`).join('');
-    document.getElementById('error-fix').innerText = fix || '';
-    document.getElementById('error-feedback').classList.remove('hidden');
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   REEL PLAYER ENGINE
-═══════════════════════════════════════════════════════════════ */
-function buildCinematicPlayerEngine() {
-    const slidesContainer = document.getElementById('reel-slides-container');
-    const captionsList    = document.getElementById('editable-captions-list');
-    if (!slidesContainer || !captionsList || !reelPlanData) return;
-
-    slidesContainer.innerHTML = '';
-    captionsList.innerHTML    = '';
-
-    const FX_OPTIONS = [
-        { val:'slow_zoom_in',    label:'Slow Zoom In' },
-        { val:'slow_zoom_out',   label:'Slow Zoom Out' },
-        { val:'pan_left',        label:'Pan Left' },
-        { val:'pan_right',       label:'Pan Right' },
-        { val:'cinematic_zoom',  label:'Cinematic Zoom' },
-        { val:'dramatic_reveal', label:'Dramatic Reveal' }
-    ];
-
-    reelPlanData.slides.forEach((slide, idx) => {
-        const photo    = uploadedFiles.find(p => p.name === slide.filename);
-        if (!photo) return;
-        const effect   = slide.effect   || 'slow_zoom_in';
-        const duration = slide.duration || 3;
-
-        // ── Slide div ──
-        const slideDiv = document.createElement('div');
-        slideDiv.id    = `reel-slide-${idx}`;
-        slideDiv.className = 'absolute inset-0 w-full h-full overflow-hidden bg-black';
-        slideDiv.style.cssText = 'opacity:0;z-index:1;transition:none;';
-        slideDiv.innerHTML = `<img id="img-slide-${idx}" src="${photo.url}"
-            class="w-full h-full object-cover origin-center effect-${effect}"
-            style="--dur:${duration}s;" draggable="false">`;
-        slidesContainer.appendChild(slideDiv);
-
-        // ── Edit card ──
-        let selHtml = `<select id="effect-select-${idx}" onchange="updateSlideEffect(${idx},this.value)"
-            class="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-1.5 py-1.5 text-[10px] text-amber-400 focus-glow outline-none min-w-0">`;
-        FX_OPTIONS.forEach(o => {
-            selHtml += `<option value="${o.val}" ${o.val === effect ? 'selected' : ''}>${o.label}</option>`;
-        });
-        selHtml += '</select>';
-
-        const editCard = document.createElement('div');
-        editCard.className    = 'premium-card rounded-xl p-2.5 flex gap-2.5 border border-transparent transition-all duration-300';
-        editCard.dataset.idx  = idx;
-        editCard.innerHTML    = `
-            <div class="w-10 h-10 rounded-lg bg-neutral-900 overflow-hidden border border-neutral-800 flex-shrink-0
-                        cursor-pointer hover:border-amber-500/60 transition-all relative group"
-                 onclick="jumpToSlide(${idx})" title="Jump to slide ${idx + 1}">
-                <img src="${photo.url}" class="w-full h-full object-cover" loading="lazy">
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                    <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-            </div>
-            <div class="flex-1 flex flex-col gap-1.5 min-w-0">
-                <input type="text" value="${slide.caption.replace(/"/g,'&quot;')}"
-                       oninput="updateSlideCaption(${idx},this.value)"
-                       placeholder="Caption…"
-                       class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2 py-1.5 text-[11px] text-white focus-glow transition-all">
-                <div class="flex items-center gap-1.5">
-                    ${selHtml}
-                    <div class="flex items-center gap-1 flex-shrink-0">
-                        <input type="number" min="1" max="15" value="${duration}"
-                               oninput="updateSlideDuration(${idx},this.value)"
-                               class="w-9 bg-neutral-950 border border-neutral-800 rounded-lg px-1 py-1.5 text-[10px] text-white text-center focus-glow">
-                        <span class="text-[10px] text-neutral-600">s</span>
-                    </div>
-                </div>
-            </div>`;
-        captionsList.appendChild(editCard);
-    });
-
-    currentSlideIndex   = 0;
-    slideElapsedAtPause = 0;
-    setCaptionStyle(currentCaptionStyle);
-    updateTotalTimeDisplay();
-    isPlaying = true;
-    updatePlayPauseUIControls();
-    renderActiveSlide();
-    startSeekbarAnimation();
-}
-
-/* ── Core render function ── */
-function renderActiveSlide() {
-    if (!reelPlanData?.slides?.length) return;
-    stopTimersOnly();
-
-    const slides = reelPlanData.slides;
-    const total  = slides.length;
-
-    // Loop back
-    if (currentSlideIndex >= total) {
-        currentSlideIndex = 0;
-        // Reset custom audio position on loop
-        if (audioElement) { audioElement.currentTime = 0; if (isPlaying) audioElement.play().catch(()=>{}); }
-        // Procedural engine loops itself automatically, no reset needed
-    }
-
-    const slide        = slides[currentSlideIndex];
-    const baseDurMs    = (slide.duration || 3) * 1000;
-    const effectiveDur = baseDurMs / playbackSpeed;
-    const prevIdx      = (currentSlideIndex - 1 + total) % total;
-
-    // ── Crossfade ──
-    for (let i = 0; i < total; i++) {
-        const el = document.getElementById(`reel-slide-${i}`);
-        if (!el) continue;
-
-        if (i === currentSlideIndex) {
-            // Restart CSS animation
-            const img = el.querySelector('img');
-            if (img) {
-                const cls = img.className.replace(/effect-\S+/g, '').trim();
-                const eff = slide.effect || 'slow_zoom_in';
-                img.className = '';
-                void img.offsetWidth;               // force reflow → restart animation
-                img.className = `${cls} effect-${eff}`;
-                img.style.setProperty('--dur', (slide.duration || 3) + 's');
-            }
-            // Fade in
-            el.style.transition = 'none';
-            el.style.opacity    = '0';
-            el.style.zIndex     = '5';
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                el.style.transition = 'opacity 0.6s ease-in-out';
-                el.style.opacity    = '1';
-            }));
-
-        } else if (i === prevIdx && total > 1) {
-            // Previous: hold briefly, then fade out
-            el.style.zIndex     = '4';
-            el.style.opacity    = '1';
-            el.style.transition = 'none';
-            setTimeout(() => {
-                el.style.transition = 'opacity 0.6s ease-in-out';
-                el.style.opacity    = '0';
-            }, 180);
-
-        } else {
-            el.style.opacity    = '0';
-            el.style.zIndex     = '1';
-            el.style.transition = 'none';
-        }
-    }
-
-    // Update overlay text
-    document.getElementById('overlay-stage').innerText   = slide.stage   || 'Construction';
-    document.getElementById('overlay-caption').innerText = slide.caption || '';
-    applyCaptionStyleToDOM();
-
-    // Slide counter
-    const counter = document.getElementById('slide-counter');
-    if (counter) counter.innerText = `${currentSlideIndex + 1} / ${total}`;
-
-    // Highlight edit card
-    highlightActiveEditCard(currentSlideIndex);
-
-    // Progress bar
-    const bar = document.getElementById('reel-progress');
-    if (bar) {
-        bar.style.transition = 'none';
-        bar.style.width      = '0%';
-        void bar.offsetWidth;
-        if (isPlaying) {
-            bar.style.transition = `width ${effectiveDur}ms linear`;
-            bar.style.width      = '100%';
-        }
-    }
-
-    // Mark start time
-    slideStartedAt      = performance.now();
-    slideElapsedAtPause = 0;
-
-    // Schedule next slide
-    if (isPlaying) {
-        slideTimer = setTimeout(() => {
-            currentSlideIndex++;
-            renderActiveSlide();
-        }, effectiveDur);
-    }
-}
-
-function highlightActiveEditCard(idx) {
-    const list = document.getElementById('editable-captions-list');
-    if (!list) return;
-    Array.from(list.children).forEach((c, i) => {
-        c.classList.toggle('edit-card-active', i === idx);
-    });
-    list.children[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function stopTimersOnly() {
-    clearTimeout(slideTimer);  slideTimer = null;
-    cancelAnimationFrame(seekbarAnimFrame); seekbarAnimFrame = null;
-}
-
-function stopReelEngine() {
-    stopTimersOnly();
-    isPlaying = false;
-    pauseAudioPlayback();
-    updatePlayPauseUIControls();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PLAY / PAUSE  (correct resume from exact position)
-═══════════════════════════════════════════════════════════════ */
-function togglePlayPause() {
-    if (isPlaying) {
-        // ── PAUSE ──
-        stopTimersOnly();
-        slideElapsedAtPause = (performance.now() - slideStartedAt) * playbackSpeed;
-        isPlaying = false;
-        pauseAudioPlayback();
-
-        // Freeze progress bar at current visual position
-        const bar = document.getElementById('reel-progress');
-        if (bar) {
-            const w = window.getComputedStyle(bar).width;
-            bar.style.transition = 'none';
-            bar.style.width      = w;
-        }
-
-    } else {
-        // ── RESUME ──
-        isPlaying = true;
-        startAudioPlayback();
-
-        const slide = reelPlanData?.slides?.[currentSlideIndex];
-        if (!slide) { isPlaying = false; updatePlayPauseUIControls(); return; }
-
-        const totalSlideMs = (slide.duration || 3) * 1000;
-        const remainingMs  = Math.max(50, (totalSlideMs - slideElapsedAtPause) / playbackSpeed);
-
-        // Restore slideStartedAt so seekbar calculates correctly
-        slideStartedAt = performance.now() - (slideElapsedAtPause / playbackSpeed);
-
-        // Resume progress bar smoothly
-        const bar = document.getElementById('reel-progress');
-        if (bar) {
-            bar.style.transition = `width ${remainingMs}ms linear`;
-            bar.style.width      = '100%';
-        }
-
-        // Schedule remaining time
-        slideTimer = setTimeout(() => {
-            currentSlideIndex++;
-            renderActiveSlide();
-        }, remainingMs);
-
-        startSeekbarAnimation();
-    }
-    updatePlayPauseUIControls();
-}
-
-function updatePlayPauseUIControls() {
-    const playing = isPlaying;
-    document.getElementById('play-icon') ?.classList.toggle('hidden', playing);
-    document.getElementById('pause-icon')?.classList.toggle('hidden', !playing);
-    document.getElementById('reel-player-window')?.classList.toggle('is-paused', !playing);
-}
-
-function jumpToSlide(idx) {
-    if (!reelPlanData) return;
-    currentSlideIndex   = idx;
-    slideElapsedAtPause = 0;
-    isPlaying = true;
-    updatePlayPauseUIControls();
-    renderActiveSlide();
-    startSeekbarAnimation();
-    // Seek custom audio to matching position
-    if (audioElement?.duration) {
-        let offset = 0;
-        for (let i = 0; i < idx; i++) offset += (reelPlanData.slides[i].duration || 3);
-        audioElement.currentTime = offset % audioElement.duration;
-        audioElement.play().catch(()=>{});
-    }
-    // Procedural engine is always in sync (it loops independently)
-}
-
-function toggleSpeed() {
-    const speeds    = [1, 1.5, 2];
-    playbackSpeed   = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
-    document.getElementById('speed-btn').innerText = playbackSpeed + 'x';
-    // Update custom audio speed only (procedural engine doesn't support rate change)
-    if (audioElement) audioElement.playbackRate = playbackSpeed;
-
-    if (isPlaying) {
-        // Recalculate remaining time at new speed
-        stopTimersOnly();
-        const slide     = reelPlanData?.slides?.[currentSlideIndex];
-        if (!slide) return;
-        const nowElapsed   = (performance.now() - slideStartedAt) * (playbackSpeed); // using new speed
-        slideElapsedAtPause = nowElapsed;
-        const totalMs      = (slide.duration || 3) * 1000;
-        const remainingMs  = Math.max(50, (totalMs - slideElapsedAtPause) / playbackSpeed);
-        slideStartedAt     = performance.now() - (slideElapsedAtPause / playbackSpeed);
-
-        const bar = document.getElementById('reel-progress');
-        if (bar) { bar.style.transition = `width ${remainingMs}ms linear`; bar.style.width = '100%'; }
-
-        slideTimer = setTimeout(() => { currentSlideIndex++; renderActiveSlide(); }, remainingMs);
-        startSeekbarAnimation();
-    }
-}
-
-function toggleFullscreen() {
-    const player = document.getElementById('reel-player-window');
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        (player.requestFullscreen || player.webkitRequestFullscreen || (() => {})).call(player);
-    } else {
-        (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
-    }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SEEKBAR
-═══════════════════════════════════════════════════════════════ */
-function getTimeline() {
-    let total = 0;
-    const times = [];
-    reelPlanData.slides.forEach(s => { times.push(total); total += (s.duration || 3) * 1000; });
-    return { times, totalMs: total };
-}
-
-function handleSeekbarDrag() {
-    isDraggingSeekbar = true;
-    stopTimersOnly();   // Prevent slide flip during drag
-    if (!reelPlanData) return;
-    const pct  = parseFloat(document.getElementById('main-seekbar').value) / 100;
-    const { totalMs } = getTimeline();
-    const el   = document.getElementById('time-current');
-    if (el) el.innerText = formatTime((pct * totalMs) / 1000);
-}
-
-function seekFromSlider() {
-    isDraggingSeekbar = false;
-    if (!reelPlanData) return;
-
-    const pct  = parseFloat(document.getElementById('main-seekbar').value) / 100;
-    const { times, totalMs } = getTimeline();
-    const targetMs = pct * totalMs;
-
-    let targetIdx = 0;
-    for (let i = times.length - 1; i >= 0; i--) {
-        if (targetMs >= times[i]) { targetIdx = i; break; }
-    }
-
-    currentSlideIndex   = targetIdx;
-    slideElapsedAtPause = targetMs - times[targetIdx];
-
-    if (audioElement?.duration) {
-        audioElement.currentTime = (targetMs / 1000) % audioElement.duration;
-    }
-
-    isPlaying = true;
-    updatePlayPauseUIControls();
-    if (audioElement) audioElement.play().catch(()=>{});
-    renderActiveSlide();
-    startSeekbarAnimation();
-}
-
-function startSeekbarAnimation() {
-    if (seekbarAnimFrame) cancelAnimationFrame(seekbarAnimFrame);
-    if (!reelPlanData) return;
-
-    const { times, totalMs } = getTimeline();
-    const seekbar   = document.getElementById('main-seekbar');
-    const timeCurEl = document.getElementById('time-current');
-
-    const tick = () => {
-        if (!isPlaying || isDraggingSeekbar) { seekbarAnimFrame = null; return; }
-        const elapsed   = (performance.now() - slideStartedAt) * playbackSpeed;
-        const slideMs   = (reelPlanData.slides[currentSlideIndex]?.duration || 3) * 1000;
-        const clamped   = Math.min(elapsed, slideMs);
-        const totalElapsed = (times[currentSlideIndex] || 0) + clamped;
-        const pct       = Math.min(100, (totalElapsed / totalMs) * 100);
-        if (seekbar)   seekbar.value       = pct;
-        if (timeCurEl) timeCurEl.innerText = formatTime(totalElapsed / 1000);
-        seekbarAnimFrame = requestAnimationFrame(tick);
-    };
-    seekbarAnimFrame = requestAnimationFrame(tick);
-}
-
-function updateTotalTimeDisplay() {
-    if (!reelPlanData) return;
-    let t = 0;
-    reelPlanData.slides.forEach(s => t += (s.duration || 3));
-    const el = document.getElementById('time-total');
-    if (el) el.innerText = formatTime(t);
-}
-
-function formatTime(sec) {
-    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
-    return m + ':' + (s < 10 ? '0' : '') + s;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SLIDE EDITORS
-═══════════════════════════════════════════════════════════════ */
-function updateSlideCaption(idx, val) {
-    if (!reelPlanData?.slides?.[idx]) return;
-    reelPlanData.slides[idx].caption = val;
-    if (idx === currentSlideIndex)
-        document.getElementById('overlay-caption').innerText = val;
-    saveState();
-}
-
-function updateSlideEffect(idx, val) {
-    if (!reelPlanData?.slides?.[idx]) return;
-    reelPlanData.slides[idx].effect = val;
-    const img = document.getElementById(`img-slide-${idx}`);
-    if (img) {
-        const base = img.className.replace(/effect-\S+/g, '').trim();
-        img.className = '';
-        void img.offsetWidth;
-        img.className = `${base} effect-${val}`;
-    }
-    saveState();
-}
-
-function updateSlideDuration(idx, val) {
-    if (!reelPlanData?.slides?.[idx]) return;
-    const n = Math.max(1, Math.min(15, parseInt(val) || 3));
-    reelPlanData.slides[idx].duration = n;
-    const img = document.getElementById(`img-slide-${idx}`);
-    if (img) img.style.setProperty('--dur', n + 's');
-    updateTotalTimeDisplay();
-    saveState();
-}
-
-function applyGlobalDuration(sec) {
-    if (!sec || !reelPlanData) return;
-    const n = parseInt(sec);
-    reelPlanData.slides.forEach((slide, idx) => {
-        slide.duration = n;
-        const img = document.getElementById(`img-slide-${idx}`);
-        if (img) img.style.setProperty('--dur', n + 's');
-        const input = document.querySelector(`#editable-captions-list>div:nth-child(${idx+1}) input[type="number"]`);
-        if (input) input.value = n;
-    });
-    updateTotalTimeDisplay();
-    saveState();
-    showToast(`All slides → ${n}s`, 'info');
-}
-
-function applyGlobalEffect(effect) {
-    if (!effect || !reelPlanData) return;
-    reelPlanData.slides.forEach((slide, idx) => {
-        slide.effect = effect;
-        const img = document.getElementById(`img-slide-${idx}`);
-        if (img) {
-            const base = img.className.replace(/effect-\S+/g,'').trim();
-            img.className = ''; void img.offsetWidth;
-            img.className = `${base} effect-${effect}`;
-        }
-        const sel = document.getElementById(`effect-select-${idx}`);
-        if (sel) sel.value = effect;
-    });
-    saveState();
-    showToast('Effect applied to all slides', 'info');
-    if (isPlaying) renderActiveSlide();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   CAPTION STYLE
-═══════════════════════════════════════════════════════════════ */
-function setCaptionStyle(name) {
-    currentCaptionStyle = name;
-    ['cinematic','boxed','strip','minimal_left'].forEach(s => {
-        const btn = document.getElementById('style-btn-' + s);
-        if (!btn) return;
-        btn.classList.remove('border-amber-500', 'border-neutral-800');
-        btn.classList.add(s === name ? 'border-amber-500' : 'border-neutral-800');
-    });
-    applyCaptionStyleToDOM();
-    saveState();
-}
-
-function applyCaptionStyleToDOM() {
-    const con   = document.getElementById('overlay-text-container');
-    const sWrap = document.getElementById('overlay-stage-wrapper');
-    const sTxt  = document.getElementById('overlay-stage');
-    const cWrap = document.getElementById('overlay-caption-wrapper');
-    const cTxt  = document.getElementById('overlay-caption');
-    if (!con) return;
-
-    // Reset
-    con.className   = 'w-full flex flex-col transition-all duration-300 pb-[4cqw] px-[4cqw]';
-    sWrap.className = '';
-    sTxt.className  = 'font-bold uppercase drop-shadow-md text-[3.8cqw]';
-    cWrap.className = '';
-    cTxt.className  = 'font-bold drop-shadow-md leading-snug text-[5.5cqw] mt-[1cqw]';
-
-    if (currentCaptionStyle === 'cinematic') {
-        con.classList.add('items-center','text-center');
-        sTxt.classList.add('text-amber-400');
-        cTxt.classList.add('text-white');
-
-    } else if (currentCaptionStyle === 'boxed') {
-        con.classList.add('items-center','text-center');
-        sWrap.className = 'border border-amber-500 bg-black/50 backdrop-blur-sm inline-block px-[3cqw] py-[1cqw] mb-[1cqw]';
-        sTxt.classList.add('text-amber-400');
-        cTxt.classList.add('text-white');
-
-    } else if (currentCaptionStyle === 'strip') {
-        con.classList.add('items-center','text-center');
-        sWrap.className = 'bg-[#171717] inline-block px-[3cqw] py-[1cqw]';
-        sTxt.className  = 'font-bold uppercase text-white text-[3.5cqw]';
-        cWrap.className = 'bg-amber-500 inline-block mt-[0.5cqw] px-[4cqw] py-[1cqw]';
-        cTxt.className  = 'font-bold text-neutral-950 text-[5cqw]';
-
-    } else if (currentCaptionStyle === 'minimal_left') {
-        con.classList.add('items-start','text-left');
-        sWrap.className = 'border-l-[0.8cqw] border-amber-500 pl-[2cqw]';
-        sTxt.className  = 'font-bold uppercase text-neutral-300 text-[3.5cqw]';
-        cWrap.className = 'border-l-[0.8cqw] border-amber-500 pl-[2cqw] mt-[1cqw]';
-        cTxt.className  = 'font-bold text-white text-[5.5cqw]';
-    }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   EDITOR TABS
-═══════════════════════════════════════════════════════════════ */
-function switchEditorTab(tabId) {
-    ['tab-captions','tab-style','tab-audio','tab-global'].forEach(id => {
-        const content = document.getElementById(id);
-        const btn     = document.getElementById('btn-' + id);
-        if (!content || !btn) return;
-        const active = id === tabId;
-        content.classList.toggle('hidden', !active);
-        btn.classList.toggle('text-amber-500', active);
-        btn.classList.toggle('bg-neutral-800',  active);
-        btn.classList.toggle('text-neutral-500', !active);
-    });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   AUDIO
-═══════════════════════════════════════════════════════════════ */
-/* ── Music Style Selection ── */
-function selectMusicStyle(style) {
-    selectedMusicStyle = style;
-
-    // Update button UI
-    const allBtns = ['none','epic','upbeat','ambient','custom'];
-    allBtns.forEach(s => {
-        const btn = document.getElementById('music-btn-' + s);
-        if (!btn) return;
-        if (s === style) {
-            btn.classList.remove('border-neutral-800');
-            btn.classList.add('border-amber-500', 'bg-amber-500/10');
-        } else {
-            btn.classList.add('border-neutral-800');
-            btn.classList.remove('border-amber-500', 'bg-amber-500/10');
-        }
-    });
-
-    // Stop everything currently playing
-    stopAllAudio();
-
-    if (style === 'none') {
-        showToast('🔇 Music off', 'info', 1500);
-        return;
-    }
-
-    if (style !== 'custom') {
-        // Start procedural engine immediately
-        musicEngine.start(style);
-        if (!isPlaying) musicEngine.suspend(); // Start suspended if reel is paused
-        showToast(`🎵 ${style.charAt(0).toUpperCase()+style.slice(1)} music loaded`, 'success', 2000);
-    }
-}
-
-function stopAllAudio() {
-    // Stop custom audio element
-    if (audioElement) {
-        audioElement.pause();
-        audioElement.src = '';
-        audioElement = null;
-    }
-    // Stop procedural engine
-    musicEngine.stop();
-}
-
-function startAudioPlayback() {
-    if (selectedMusicStyle === 'none') return;
-
-    if (selectedMusicStyle === 'custom' && selectedAudioUrl) {
-        if (!audioElement) setupCustomAudioElement();
-        audioElement?.play().catch(() => {});
-
-    } else if (selectedMusicStyle !== 'none') {
-        if (musicEngine.running) {
-            musicEngine.resume();
-        } else {
-            musicEngine.start(selectedMusicStyle);
-        }
-    }
-}
-
-function pauseAudioPlayback() {
-    if (selectedMusicStyle === 'custom') {
-        audioElement?.pause();
-    } else {
-        musicEngine.suspend();
-    }
-}
-
-function handleCustomAudioUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Revoke old custom URL
-    if (selectedAudioUrl && selectedAudioUrl.startsWith('blob:')) URL.revokeObjectURL(selectedAudioUrl);
-
-    selectedAudioUrl  = URL.createObjectURL(file);
-    selectedMusicStyle = 'custom';
-
-    // Update label
-    const label = document.getElementById('custom-audio-label');
-    label.innerText = `🎵 ${file.name.length > 28 ? file.name.slice(0,25)+'…' : file.name}`;
-    label.classList.remove('hidden');
-
-    // Highlight custom button
-    selectMusicStyle('custom');
-    setupCustomAudioElement();
-    showToast('🎵 Custom track loaded', 'success', 2000);
-}
-
-function setupCustomAudioElement() {
-    if (audioElement) { audioElement.pause(); audioElement.src = ''; }
-    if (!selectedAudioUrl) return;
-    audioElement = new Audio();
-    audioElement.loop          = true;
-    audioElement.playbackRate  = playbackSpeed;
-    audioElement.volume        = 0.78;
-    audioElement.src           = selectedAudioUrl; // blob: URL, no CORS needed
-    audioElement.onerror = () => showToast('⚠️ Audio load error', 'error', 3000);
-    if (isPlaying) audioElement.play().catch(() => {});
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   EXPORT  (720p · 4 Mbps · Web Share API)
-═══════════════════════════════════════════════════════════════ */
-async function triggerExport() {
-    const btn        = document.getElementById('nav-export');
-    const contentEl  = document.getElementById('export-btn-content');
-    const origHTML   = contentEl.innerHTML;
-    btn.disabled     = true;
-
-    const setProgress = (pct, msg) => {
-        contentEl.innerHTML = `
-          <div class="flex flex-col gap-1 items-center w-full">
-            <span class="text-[11px] font-bold">${msg}</span>
-            <div class="w-40 bg-neutral-950/50 rounded-full h-1.5 overflow-hidden">
-              <div class="h-full bg-neutral-950 rounded-full transition-all duration-300" style="width:${pct}%"></div>
-            </div>
-          </div>`;
-    };
-
-    const resetBtn = (success) => {
-        contentEl.innerHTML = success ? '✓ Export Done!' : '✕ Export Failed';
-        btn.classList.toggle('bg-green-500', success);
-        btn.classList.toggle('text-neutral-950', success);
-        btn.classList.toggle('amber-btn', !success);
-        setTimeout(() => {
-            contentEl.innerHTML = origHTML;
-            btn.disabled = false;
-            btn.className = btn.className.replace('bg-green-500 text-neutral-950','');
-            btn.classList.add('amber-btn');
-        }, 3000);
-    };
-
-    try {
-        setProgress(5, 'Loading images…');
-
-        // Pre-load all images
-        const imgCache = {};
-        for (const slide of reelPlanData.slides) {
-            if (!imgCache[slide.filename]) {
-                const photo = uploadedFiles.find(p => p.name === slide.filename);
-                if (photo) {
-                    imgCache[slide.filename] = await new Promise(res => {
-                        const img = new Image();
-                        img.onload  = () => res(img);
-                        img.onerror = () => res(null);
-                        img.src     = photo.url;
-                    });
-                }
-            }
-        }
-
-        setProgress(15, 'Setting up encoder…');
-
-        // 720p canvas
-        const W = 720, H = 1280;
-        const canvas = document.createElement('canvas');
-        canvas.width = W; canvas.height = H;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-
-        // Stream
-        const canvasStream = canvas.captureStream(30);
-        let finalStream    = canvasStream;
-        let audioCtx       = null;
-
-        // ── EXPORT AUDIO MIXING ──
-        // Strategy A: Procedural music (epic/upbeat/ambient) → MusicEngine into MediaStreamDest
-        // Strategy B: Custom MP3 (blob URL) → Web Audio API (no CORS, same-origin)
-        // Both strategies work 100% — no external URLs, no CORS issues
-
-        if (selectedMusicStyle && selectedMusicStyle !== 'none') {
-            try {
-                const AC = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AC();
-                const dest = audioCtx.createMediaStreamDestination();
-
-                if (selectedMusicStyle === 'custom' && selectedAudioUrl) {
-                    // ── Strategy B: Custom MP3 blob URL ──
-                    // blob: URLs are same-origin — Web Audio API works perfectly
-                    setProgress(10, 'Loading custom audio…');
-                    const expAud = new Audio();
-                    expAud.src  = selectedAudioUrl; // blob: URL, no crossOrigin needed
-                    expAud.loop = true;
-                    await new Promise(res => {
-                        expAud.oncanplaythrough = res;
-                        expAud.onerror = res; // proceed even if load fails
-                        expAud.load();
-                        setTimeout(res, 4000); // max 4s wait
-                    });
-                    try {
-                        const src = audioCtx.createMediaElementSource(expAud);
-                        src.connect(dest);
-                        expAud.play();
-                        const atracks = dest.stream.getAudioTracks();
-                        if (atracks.length > 0)
-                            finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
-                    } catch(e) {
-                        // If Web Audio API fails for blob, still proceed without audio
-                        console.warn('Custom audio mix failed:', e);
-                    }
-
-                } else {
-                    // ── Strategy A: Procedural MusicEngine ──
-                    // Generates music directly using Web Audio API nodes → dest
-                    // No network, no CORS, guaranteed to work
-                    setProgress(10, 'Starting music engine…');
-                    const exportEngine = new MusicEngine();
-                    exportEngine.start(selectedMusicStyle, dest);
-
-                    const atracks = dest.stream.getAudioTracks();
-                    if (atracks.length > 0)
-                        finalStream = new MediaStream([canvasStream.getVideoTracks()[0], atracks[0]]);
-
-                    // Stop export engine when recording finishes
-                    recorder.addEventListener('stop', () => exportEngine.stop(), { once: true });
-                }
-            } catch (e) {
-                console.warn('Export audio setup failed:', e);
-                // Export continues without audio — better than failing completely
-            }
-        }
-
-        // MIME type
-        let mimeType = 'video/webm;codecs=vp8';
-        if (!MediaRecorder.isTypeSupported(mimeType))
-            mimeType = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4';
-
-        const chunks   = [];
-        const recorder = new MediaRecorder(finalStream, { mimeType, videoBitsPerSecond: 4_000_000 });
-        recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-
-        // Timeline
-        const timings = [];
-        let totalMs = 0;
-        reelPlanData.slides.forEach(slide => {
-            const d = (slide.duration || 3) * 1000;
-            timings.push({ start: totalMs, end: totalMs + d, durMs: d, slide });
-            totalMs += d;
-        });
-
-        recorder.onstop = async () => {
-            if (audioCtx) audioCtx.close();
-            const blob     = new Blob(chunks, { type: mimeType });
-            const ext      = mimeType.includes('mp4') ? 'mp4' : 'webm';
-            const filename = `${(reelPlanData.title||'reel').toLowerCase().replace(/[^a-z0-9]/g,'_')}_reel.${ext}`;
-
-            // Try Web Share API (mobile)
-            let shared = false;
-            if (navigator.canShare) {
-                const file = new File([blob], filename, { type: mimeType });
-                if (navigator.canShare({ files: [file] })) {
-                    try { await navigator.share({ title: reelPlanData.title, files: [file] }); shared = true; }
-                    catch (e) { /* user cancelled */ }
-                }
-            }
-
-            // Fallback: direct download
-            if (!shared) {
-                const url = URL.createObjectURL(blob);
-                const a   = document.createElement('a');
-                a.href = url; a.download = filename;
-                document.body.appendChild(a); a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 5000);
-            }
-
-            resetBtn(true);
-        };
-
-        recorder.start();
-        const t0 = performance.now();
-        const FADE_MS = 650;
-
-        const drawFrame = now => {
-            const elapsed = now - t0;
-            if (elapsed >= totalMs) { recorder.stop(); return; }
-
-            const pct = Math.round((elapsed / totalMs) * 100);
-            if (pct % 4 === 0) setProgress(15 + pct * 0.82, `Encoding ${pct}%…`);
-
-            // Find current timing slot
-            let curIdx = 0;
-            for (let i = timings.length - 1; i >= 0; i--) {
-                if (elapsed >= timings[i].start) { curIdx = i; break; }
-            }
-            const cur         = timings[curIdx];
-            const slideElapsed= elapsed - cur.start;
-            const prevSt      = curIdx > 0 ? timings[curIdx - 1] : null;
-            const alpha       = slideElapsed < FADE_MS ? slideElapsed / FADE_MS : 1;
-
-            ctx.fillStyle = '#0B0B0C';
-            ctx.fillRect(0, 0, W, H);
-
-            const drawSlide = (st, stEl, opacity) => {
-                const img = imgCache[st.slide.filename];
-                if (!img) return;
-                const prog = Math.min(1, stEl / st.durMs);
-                ctx.save();
-                ctx.globalAlpha = opacity;
-                ctx.translate(W/2, H/2);
-                let sc = 1, tx = 0, ty = 0;
-                const eff = st.slide.effect || 'slow_zoom_in';
-                if      (eff === 'slow_zoom_in')   sc = 1 + 0.15 * prog;
-                else if (eff === 'slow_zoom_out')  sc = 1.15 - 0.15 * prog;
-                else if (eff === 'pan_left')       { sc = 1.1; tx =  W*0.05 - W*0.1*prog; }
-                else if (eff === 'pan_right')      { sc = 1.1; tx = -W*0.05 + W*0.1*prog; }
-                else if (eff === 'cinematic_zoom') sc = 1.02 + 0.1 * prog;
-                else if (eff === 'dramatic_reveal'){ sc = 1.2 - 0.2*Math.min(prog*2,1); ty = H*0.05*(1-Math.min(prog*2,1)); }
-                ctx.translate(tx, ty);
-                ctx.scale(sc, sc);
-                const iar = img.width / img.height;
-                const car = W / H;
-                const dw  = iar > car ? H * iar : W;
-                const dh  = iar > car ? H : W / iar;
-                ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
-                ctx.restore();
-            };
-
-            if (prevSt && alpha < 1) drawSlide(prevSt, prevSt.durMs + slideElapsed, 1);
-            drawSlide(cur, slideElapsed, alpha);
-
-            // Gradient
-            const grad = ctx.createLinearGradient(0, H*0.55, 0, H);
-            grad.addColorStop(0, 'rgba(0,0,0,0)');
-            grad.addColorStop(1, 'rgba(0,0,0,0.88)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, H*0.55, W, H*0.45);
-
-            // Captions
-            drawCaptionOnCanvas(ctx, cur.slide, W, H);
-            requestAnimationFrame(drawFrame);
-        };
-        requestAnimationFrame(drawFrame);
-
-    } catch (err) {
-        console.error(err);
-        resetBtn(false);
-    }
-}
-
-function drawCaptionOnCanvas(ctx, slide, W, H) {
-    const stage = (slide.stage || 'Construction').toUpperCase();
-    const cap   = slide.caption || '';
-    ctx.save();
-    ctx.textBaseline = 'bottom';
-    ctx.shadowColor  = 'rgba(0,0,0,0.9)';
-    ctx.shadowBlur   = 10;
-
-    if (currentCaptionStyle === 'cinematic') {
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 22px Arial,sans-serif'; ctx.fillStyle = '#FFB300';
-        ctx.fillText(stage, W/2, H-54);
-        ctx.font = 'bold 30px Arial,sans-serif'; ctx.fillStyle = '#fff';
-        ctx.fillText(cap, W/2, H-18);
-
-    } else if (currentCaptionStyle === 'boxed') {
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 20px Arial,sans-serif';
-        const sw = ctx.measureText(stage).width;
-        ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.fillRect(W/2-sw/2-12, H-82, sw+24, 28);
-        ctx.strokeStyle = '#FFB300'; ctx.lineWidth = 1.5;
-        ctx.strokeRect(W/2-sw/2-12, H-82, sw+24, 28);
-        ctx.fillStyle = '#FFB300'; ctx.fillText(stage, W/2, H-58);
-        ctx.shadowBlur = 10;
-        ctx.font = 'bold 30px Arial,sans-serif'; ctx.fillStyle = '#fff';
-        ctx.fillText(cap, W/2, H-18);
-
-    } else if (currentCaptionStyle === 'strip') {
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 18px Arial,sans-serif';
-        const sw = ctx.measureText(stage).width;
-        ctx.shadowBlur = 0; ctx.fillStyle = '#171717';
-        ctx.fillRect(W/2-sw/2-10, H-84, sw+20, 24);
-        ctx.fillStyle = '#fff'; ctx.fillText(stage, W/2, H-64);
-        ctx.font = 'bold 26px Arial,sans-serif';
-        const cw = ctx.measureText(cap).width;
-        ctx.fillStyle = '#FFB300';
-        ctx.fillRect(W/2-cw/2-14, H-54, cw+28, 38);
-        ctx.fillStyle = '#171717'; ctx.fillText(cap, W/2, H-20);
-
-    } else if (currentCaptionStyle === 'minimal_left') {
-        ctx.textAlign = 'left';
-        ctx.shadowBlur = 0; ctx.fillStyle = '#FFB300';
-        ctx.fillRect(24, H-86, 4, 20);
-        ctx.font = 'bold 18px Arial,sans-serif'; ctx.fillStyle = '#d4d4d4';
-        ctx.fillText(stage, 34, H-68);
-        ctx.fillStyle = '#FFB300'; ctx.fillRect(24, H-60, 4, 34);
-        ctx.font = 'bold 28px Arial,sans-serif'; ctx.fillStyle = '#fff';
-        ctx.fillText(cap, 34, H-26);
-    }
-    ctx.restore();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════════════════════ */
-let toastTimer = null;
-function showToast(msg, type = 'info', duration = 2500) {
-    const el = document.getElementById('toast');
-    if (!el) return;
-    clearTimeout(toastTimer);
-
-    const styles = {
-        success: 'bg-green-500/20 border-green-500/40 text-green-300',
-        error:   'bg-red-500/20 border-red-500/40 text-red-300',
-        info:    'bg-amber-500/15 border-amber-500/35 text-amber-300'
-    };
-    el.className = `opacity-0 pointer-events-none px-4 py-2.5 rounded-xl text-xs font-semibold
-                    shadow-2xl border backdrop-blur-md max-w-[85vw] text-center
-                    ${styles[type] || styles.info}`;
-    el.innerText   = msg;
-    el.style.opacity = '1';
-    toastTimer = setTimeout(() => { el.style.opacity = '0'; }, duration);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', async () => {
-    const t0 = performance.now();
-    await loadState();
-    const loadTime = performance.now() - t0;
-
-    document.getElementById('photo-input').addEventListener('change', handlePhotoUploads);
-    document.getElementById('json-input').addEventListener('input', saveState);
-    initDropZone();
-
-    // Splash: minimum 1.2s
-    const delay = Math.max(0, 1200 - loadTime);
-    setTimeout(() => {
-        const splash  = document.getElementById('screen-splash');
-        const content = document.getElementById('app-content');
-        const footer  = document.getElementById('app-footer');
-        splash.style.opacity = '0';
-        setTimeout(() => {
-            splash.remove();
-            content.classList.remove('hidden');
-            footer.classList.remove('hidden');
-
-            const saved = localStorage.getItem('currentScreen');
-            switchScreen(saved && saved !== 'home' ? saved : 'home');
-
-            // Session recovery notification
-            if (uploadedFiles.length > 0 && reelPlanData) {
-                setTimeout(() =>
-                    showToast(`📂 Project restored — ${uploadedFiles.length} photos, ${reelPlanData.slides.length} slides`, 'info', 3500),
-                600);
-            }
-        }, 600);
-    }, delay);
+return true;
 });
+// Sorting
+filtered.sort((a, b) => {
+if (state.sort === 'Recommended') {
+const aIdx = RECOMMENDED_MODELS.findIndex(id => a.id.includes(id));
+const bIdx = RECOMMENDED_MODELS.findIndex(id => b.id.includes(id));
+if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+if (aIdx !== -1) return -1;
+if (bIdx !== -1) return 1;
+return b.context_length - a.context_length; // fallback
+} else if (state.sort === 'Alphabetical') {
+return a.name.localeCompare(b.name);
+} else if (state.sort === 'Context') {
+return b.context_length - a.context_length;
+}
+return 0;
+});
+renderModelCards(filtered);
+// Auto-select if in state
+if (state.selectedModelId) {
+const m = state.models.find(x => x.id === state.selectedModelId);
+if (m) selectModel(m);
+}
+}
+function renderModelCards(models) {
+els.modelsContainer.innerHTML = '';
+if (models.length === 0) {
+els.modelsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No models found matching your criteria.</div>';
+return;
+}
+const frag = document.createDocumentFragment();
+models.forEach(model => {
+const provider = model.id.split('/')[0];
+const isFree = isModelFree(model);
+const cats = getModelCategories(model);
+const card = document.createElement('div');
+card.className = glass-card model-card ${state.selectedModelId === model.id ? 'selected' : ''};
+if(state.selectedModelId === model.id) {
+card.style.borderColor = 'var(--primary)';
+card.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.3)';
+}
+let badgesHTML = '';
+if (isFree) badgesHTML += '<span class="badge free">Free</span>';
+if (cats.includes('Vision')) badgesHTML += '<span class="badge vision">Vision</span>';
+if (cats.includes('Reasoning')) badgesHTML += '<span class="badge reasoning">Reasoning</span>';
+card.innerHTML = <div class="model-header"> <div class="model-title">${model.name}</div> <div class="model-provider">${provider}</div> </div> <div class="badges">${badgesHTML}</div> <div class="model-desc">${model.description || 'No description provided.'}</div> <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;"> Context: ${formatNumber(model.context_length)} tokens </div> <div class="btn-group"> <button class="select-btn secondary">Select</button> </div>;
+card.querySelector('.select-btn').addEventListener('click', () => {
+selectModel(model);
+// Visual update for cards
+document.querySelectorAll('.model-card').forEach(c => {
+c.style.borderColor = 'var(--card-border)';
+c.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.2)';
+});
+card.style.borderColor = 'var(--primary)';
+card.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.3)';
+});
+frag.appendChild(card);
+});
+els.modelsContainer.appendChild(frag);
+}
+function selectModel(model) {
+state.selectedModelId = model.id;
+localStorage.setItem(STORAGE_KEYS.MODEL_ID, model.id);
+const provider = model.id.split('/')[0];
+const prices = parsePricing(model.pricing);
+const priceText = isModelFree(model)
+? 'Free'
+: $${(prices.prompt * 1000000).toFixed(2)} in / $${(prices.completion * 1000000).toFixed(2)} out;
+els.detTitle.textContent = model.name;
+els.detId.textContent = model.id;
+els.detProvider.textContent = provider;
+els.detContext.textContent = formatNumber(model.context_length);
+els.detPrice.textContent = priceText;
+els.detailsPanel.style.display = 'block';
+els.detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+els.responseBox.style.display = 'none';
+els.responseBox.textContent = '';
+}
+// --- Test Interaction ---
+async function testModelRequest() {
+if (!state.apiKey) {
+showToast("Please save your API key first.", true);
+els.apiKeyInput.focus();
+return;
+}
+if (!state.selectedModelId) {
+showToast("Please select a model.", true);
+return;
+}
+const promptText = els.promptInput.value.trim();
+if (!promptText) {
+showToast("Please enter a prompt.", true);
+els.promptInput.focus();
+return;
+}
+els.testModelBtn.disabled = true;
+els.testModelBtn.innerHTML = '<div class="loader" style="width:14px;height:14px;margin:0;border-width:2px;"></div> Testing...';
+els.responseBox.style.display = 'block';
+els.responseBox.textContent = 'Generating response...';
+els.responseBox.style.borderColor = 'var(--primary)';
+try {
+const response = await fetch(API_CHAT_URL, {
+method: 'POST',
+headers: {
+'Authorization': Bearer ${state.apiKey},
+'Content-Type': 'application/json',
+'HTTP-Referer': window.location.href,
+'X-Title': 'OpenRouter Model Explorer'
+},
+body: JSON.stringify({
+model: state.selectedModelId,
+messages: [{ role: 'user', content: promptText }]
+})
+});
+const data = await response.json();
+if (!response.ok) {
+let err = data.error?.message || HTTP ${response.status};
+if(response.status === 401) err = "Invalid API Key";
+if(response.status === 429) err = "Rate Limited or Insufficient Credits";
+throw new Error(err);
+}
+if (data.choices && data.choices.length > 0) {
+els.responseBox.textContent = data.choices[0].message.content;
+els.responseBox.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+} else {
+throw new Error("Invalid response format from API");
+}
+} catch (error) {
+els.responseBox.textContent = Error: ${error.message};
+els.responseBox.style.borderColor = 'var(--danger)';
+} finally {
+els.testModelBtn.disabled = false;
+els.testModelBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Test Selected Model';
+}
+}
+// --- Event Listeners Setup ---
+function setupEvents() {
+// API Key Management
+const updateApiView = () => {
+if (state.apiKey) {
+els.apiInputView.classList.add('hidden');
+els.apiSavedView.classList.remove('hidden');
+} else {
+els.apiInputView.classList.remove('hidden');
+els.apiSavedView.classList.add('hidden');
+els.apiKeyInput.value = '';
+}
+};
+els.saveKeyBtn.addEventListener('click', () => {
+const key = els.apiKeyInput.value.trim();
+if (key) {
+state.apiKey = key;
+localStorage.setItem(STORAGE_KEYS.API_KEY, key);
+showToast("API Key saved securely.");
+updateApiView();
+}
+});
+els.deleteKeyBtn.addEventListener('click', () => {
+state.apiKey = '';
+localStorage.removeItem(STORAGE_KEYS.API_KEY);
+showToast("API Key removed.");
+updateApiView();
+});
+els.toggleKeyBtn.addEventListener('click', () => {
+if (els.apiKeyInput.type === 'password') {
+els.apiKeyInput.type = 'text';
+els.toggleKeyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg> Hide';
+} else {
+els.apiKeyInput.type = 'password';
+els.toggleKeyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> Show';
+}
+});
+els.testConnBtn.addEventListener('click', async () => {
+els.testConnBtn.disabled = true;
+els.testConnBtn.textContent = 'Testing...';
+try {
+const res = await fetch('https://openrouter.ai/api/v1/auth/key', {
+headers: { 'Authorization': Bearer ${state.apiKey} }
+});
+if (res.ok) showToast("Connection Successful!");
+else throw new Error("Invalid Key");
+} catch (e) {
+showToast("Connection Failed. Check API Key.", true);
+} finally {
+els.testConnBtn.disabled = false;
+els.testConnBtn.textContent = 'Test Connection';
+}
+});
+// Controls
+els.searchInput.value = state.search;
+els.searchInput.addEventListener('input', (e) => {
+state.search = e.target.value;
+localStorage.setItem(STORAGE_KEYS.SEARCH, state.search);
+applyFiltersAndRender();
+});
+els.categorySelect.value = state.category;
+els.categorySelect.addEventListener('change', (e) => {
+state.category = e.target.value;
+localStorage.setItem(STORAGE_KEYS.CATEGORY, state.category);
+applyFiltersAndRender();
+});
+els.sortSelect.value = state.sort;
+els.sortSelect.addEventListener('change', (e) => {
+state.sort = e.target.value;
+localStorage.setItem(STORAGE_KEYS.SORT, state.sort);
+applyFiltersAndRender();
+});
+els.refreshBtn.addEventListener('click', () => fetchModels(true));
+// Details Panel
+els.copyIdBtn.addEventListener('click', () => {
+navigator.clipboard.writeText(state.selectedModelId).then(() => {
+const orig = els.copyIdBtn.textContent;
+els.copyIdBtn.textContent = 'Copied!';
+setTimeout(() => els.copyIdBtn.textContent = orig, 2000);
+});
+});
+els.testModelBtn.addEventListener('click', testModelRequest);
+// Init
+updateApiView();
+}
+// --- Initialization ---
+function init() {
+setupEvents();
+fetchModels();
+}
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
